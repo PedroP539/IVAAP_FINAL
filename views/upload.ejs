@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IVAAP - Carregar Nova Imagem</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.4/css/lightbox.min.css">
+    <style>
+        body {background:linear-gradient(135deg,#e8f5e9,#c8e6c9);font-family:'Quicksand',sans-serif;min-height:100vh;display:flex;flex-direction:column}
+        .sticky-nav{position:fixed;top:0;width:100%;z-index:1000;background:white}
+        .content{padding:2rem 0;flex:1}
+        .upload-card{background:white;border-radius:20px;box-shadow:0 10px 30px rgba(0,0,0,.15);padding:2.5rem;overflow:hidden}
+        .preview-img{max-width:100%;max-height:400px;border-radius:15px;box-shadow:0 8px 25px rgba(0,0,0,.2);margin:1.5rem 0;display:none;transition:opacity .4s}
+        .form-control, .form-check-input{border-radius:12px}
+        .form-group label{font-weight:bold;color:#27ae60}
+        .btn-upload{background:linear-gradient(135deg,#27ae60,#2ecc71);border:none;padding:1.2rem 4rem;font-size:1.3rem;border-radius:50px;transition:.3s}
+        .btn-upload:hover{transform:scale(1.05)}
+        .btn-cancel{background:#95a5a6;border:none;padding:1rem 2.5rem;font-size:1.1rem;border-radius:50px}
+        .drop-zone{border:3px dashed #27ae60;border-radius:20px;padding:3rem;text-align:center;background:#f8fff8;transition:all .3s;cursor:pointer}
+        .drop-zone.dragover{background:#e8f5e9;border-color:#2ecc71}
+        .url-input-group{margin-top:1rem}
+        .url-input{border-radius:50px!important;padding-right:50px}
+        .btn-fetch {
+    position: absolute;
+    right: 0px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: #27ae60;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 52px;
+    height: 50px;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 15px rgba(39, 174, 96, 0.4);
+    z-index: 10;
+}
+
+.btn-fetch i {
+    transition: transform 0.1s ease;
+}
+
+/* ESTADO: CARREGANDO (acelera) */
+.btn-fetch.loading {
+    animation: spinAccelerate 1.4s cubic-bezier(0.2, 0.8, 0.4, 1) infinite;
+}
+
+/* ESTADO: CARREGADO (desacelera e para com bounce fofo) */
+.btn-fetch.success {
+    animation: spinDecelerate 0.8s ease-out forwards;
+}
+
+/* ANIMAÇÃO: GIRA ACELERANDO (como motor a aquecer) */
+@keyframes spinAccelerate {
+    0%   { transform: translateY(-50%) rotate(0deg); }
+    30%  { transform: translateY(-50%) rotate(360deg); }
+    60%  { transform: translateY(-50%) rotate(900deg); }
+    100% { transform: translateY(-50%) rotate(1440deg); }
+}
+
+/* ANIMAÇÃO: DESACELERA E PARA COM BOUNCE FOFO */
+@keyframes spinDecelerate {
+    0%   { transform: translateY(-50%) rotate(1440deg); }
+    70%  { transform: translateY(-50%) rotate(1740deg); }
+    100% { 
+        transform: translateY(-50%) rotate(1800deg) scale(1.15);
+        background: #2ecc71;
+        box-shadow: 0 0 20px rgba(46, 204, 113, 0.8);
+    }
+}
+
+/* HOVER NORMAL (só quando não está carregando) */
+.btn-fetch:hover:not(.loading):not(.success) {
+    transform: translateY(-50%) scale(1.1);
+    background: #219653;
+    box-shadow: 0 6px 20px rgba(33, 150, 83, 0.5);
+}
+
+/* PEQUENO BOUNCE QUANDO CLICA */
+.btn-fetch:active:not(.loading):not(.success) {
+    transform: translateY(-50%) scale(0.95);
+}
+		
+		
+		
+		
+        .alert-cors{background:#fff3cd;color:#856404;border:1px solid #ffeaa7;padding:1rem;border-radius:12px;margin:1rem 0;display:none}
+		textarea {min-height: 200px;}
+		
+		.form-control {
+    display: block;
+    width: 100%;
+    height: calc(1.5em + .75rem + 15px);
+    padding: .375rem .75rem;
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.5;
+    color: #495057;
+    background-color: #fff;
+    background-clip: padding-box;
+    border: 1px solid #ced4da;
+    transition: border-color .15s 
+ease-in-out, box-shadow .15s 
+ease-in-out;
+}
+    </style>
+</head>
+<body>
+<header>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light sticky-nav shadow-sm">
+        <a class="navbar-brand font-weight-bold" href="/">IVAAP</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav mx-auto">
+                <li class="nav-item"><a class="nav-link" href="/upload"><i class="fa-solid fa-upload"></i> CARREGAR</a></li>
+                <li class="nav-item"><a class="nav-link" href="/review"><i class="fa-solid fa-pencil"></i> REVER</a></li>
+                <li class="nav-item"><a class="nav-link" href="/approved"><i class="fa-solid fa-thumbs-up"></i> APROVADAS</a></li>
+                <li class="nav-item"><a class="nav-link" href="/rejected"><i class="fa-solid fa-thumbs-down"></i> REJEITADAS</a></li>
+                <li class="nav-item"><a class="nav-link" href="/statistics"><i class="fa-solid fa-bolt"></i> ESTATÍSTICAS</a></li>
+                <li class="nav-item"><a class="nav-link" href="/logout"><i class="fa-solid fa-right-from-bracket"></i> SAIR</a></li>
+            </ul>
+        </div>
+    </nav>
+</header>
+<br><br>
+
+<main class="container content">
+    <div class="text-center mb-4">
+        <h2 style="color:#27ae60;font-weight:bold">CARREGAR NOVA IMAGEM</h2>
+    </div>
+
+    <% if (error) { %>
+        <div class="alert alert-danger text-center"><%= error %></div>
+    <% } %>
+
+    <div class="upload-card">
+        <form action="/upload" method="POST" enctype="multipart/form-data" id="uploadForm">
+            <div class="text-center mb-4">
+                <div class="drop-zone" id="dropZone">
+                    <i class="fas fa-cloud-upload-alt fa-4x text-success mb-3"></i>
+                    <p class="mb-2"><strong>Arraste a imagem aqui ou clique para selecionar</strong></p>
+                    <input type="file" name="image" id="imageInput" accept="image/*" style="display:none">
+                    <button type="button" class="btn btn-success btn-lg rounded-pill px-5" onclick="document.getElementById('imageInput').click()">
+                        SELECIONAR IMAGEM
+                    </button>
+                </div>
+
+                <!-- INPUT DE URL -->
+                <div class="url-input-group position-relative mt-3">
+                    <input type="url" id="imageUrl" class="form-control url-input" placeholder=" Ou cola aqui o URL da imagem (ex: https://...jpg)" />
+                    <button type="button" class="btn btn-fetch" id="fetchUrlBtn">
+                        <i class="fas fa-arrow-down"></i>
+                    </button>
+                </div>
+
+                <div class="alert alert-cors text-center" id="corsAlert">
+                    Não foi possível carregar a imagem por questões de segurança do navegador.<br>
+                    <small>Tenta com outra fonte ou faz upload local</small>
+                </div>
+
+                <img id="preview" class="preview-img" alt="Pré-visualização">
+            </div>
+
+            <!-- Campo oculto para enviar URL como ficheiro -->
+            <input type="hidden" name="imageFromUrl" id="imageFromUrl" value="">
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label>Espécie *</label>
+                        <input type="text" name="species" class="form-control" required>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label>Variedade</label>
+                        <input type="text" name="variety" class="form-control">
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Nome Botânico</label>
+                <input type="text" name="botanical_name" class="form-control">
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label>Origem</label>
+                        <input type="text" name="origem" class="form-control">
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label>Colheita/Floração</label>
+                        <input type="text" name="colheitaFloracao" class="form-control">
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label>Exposição Solar</label>
+                        <input type="text" name="exposicaoSolar" class="form-control">
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label>Rega</label>
+                        <input type="text" name="rega" class="form-control">
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Profundidade Sementeira</label>
+                <input type="text" name="profundidadeSementeira" class="form-control">
+            </div>
+
+            <div class="form-group">
+                <label>Sementeira Direta</label>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="sementeiraDireta" id="sementeiraDireta">
+                    <label class="form-check-label" for="sementeiraDireta">Sim</label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Sementeira Alfobre</label>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="sementeiraAlfobre" id="sementeiraAlfobre">
+                    <label class="form-check-label" for="sementeiraAlfobre">Sim</label>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label>Sementeira (mês)</label>
+                        <input type="text" name="sementeira" class="form-control">
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label>Transplante (mês)</label>
+                        <input type="text" name="transplante" class="form-control">
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Compasso</label>
+                <input type="text" name="compasso" class="form-control">
+            </div>
+
+            <div class="form-group">
+                <label>Características</label>
+                <textarea name="caracteristicas" class="form-control" rows="3"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label>Conselhos de Cultivo</label>
+                <textarea name="conselhos_de_cultivo" class="form-control" rows="4"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label>Shutterstock</label>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="shutterstock" id="shutterstock">
+                    <label class="form-check-label" for="shutterstock">Sim</label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Shutterstock Info</label>
+                <input type="text" name="shutterstock_info" class="form-control">
+            </div>
+
+            <div class="form-group">
+                <label>Comentários</label>
+                <textarea name="comentarios" class="form-control" rows="3"></textarea>
+            </div>
+
+            <div class="text-center mt-5">
+                <button type="submit" class="btn btn-upload text-white">CARREGAR IMAGEM</button>
+                <a href="/statistics" class="btn btn-cancel text-white ml-3">CANCELAR</a>
+            </div>
+        </form>
+    </div>
+</main>
+
+<footer class="mt-5 py-4 text-center bg-light">
+    <p class="mb-0">FLORA LUSITANA - © 2025 IVAAP_2 - V. 6.9.8</p>
+</footer>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.4/js/lightbox.min.js"></script>
+
+<script>
+    const dropZone = document.getElementById('dropZone');
+    const imageInput = document.getElementById('imageInput');
+    const preview = document.getElementById('preview');
+    const imageUrl = document.getElementById('imageUrl');
+    const fetchBtn = document.getElementById('fetchUrlBtn');
+    const corsAlert = document.getElementById('corsAlert');
+    const imageFromUrl = document.getElementById('imageFromUrl');
+
+    // Drag & Drop + Seleção local
+    ['dragover', 'dragenter'].forEach(evt => {
+        dropZone.addEventListener(evt, e => {
+            e.preventDefault();
+            dropZone.classList.add('dragover');
+        });
+    });
+
+    ['dragleave', 'dragend'].forEach(evt => {
+        dropZone.addEventListener(evt, e => {
+            e.preventDefault();
+            dropZone.classList.remove('dragover');
+        });
+    });
+
+    dropZone.addEventListener('drop', e => {
+        e.preventDefault();
+        dropZone.classList.remove('dragover');
+        if (e.dataTransfer.files.length) {
+            imageInput.files = e.dataTransfer.files;
+            handleFile(e.dataTransfer.files[0]);
+            imageUrl.value = '';
+            imageFromUrl.value = '';
+        }
+    });
+
+    imageInput.addEventListener('change', e => {
+        if (e.target.files.length) {
+            handleFile(e.target.files[0]);
+            imageUrl.value = '';
+            imageFromUrl.value = '';
+        }
+    });
+
+    function handleFile(file) {
+        if (file && file.type.startsWith('image/')) {
+            const reader = new FileReader();
+            reader.onload = e => {
+                preview.src = e.target.result;
+                preview.style.display = 'block';
+                preview.style.opacity = 1;
+                corsAlert.style.display = 'none';
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+
+    // Carregar por URL
+    fetchBtn.addEventListener('click', fetchImageFromUrl);
+    imageUrl.addEventListener('keypress', e => {
+        if (e.key === 'Enter') fetchImageFromUrl();
+    });
+
+    function fetchImageFromUrl() {
+        const url = imageUrl.value.trim();
+        if (!url) return;
+
+        corsAlert.style.display = 'none';
+        preview.style.opacity = 0.5;
+
+        const img = new Image();
+		
+		    // COMEÇA A ANIMAÇÃO DE CARREGAMENTO
+    fetchBtn.classList.remove('success');
+    fetchBtn.classList.add('loading');
+		
+        img.crossOrigin = 'anonymous';
+
+        img.onload = () => {
+    preview.src = url;
+    preview.style.display = 'block';
+    preview.style.opacity = 1;
+    imageFromUrl.value = url;
+    imageInput.value = '';
+    corsAlert.style.display = 'none';
+    
+    // PARA O SPIN E FAZ O FINAL FOFO
+    fetchBtn.classList.remove('loading');
+    fetchBtn.classList.add('success');
+    
+    // Remove a classe success depois de 1s (para poder usar de novo)
+    setTimeout(() => {
+        fetchBtn.classList.remove('success');
+    }, 1000);
+};
+
+        img.onerror = () => {
+            preview.style.display = 'none';
+            corsAlert.style.display = 'block';
+            imageFromUrl.value = '';
+        };
+
+        img.src = url;
+    }
+
+    // Limpar URL se selecionar ficheiro
+    imageInput.addEventListener('change', () => {
+        if (imageInput.files.length) {
+            imageUrl.value = '';
+            imageFromUrl.value = '';
+        }
+    });
+</script>
+</body>
+</html>

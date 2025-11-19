@@ -1,0 +1,40 @@
+{
+  "name": "ivaap_2",
+  "version": "3.0.0",
+  "description": "Flora Lusitana - IVAPP_2 - Estatísticas + Upload + Review",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "nodemon app.js"
+  },
+  "keywords": [
+    "ivaap",
+    "flora",
+    "lusitana",
+    "botânica",
+    "estatísticas"
+  ],
+  "author": "Pedro Pina",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^1.13.2",
+    "bcrypt": "^5.1.1",
+    "connect-flash": "^0.1.1",
+    "ejs": "^3.1.10",
+    "express": "^4.21.2",
+    "express-session": "^1.18.2",
+    "mongoose": "^8.19.3",
+    "multer": "^1.4.5-lts.1",
+    "passport": "^0.7.0",
+    "passport-local": "^1.0.0",
+    "sharp": "^0.34.4",
+    "sqlite3": "^5.1.7"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.7"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "type": "commonjs"
+}

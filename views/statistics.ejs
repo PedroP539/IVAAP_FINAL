@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IVAAP - Estatísticas</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.4/css/lightbox.min.css">
+    <style>
+        body {background:linear-gradient(135deg,#e8f5e9,#c8e6c9);font-family:'Quicksand',sans-serif;display:flex;flex-direction:column;min-height:100vh; -webkit-font-smoothing: subpixel-antialiased;}
+        .content{padding:2rem 0;flex:1}.sticky-nav{position:fixed;top:0;width:100%;z-index:1000;background:white}
+        .stats-card{background:white;border-radius:20px;box-shadow:0 10px 30px rgba(0,0,0,.15);padding:2rem;margin-bottom:1.5rem;text-align:center;transition:transform .2s}
+        .stats-card:hover{transform:translateY(-5px)}
+        .stats-card i {font-size:2.5rem;margin-bottom:0.5rem}
+        .stats-card .stat-number{font-size:3.2rem;font-weight:bold;color:#27ae60;line-height:1}
+        .stats-card p{margin:0.5rem 0 0;font-size:1.1rem;font-weight:600;color:#333}
+        .user-avatar{width:80px;height:80px;border-radius:50%;background:#27ae60;color:white;display:flex;align-items:center;justify-content:center;font-size:2rem;font-weight:bold;margin:0 auto 1rem}
+       
+.activity-card{background:white;border-radius:20px;box-shadow:0 10px 30px rgba(0,0,0,.15);padding:1.8rem;margin-bottom:1.5rem; min-height:330px;}
+        .activity-item{display:flex;align-items:center;gap:1rem;padding:0.8rem 0;border-bottom:1px solid #eee}
+        .activity-item:last-child{border:none}
+        .activity-thumb{width:90px;height:90px;object-fit:cover;border-radius:12px;background:#f0f0f0;cursor:pointer;transition:transform .2s}
+        .activity-thumb:hover{transform:scale(1.1)}
+        .activity-text{flex:1}
+        .activity-label{font-size:0.9rem;color:#666}
+        .activity-value{font-weight:bold;color:#27ae60}
+        .activity-value a{color:#27ae60;text-decoration:none;transition:color .2s}
+        .activity-value a:hover{color:#1e8449;text-decoration:underline}
+        .latest-thumb{width:130px;height:130px;object-fit:cover;border-radius:12px;background:#f0f0f0;cursor:pointer;transition:transform .2s}
+        .latest-thumb:hover{transform:scale(1.1)}
+        .progress{height:40px;border-radius:50px;background:#e9ecef;overflow:hidden}
+        .progress-bar{background:#27ae60;font-size:1.3rem;font-weight:bold;display:flex;align-items:center;justify-content:center;transition:width 1.5s ease}
+        .quote-card{background:linear-gradient(135deg,#1e8449,#27ae60);color:white;border-radius:20px;padding:2rem;position:relative;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,.15);min-height:90%}
+        .quote-card::before{content:'“';font-size:10rem;position:absolute;top:-30px;left:15px;opacity:.15}
+        .quote-text{font-size:1.5rem;font-style:italic;line-height:1.6;transition:opacity .8s ease-in-out}
+        .quote-author{font-size:1.2rem;font-weight:bold;text-align:right;margin-top:1rem;opacity:0.9;position:absolute;bottom:15px;right:30px;font-style:italic}
+        input#searchQuery, input#searchDate, input#searchUser, button.btn.btn-success.btn-lg.rounded-pill.w-100.h-100.d-flex.align-items-center.justify-content-center {
+            font-size: 1rem;
+        }
+        /* NOVO: ESTILO DOS CAMPEÕES */
+        .champion-card{background:white;border-radius:20px;box-shadow:0 10px 30px rgba(0,0,0,.15);padding:2rem;text-align:center;transition:transform .3s}
+        .champion-card:hover{transform:translateY(-8px)}
+        .champion-avatar{width:70px;height:70px;border-radius:50%;background:#27ae60;color:white;display:flex;align-items:center;justify-content:center;font-size:1.8rem;font-weight:bold;margin:0 auto 1rem}
+        .champion-name{font-size:1.4rem;font-weight:bold;color:#27ae60;margin:0.5rem 0}
+        .champion-count{font-size:3rem;font-weight:bold;color:#1e8449;margin:0.5rem 0}
+        .champion-label{font-size:1rem;color:#555;text-transform:uppercase;letter-spacing:1px}
+
+        /* NOVO: ESTILO DAS IMAGENS MAIS/MENOS VOTADAS */
+        .vote-card{background:white;border-radius:20px;box-shadow:0 10px 30px rgba(0,0,0,.15);padding:1.8rem;transition:transform .3s;overflow:hidden}
+        .vote-card:hover{transform:translateY(-8px)}
+        .vote-thumb{width:100%;height:180px;object-fit:cover;border-radius:12px;background:#f0f0f0;cursor:pointer;transition:transform .2s}
+        .vote-thumb:hover{transform:scale(1.05)}
+        .vote-title{font-size:1.3rem;font-weight:bold;color:#27ae60;margin:1rem 0 0.5rem}
+        .vote-info{font-size:0.95rem;color:#555;line-height:1.5}
+        .vote-count{font-size:2.2rem;font-weight:bold;color:#1e8449;margin:0.5rem 0}
+        .vote-label{font-size:0.9rem;text-transform:uppercase;letter-spacing:1px;color:#27ae60;font-weight:bold}
+		
+		
+		
+		.btn-success {
+    color: #fff;
+    background-color: #28a745;
+    border-color: #28a745;
+    padding: 10px 20px !important;
+    font-size: 1rem !important;
+}
+		
+		.btn-outline-danger {
+    color: #fff;
+    background-color: #ff0000;
+    border-color: #ff0000;
+    padding: 10px 20px !important;
+    font-size: 1rem !important;
+}
+		
+		
+		
+		.especie {
+			font-size: 1.65rem; 
+	/*		color: #27ae60;!important; */
+			background: #27AE60;
+background: repeating-linear-gradient(to top right, #27AE60 0%, #1C8247 100%);
+-webkit-background-clip: text;
+-webkit-text-fill-color: transparent;
+
+
+		}
+		
+		.variedade {
+			font-size: 1.25rem;!important;
+			color:#1c8247 !important;
+			font-weight: 300 !important;
+		}
+    </style>
+</head>
+<body>
+<header>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light sticky-nav shadow-sm">
+        <a class="navbar-brand font-weight-bold" href="/">IVAAP</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav mx-auto">
+                <li class="nav-item"><a class="nav-link" href="/upload"><i class="fa-solid fa-upload"></i> CARREGAR</a></li>
+                <li class="nav-item"><a class="nav-link" href="/review"><i class="fa-solid fa-pencil"></i> REVER</a></li>
+                <li class="nav-item"><a class="nav-link" href="/approved"><i class="fa-solid fa-thumbs-up"></i> APROVADAS</a></li>
+                <li class="nav-item"><a class="nav-link" href="/rejected"><i class="fa-solid fa-thumbs-down"></i> REJEITADAS</a></li>
+                <li class="nav-item"><a class="nav-link" href="/statistics"><i class="fa-solid fa-bolt"></i> ESTATÍSTICAS</a></li>
+                <li class="nav-item"><a class="nav-link" href="/logout"><i class="fa-solid fa-right-from-bracket"></i> SAIR</a></li>
+            </ul>
+        </div>
+    </nav>
+</header>
+<br><br>
+<!-- BARRA DE BUSCA -->
+<div class="container mt-4 mb-3">
+    <div class="card border-0 shadow-sm" style="border-radius: 20px;">
+        <div class="card-body p-4">
+            <form id="searchForm" action="/search" method="GET" class="row g-3 align-items-end">
+                <div class="col-md-4">
+                    <label for="searchQuery" class="form-label text-success font-weight-bold">Nome da Planta</label>
+                    <input type="text" class="form-control form-control-lg rounded-pill" id="searchQuery" name="q" placeholder="Ex: Tomate, Rosa..." value="">
+                </div>
+                <div class="col-md-3">
+                    <label for="searchDate" class="form-label text-success font-weight-bold">Data</label>
+                    <input type="date" class="form-control form-control-lg rounded-pill" id="searchDate" name="date" value="">
+                </div>
+                <div class="col-md-3">
+                    <label for="searchUser" class="form-label text-success font-weight-bold">Utilizador</label>
+                    <input type="text" class="form-control form-control-lg rounded-pill" id="searchUser" name="user" placeholder="Ex: admin" value="">
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-success btn-lg rounded-pill w-100 h-100 d-flex align-items-center justify-content-center">Pesquisar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<main class="container content">
+    <h2 class="text-center mb-4" style="color:#27ae60;font-weight:bold">ESTATÍSTICAS</h2>
+    <% if (success) { %>
+        <div class="alert alert-success text-center alert-dismissible fade show">
+            <strong><%= success %></strong>
+            <button type="button" class="close" data-dismiss="alert">×</button>
+        </div>
+    <% } %>
+    <!-- USER INFO + ÚLTIMA ATIVIDADE -->
+    <div class="row mb-4">
+        <div class="col-lg-4">
+            <div class="activity-card text-center">
+                <div class="user-avatar"><%= user.username.charAt(0).toUpperCase() %></div>
+                <h5><strong><%= user.username %></strong></h5>
+                <p class="text-muted small">ÚLTIMO LOGIN:<br><%= new Date().toLocaleString('pt-PT') %></p>
+                <p class="text-muted small">ENDEREÇO IP:<br><strong><%= clientIP %></strong></p>
+            </div>
+        </div>
+        <div class="col-lg-8">
+            <div class="activity-card">
+                <h5 class="mb-3">ÚLTIMA ATIVIDADE</h5>
+                <% if (latestImages.uploaded) { %>
+                    <div class="activity-item">
+                        <a href="/uploads/<%= latestImages.uploaded.image_url %>" data-lightbox="stats" data-title="<%= latestImages.uploaded.species %> <%= latestImages.uploaded.variety ? ''+latestImages.uploaded.variety+'' : '' %>">
+                            <img src="/uploads/<%= latestImages.uploaded.image_url %>" class="activity-thumb" onerror="this.src='/images/placeholder.jpg'">
+                        </a>
+                        <div class="activity-text">
+                            <div class="activity-label">Último upload</div>
+                            <div class="activity-value">
+                                <a href="/details/<%= latestImages.uploaded.id %>">
+                                    <%= latestImages.uploaded.species %><br><%= latestImages.uploaded.variety ? ''+latestImages.uploaded.variety+'' : '' %>
+                                </a>
+                            </div>
+                            <small class="text-muted">por <%= latestImages.uploaded.uploaded_by %> • <%= new Date(latestImages.uploaded.uploaded_at).toLocaleString('pt-PT') %></small>
+                        </div>
+                    </div>
+                <% } %>
+                <% if (latestImages.approved) { %>
+                    <div class="activity-item">
+                        <a href="/uploads/<%= latestImages.approved.image_url %>" data-lightbox="stats" data-title="<%= latestImages.approved.species %> <%= latestImages.approved.variety ? '('+latestImages.approved.variety+')' : '' %>">
+                            <img src="/uploads/<%= latestImages.approved.image_url %>" class="activity-thumb" onerror="this.src='/images/placeholder.jpg'">
+                        </a>
+                        <div class="activity-text">
+                            <div class="activity-label">Última aprovação</div>
+                            <div class="activity-value">
+                                <a href="/details/<%= latestImages.approved.id %>">
+                                    <%= latestImages.approved.species %><br><%= latestImages.approved.variety ? ''+latestImages.approved.variety+'' : '' %>
+                                </a>
+                            </div>
+                            <small class="text-muted">por <%= latestImages.approved.reviewed_by %> • <%= new Date(latestImages.approved.reviewed_at).toLocaleString('pt-PT') %></small>
+                        </div>
+                    </div>
+                <% } %>
+                <% if (latestImages.rejected) { %>
+                    <div class="activity-item">
+                        <a href="/uploads/<%= latestImages.rejected.image_url %>" data-lightbox="stats" data-title="<%= latestImages.rejected.species %> <%= latestImages.rejected.variety ? ''+latestImages.rejected.variety+'' : '' %>">
+                            <img src="/uploads/<%= latestImages.rejected.image_url %>" class="activity-thumb" onerror="this.src='/images/placeholder.jpg'">
+                        </a>
+                        <div class="activity-text">
+                            <div class="activity-label">Última rejeição</div>
+                            <div class="activity-value">
+                                <a href="/details/<%= latestImages.rejected.id %>">
+                                    <%= latestImages.rejected.species %><br><%= latestImages.rejected.variety ? ''+latestImages.rejected.variety+'' : '' %>
+                                </a>
+                            </div>
+                            <small class="text-muted">por <%= latestImages.rejected.reviewed_by %> • <%= new Date(latestImages.rejected.reviewed_at).toLocaleString('pt-PT') %></small>
+                        </div>
+                    </div>
+                <% } %>
+            </div>
+        </div>
+    </div>
+    <!-- 4 CARTÕES PRINCIPAIS -->
+    <div class="row justify-content-center mb-5">
+        <div class="col-6 col-md-3"><div class="stats-card"><i class="fa-solid fa-check fa-lg" style="color: #ff9407;"></i><br><br><div class="stat-number"><%= stats.total %></div><p>Total Carregadas</p></div></div>
+        <div class="col-6 col-md-3"><a href="/approved" class="text-decoration-none"><div class="stats-card"><i class="fa-solid fa-thumbs-up fa-lg"></i><br><br><div class="stat-number"><%= stats.approved %></div><p>Aprovadas</p></div></a></div>
+        <div class="col-6 col-md-3"><a href="/rejected" class="text-decoration-none"><div class="stats-card"><i class="fa-solid fa-thumbs-down fa-lg" style="color: #ff0000;"></i><br><br><div class="stat-number"><%= stats.rejected %></div><p>Rejeitadas</p></div></a></div>
+        <div class="col-6 col-md-3"><a href="/review" class="text-decoration-none"><div class="stats-card"><i class="fa-solid fa-hourglass-end fa-lg" style="color: #dedede;"></i><br><br><div class="stat-number"><%= stats.pending %></div><p>Pendentes</p></div></a></div>
+    </div>
+    <!-- NOVO: CAMPEÕES DO IVAAP – 100% LARGURA, 4 COLUNAS -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <h4 class="text-center mb-4" style="color:#27ae60;font-weight:bold">CAMPEÕES DO IVAAP</h4>
+            <div class="row">
+                <div class="col-6 col-md-3">
+                    <div class="champion-card">
+                        <div class="champion-avatar"><%= topUsers.uploads?.user?.charAt(0).toUpperCase() || '?' %></div>
+                        <div class="champion-name"><%= topUsers.uploads?.user || 'Ninguém' %></div>
+                        <div class="champion-count"><%= topUsers.uploads?.count || 0 %></div>
+                        <div class="champion-label">Mais Uploads</div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="champion-card">
+                        <div class="champion-avatar"><%= topUsers.approvals?.user?.charAt(0).toUpperCase() || '?' %></div>
+                        <div class="champion-name"><%= topUsers.approvals?.user || 'Ninguém' %></div>
+                        <div class="champion-count"><%= topUsers.approvals?.count || 0 %></div>
+                        <div class="champion-label">Mais Aprovações</div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="champion-card">
+                        <div class="champion-avatar"><%= topUsers.rejections?.user?.charAt(0).toUpperCase() || '?' %></div>
+                        <div class="champion-name"><%= topUsers.rejections?.user || 'Ninguém' %></div>
+                        <div class="champion-count"><%= topUsers.rejections?.count || 0 %></div>
+                        <div class="champion-label">Mais Rejeições</div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="champion-card">
+                        <div class="champion-avatar"><%= topUsers.comments?.user?.charAt(0).toUpperCase() || '?' %></div>
+                        <div class="champion-name"><%= topUsers.comments?.user || 'Ninguém' %></div>
+                        <div class="champion-count"><%= topUsers.comments?.count || 0 %></div>
+                        <div class="champion-label">Mais Comentários</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- NOVO: IMAGENS MAIS E MENOS VOTADAS – 100% ROW, 2 COLUNAS -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <h4 class="text-center mb-4" style="color:#27ae60;font-weight:bold">RAINHAS DAS ESTRELAS</h4>
+            <div class="row">
+                <!-- IMAGEM MAIS VOTADA -->
+                <div class="col-md-6 mb-4">
+                    <div class="vote-card text-center">
+                        <% if (topRated) { %>
+                            <div class="vote-label">MAIS VOTADA</div>
+                            <div class="vote-count"><%= topRated.rating_count %> votos</div>
+                            <a href="/uploads/<%= topRated.image_url %>" data-lightbox="top" data-title="<%= topRated.species %> <%= topRated.variety ? '('+topRated.variety+')' : '' %>">
+                                <img src="/uploads/<%= topRated.image_url %>" class="vote-thumb" onerror="this.src='/images/placeholder.jpg'">
+                            </a>
+                            <div class="vote-title">
+								
+								<span class="especie">
+								<%= topRated.species %>
+								</span><br>
+								<span class="variedade">
+								<%= topRated.variety ? '('+topRated.variety+')' : '' %>
+									</span>
+						</div>
+                            <div class="vote-info">
+                                por <strong><%= topRated.uploaded_by %></strong><br>
+                                <%= new Date(topRated.uploaded_at).toLocaleDateString('pt-PT') %>
+                            </div>
+                            <a href="/details/<%= topRated.id %>" class="btn btn-success btn-sm mt-3 rounded-pill">Ver Detalhes</a>
+                        <% } else { %>
+                            <p class="text-muted">Nenhuma imagem com votos ainda</p>
+                        <% } %>
+                    </div>
+                </div>
+
+                <!-- IMAGEM MENOS VOTADA -->
+                <div class="col-md-6 mb-4">
+                    <div class="vote-card text-center">
+                        <% if (leastRated) { %>
+                            <div class="vote-label" style="color:#e74c3c">MENOS VOTADA</div>
+                            <div class="vote-count" style="color:#e74c3c"><%= leastRated.rating_count %> votos</div>
+                            <a href="/uploads/<%= leastRated.image_url %>" data-lightbox="least" data-title="<%= leastRated.species %> <%= leastRated.variety ? '('+leastRated.variety+')' : '' %>">
+                                <img src="/uploads/<%= leastRated.image_url %>" class="vote-thumb" onerror="this.src='/images/placeholder.jpg'">
+                            </a>
+                            <div class="vote-title">
+								<span class="especie">
+								<%= leastRated.species %>
+								</span><br>
+								<span class="variedade">
+								<%= leastRated.variety ? '('+leastRated.variety+')' : '' %>
+								</span>
+						</div>
+                            <div class="vote-info">
+                                por <strong><%= leastRated.uploaded_by %></strong><br>
+                                <%= new Date(leastRated.uploaded_at).toLocaleDateString('pt-PT') %>
+                            </div>
+                            <a href="/details/<%= leastRated.id %>" class="btn btn-outline-danger btn-sm mt-3 rounded-pill">Ver Detalhes</a>
+                        <% } else { %>
+                            <p class="text-muted">Nenhuma imagem com votos ainda</p>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TUA ATIVIDADE -->
+    <div class="row mb-4">
+        <div class="col-12"><h4 class="text-center mb-4" style="color:#27ae60;font-weight:bold">A TUA ATIVIDADE</h4></div>
+        <% const ua = latestUser || {}; %>
+        <div class="col-md-3">
+            <div class="activity-card text-center">
+                <p><strong>Último Upload</strong></p>
+                <% if (ua.uploaded) { %>
+                    <a href="/uploads/<%= ua.uploaded.image_url %>" data-lightbox="stats" data-title="Upload: <%= ua.uploaded.species %>">
+                        <img src="/uploads/<%= ua.uploaded.image_url %>" class="latest-thumb mb-2" onerror="this.src='/images/placeholder.jpg'">
+                    </a>
+                    <p><a href="/details/<%= ua.uploaded.id %>" style="color:#27ae60;font-weight:bold;text-decoration:none">
+                        <%= ua.uploaded.species %><br><%= ua.uploaded.variety || '' %>
+                    </a></p>
+                    <small><%= new Date(ua.uploaded.uploaded_at).toLocaleString('pt-PT') %></small>
+                <% } else { %><p class="text-muted">Ainda não fizeste upload</p><% } %>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="activity-card text-center">
+                <p><strong>Última Aprovação</strong></p>
+                <% if (ua.approved) { %>
+                    <a href="/uploads/<%= ua.approved.image_url %>" data-lightbox="stats" data-title="Aprovado: <%= ua.approved.species %>">
+                        <img src="/uploads/<%= ua.approved.image_url %>" class="latest-thumb mb-2" onerror="this.src='/images/placeholder.jpg'">
+                    </a>
+                    <p><a href="/details/<%= ua.approved.id %>" style="color:#27ae60;font-weight:bold;text-decoration:none">
+                        <%= ua.approved.species %><br><%= ua.approved.variety || '' %>
+                    </a></p>
+                    <small><%= new Date(ua.approved.reviewed_at).toLocaleString('pt-PT') %></small>
+                <% } else { %><p class="text-muted">Ainda não aprovaste</p><% } %>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="activity-card text-center">
+                <p><strong>Última Rejeição</strong></p>
+                <% if (ua.rejected) { %>
+                    <a href="/uploads/<%= ua.rejected.image_url %>" data-lightbox="stats" data-title="Rejeitado: <%= ua.rejected.species %>">
+                        <img src="/uploads/<%= ua.rejected.image_url %>" class="latest-thumb mb-2" onerror="this.src='/images/placeholder.jpg'">
+                    </a>
+                    <p><a href="/details/<%= ua.rejected.id %>" style="color:#27ae60;font-weight:bold;text-decoration:none">
+                        <%= ua.rejected.species %><br><%= ua.rejected.variety || '' %>
+                    </a></p>
+                    <small><%= new Date(ua.rejected.reviewed_at).toLocaleString('pt-PT') %></small>
+                <% } else { %><p class="text-muted">Ainda não rejeitaste</p><% } %>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="activity-card text-center">
+                <p><strong>Último Pendente</strong></p>
+                <% if (ua.pending) { %>
+                    <a href="/uploads/<%= ua.pending.image_url %>" data-lightbox="stats" data-title="Pendente: <%= ua.pending.species %>">
+                        <img src="/uploads/<%= ua.pending.image_url %>" class="latest-thumb mb-2" onerror="this.src='/images/placeholder.jpg'">
+                    </a>
+                    <p><a href="/details/<%= ua.pending.id %>" style="color:#27ae60;font-weight:bold;text-decoration:none">
+                        <%= ua.pending.species %><br><%= ua.pending.variety || '' %>
+                    </a></p>
+                    <small><%= new Date(ua.pending.uploaded_at).toLocaleString('pt-PT') %></small>
+                <% } else { %><p class="text-muted">Nenhum pendente teu</p><% } %>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-6">
+            <div class="stats-card">
+                <h3>Taxa de Aprovação</h3>
+                <div class="progress"><div class="progress-bar" style="width: <%= stats.approvalRate %>%"><%= stats.approvalRate %>%</div></div>
+                <p class="mt-3"><%= stats.approved %> de <%= stats.total %> imagens aprovadas</p>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="quote-card">
+                <div class="quote-text" id="quote-text">Carregando frase épica...</div>
+                <div class="quote-author" id="quote-author">— IVAAP</div>
+            </div>
+        </div>
+    </div>
+</main>
+<!-- SCRIPTS -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.4/js/lightbox.min.js"></script>
+<script src="/js/quotes.js"></script>
+<script>
+    setTimeout(() => $('.alert').fadeOut(1000), 5000);
+    lightbox.option({
+        resizeDuration: 300,
+        wrapAround: true,
+        albumLabel: "Imagem %1 de %2",
+        fadeDuration: 400,
+        imageFadeDuration: 400
+    });
+    const quoteText = document.getElementById('quote-text');
+    const quoteAuthor = document.getElementById('quote-author');
+    let currentQuote = 0;
+    function showQuote() {
+        if (typeof quotes !== 'undefined' && quotes.length > 0) {
+            quoteText.style.opacity = 0;
+            quoteAuthor.style.opacity = 0;
+            setTimeout(() => {
+                quoteText.textContent = quotes[currentQuote].text;
+                quoteAuthor.textContent = quotes[currentQuote].author;
+                quoteText.style.opacity = 1;
+                quoteAuthor.style.opacity = 1;
+                currentQuote = (currentQuote + 1) % quotes.length;
+            }, 400);
+        }
+    }
+    showQuote();
+    setInterval(showQuote, 4000);
+    setTimeout(() => {
+        document.querySelector('.progress-bar').style.width = '<%= stats.approvalRate %>%';
+    }, 500);
+</script>
+<footer class="mt-5 py-4 text-center bg-light">
+    <p class="mb-0">FLORA LUSITANA - © 2025 IVAAP_2 - V. 6.9.8</p>
+</footer>
+</body>
+</html>

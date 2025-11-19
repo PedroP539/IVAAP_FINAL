@@ -1,0 +1,285 @@
+/* You can add your custom styles here */
+
+
+.info-item {
+
+    margin-bottom: 15px !important;
+}
+
+
+/* Step 1: Basic styling for all icons - we did this in the first step above but it's included here for the full demo */
+.icon::before {
+  display: inline-block;
+  text-rendering: auto;
+  -webkit-font-smoothing: antialiased;
+}
+
+
+html, form, fieldset, table, tr, td, img, input, button, select, textarea, optgroup, option, h1, h2, h3, h4, h5, h6, h7, h8, h9 {
+  font-family: "Sora", sans-serif !important;
+  font-optical-sizing: auto;
+  font-style: normal !important;
+	font-weight: normal !important;
+}
+
+
+.card-title {
+    margin-bottom: 0 !important;
+}
+
+.card-text {
+    margin-top: 0px;
+    margin-bottom: 0px;
+    min-height: 21px;
+}
+
+
+body {
+  font-family: "Sora", sans-serif !important;
+	font-size: 14px !important;
+  font-optical-sizing: auto;
+  font-style:normal !important;
+}
+
+
+main {
+    flex: 1;                  /* Allow main to grow and fill available space */
+    padding-top: 20px;        /* Add padding for spacing */
+    padding-bottom: 20px;
+}
+
+
+
+.rejected-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(255, 0, 0, 0.5); /* Semi-transparent red */
+  color: white;
+  text-align: center;
+  font-size: 2em;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+
+.sticky-nav {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 1000; /* Ensure it stays on top of other elements */
+}
+
+.centerer {
+text-align: center !important;
+}
+
+.caps {
+	text-transform: uppercase !important;
+}
+
+.btn {
+    font-size: 0.85rem !important;
+	font-weight: 300;
+	padding: 8px auto !important;
+	width: flex;
+}
+
+.radius {
+	border-radius: .25rem !important;
+}
+
+
+.navbar-nav .nav-item.active .nav-link {
+  text-decoration: underline;
+}
+
+img {
+	border-radius: .25rem !important;
+}
+
+h1 {
+	font-weight: 500 !important;
+	color: #46812b !important;
+}
+
+.dashboard-card {
+    border-left: 5px solid #46812b !important;
+}
+
+.image-container {
+  position: relative; /* Needed for absolute positioning of the icon */
+  display: inline-block; /* Or whatever display suits your layout */
+}
+
+.magnifier-icon {
+  position: absolute;
+  top: 10px; /* Adjust as needed */
+  right: 10px; /* Adjust as needed */
+  font-size: 1em; /* Adjust as needed */
+  color: white; /* Adjust as needed */
+  background-color: rgba(0, 0, 0, 0.5); /* Optional: add a background */
+  border-radius: 50%; /* Optional: make it round */
+  padding: 5px; /*Adjust as needed*/
+  cursor: pointer; /* Change cursor to indicate it's clickable */
+}
+
+
+.card .card-body .card-text.variety-placeholder {
+    min-height: 1.5em !important; /* Adjust the height as needed */
+}
+
+        .card-body {
+            padding: 1.5rem;
+            background: white;
+        }
+
+
+#toast-container {
+    position: fixed; /* Fixed position so it stays in place */
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%); /* Center it */
+    z-index: 1000; /* Ensure it's on top of other content */
+    pointer-events: none; /* Prevent blocking clicks on other elements */
+}
+
+.toast {
+    background-color: rgba(0, 0, 0, 0.8); /* Semi-transparent black */
+    color: white;
+    padding: 15px 20px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    text-align: center;
+    opacity: 0; /* Initially hidden */
+    transition: opacity 0.3s ease-in-out; /* Fade-in/out animation */
+    pointer-events: auto; /* Make the toast clickable */
+}
+
+.toast.show {
+    opacity: 1; /* Make the toast visible */
+}
+
+.toast button {
+    background-color: transparent;
+    border: none;
+    color: white;
+    font-size: 1em;
+    cursor: pointer;
+    margin-left: 10px;
+}
+
+
+.card-img-container:hover img {
+    transform: scale(1.05);
+}
+
+/* LIGHTBOX FIX */
+a[data-lightbox] {
+    display: block;
+    height: 100%;
+}
+
+
+.card-body {
+    padding: 0.8rem !important;
+}
+.card-body p,
+.card-body h5 {
+    margin-bottom: 0.3rem !important;
+    line-height: 1.2;
+}
+.mt-auto .btn {
+    margin: 4px 0 !important;
+    flex: 1;
+}
+.btn-group .btn {
+    font-size: 0.85rem;
+    padding: 0.5rem;
+}
+
+
+
+footer {
+    /* Optional: You can still style the footer further here */
+    background-color: #f8f9fa; /* Light background */
+    padding: 20px 0;
+    text-align: center;
+    margin-top: auto;
+}
+
+
+
+/*
+ .card {
+        height: -webkit-fill-available !important;
+}
+
+*/
+
+
+
+
+
+/* ===== STICKY FOOTER PERFEITO – DESCE COM SCROLL E COLA NA BASE ===== */
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    font-family: 'Quicksand', sans-serif;
+    background: #d0e8d3;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+/* CONTEÚDO PRINCIPAL – CRESCE E FAZ SCROLL */
+main {
+    flex: 1 0 auto;
+    padding: 2rem 0;
+}
+
+/* FOOTER STICKY – DESCE COM SCROLL E COLA NA BASE */
+footer {
+    flex-shrink: 0;
+    background: linear-gradient(135deg, #219653, #27ae60);
+    color: white;
+    padding: 2rem 0;
+    text-align: center;
+    font-weight: 700;
+    box-shadow: 0 -5px 20px rgba(0,0,0,0.2);
+    width: 100%;
+}
+
+/* TEXTO ÉPICO NO FOOTER */
+footer .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+footer small {
+    font-weight: 400;
+    opacity: 0.9;
+    display: block;
+    margin-top: 0.5rem;
+}
+
+/* SCROLL SUAVE */
+html {
+    scroll-behavior: smooth;
+}
+
+/* RESPONSIVO */
+@media (max-width: 768px) {
+    main { padding: 1.5rem 0; }
+    footer { padding: 1.5rem 0; }
+    footer .container { padding: 0 15px; }
+}
+

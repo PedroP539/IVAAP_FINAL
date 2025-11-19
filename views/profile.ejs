@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IVAAP - Estatísticas</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;700&display=swap" rel="stylesheet">
+
+    <style>
+    body {
+    background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+    font-family: 'Quicksand', sans-serif;
+    display: flex;              /* Use flexbox */
+    flex-direction: column;   /* Stack elements vertically */
+    min-height: 100vh;          /* Ensure body takes at least the full viewport height */
+}
+        .sticky-nav { position: fixed; top: 0; width: 100%; z-index: 1000; }
+        .stats-card { background: white; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); padding: 2rem; text-align: center; }
+        .stat-number { font-size: 3rem; font-weight: bold; color: #27ae60; }
+        .progress { height: 30px; border-radius: 50px; }
+        .progress-bar { background: #27ae60; }
+    </style>
+</head>
+<body>
+<header>
+    <br><br>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light sticky-nav shadow-sm">
+        <a class="navbar-brand font-weight-bold" href="/">IVAAP</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav mx-auto">
+                <li class="nav-item"><a class="nav-link" href="/upload">CARREGAR</a></li>
+                <li class="nav-item"><a class="nav-link" href="/review">REVER</a></li>
+                <li class="nav-item"><a class="nav-link" href="/approved">APROVADAS</a></li>
+                <li class="nav-item"><a class="nav-link" href="/rejected">REJEITADAS</a></li>
+                <li class="nav-item"><a class="nav-link" href="/statistics">ESTATÍSTICAS</a></li>
+                <li class="nav-item"><a class="nav-link" href="/logout">SAIR</a></li>
+            </ul>
+        </div>
+    </nav>
+</header>
+<main class="container mt-4">
+<h1 class="text-center mb-4 display-4">PERFIL</h1>
+    <div class="row">
+      <div class="col-md-4">
+ <div class="card">
+    <div class="card-header">Informação do Utilizador</div>
+    <div class="card-body" style="text-align: left !important;">
+        <p><strong>Username:</strong> <%= user.username %> </p>
+        <p><strong>Último Login:</strong> <%= user.lastLogin %> </p>
+        <span uk-icon="icon: check"></span>
+        <p><strong>Imagens Carregadas:</strong> <a href="#">120</a></p>
+        <p><strong>Imagens Aprovadas:</strong> <a href="#">105</a></p>
+        <p><strong>Imagens Rejeitadas:</strong> <a href="#">10</a></p>
+        <p><strong>Imagens Para Analisar:</strong> <a href="#">5</a></p>
+    </div>
+</div>
+      </div>
+<div class="col-md-4">
+<div class="card">
+          <div class="card-header centerer caps">Última Imagem Carregada</div>
+          <div class="card-body">
+            <img src="https://m.planfor.pt/Donnees_Site/Produit/Images/G066/feijao-rasteiro-castandel_PT_500_0023880.jpg" alt="Último Carregamento" class="img-fluid">
+            <h5 class="card-title">Brócolos</h5>
+            <p class="card-text">
+              <strong>Espécie:</strong> Brassica oleracea<br>
+              <strong>Variedade:</strong> Italica<br>
+              <strong>Nome Botânico:</strong> Brassica oleracea var. italica
+            </p>
+          </div>
+        </div>
+ </div>
+      <div class="col-md-4">
+        <div class="card">
+          <div class="card-header centerer caps">Última Imagem Aprovada</div>
+          <div class="card-body">
+            <img src="https://www.happygreenshop.com/1213-large_default/broad-bean-karmazyn.jpg" alt="Última Aprovação" class="img-fluid">
+            <h5 class="card-title">Cenouras</h5>
+            <p class="card-text">
+              <strong>Espécie:</strong> Daucus carota<br>
+              <strong>Variedade:</strong> Nantes<br>
+              <strong>Nome Botânico:</strong> Daucus carota subsp. sativus
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+<footer class="mt-5 py-4 text-center bg-light">
+    <p class="mb-0">FLORA LUSITANA - © 2025 IVAPP_2 - V3.0</p>
+</footer>
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+	<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const navLinks = document.querySelectorAll('#navLinks .nav-item .nav-link');
+    const currentPath = window.location.pathname.split('/').pop(); // Get the current page filename
+    navLinks.forEach(link => {
+      const linkPath = link.getAttribute('href');
+      if (linkPath === currentPath || (currentPath === '' && linkPath === 'index.html')) {  // Handle index.html
+        link.parentNode.classList.add('active'); // Add 'active' class to the parent nav-item
+      }
+    });
+  });
+</script>
+</body>
+</html>

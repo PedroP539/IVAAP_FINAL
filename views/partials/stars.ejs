@@ -1,0 +1,88 @@
+<div class="rating-container text-center my-3">
+    <div class="stars-display d-inline-flex align-items-center">
+        <% for(let i = 1; i <= 5; i++) { %>
+            <label class="star-label <%= (userRating || 0) >= i ? 'filled' : '' %>" 
+                   data-value="<%= i %>" 
+                   title="Classificar com <%= i %> estrela<%= i > 1 ? 's' : '' %>">
+                <input type="radio" 
+                       name="rating_<%= image.id %>" 
+                       value="<%= i %>" 
+                       <%= (userRating || 0) === i ? 'checked' : '' %> 
+                       style="display:none;">
+                <i class="fas fa-star"></i>
+            </label>
+        <% } %>
+    </div>
+    <div class="rating-info d-inline-block ms-2 small">
+        <span class="text-gold fw-bold">
+            <%= image.avg_rating > 0 ? parseFloat(image.avg_rating).toFixed(1) : '0.0' %>
+        </span>
+        <span class="text-muted">
+            (<%= image.rating_count || 0 %>)
+        </span>
+    </div>
+</div>
+
+<style>
+    .rating-container { user-select: none; line-height: 1; }
+    .stars-display { gap: 3px; }
+    .star-label {
+        cursor: pointer;
+        color: #ccc;
+        font-size: 1.15rem;
+        transition: all 0.2s ease;
+        padding: 2px;
+    }
+    .star-label:hover { transform: scale(1.4); color: #f39c12 !important; }
+    .star-label.filled { color: #f1c40f; text-shadow: 0 0 8px rgba(241, 196, 15, 0.9); }
+    .text-gold { color: #f1c40f; font-size: 0.95rem; }
+</style>
+
+<script>
+    if (!window.starsScriptLoaded) {
+        window.starsScriptLoaded = true;
+
+        document.addEventListener('click', function(e) {
+            const label = e.target.closest('.star-label');
+            if (!label) return;
+
+            const stars = parseInt(label.dataset.value);
+            const container = label.closest('.rating-container');
+            const imageId = container.querySelector('input[name^="rating_"]').name.split('_')[1];
+
+            // DETETA SE JÁ TINHA VOTADO ANTES DESTE CLIQUE
+            const previousUserRating = <%= (userRating || 0) %>;
+            const alreadyVoted = previousUserRating > 0;
+
+            fetch(`/rate/${imageId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify({ stars })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    // Atualiza estrelas visuais
+                    container.querySelectorAll('.star-label').forEach(s => {
+                        s.classList.toggle('filled', parseInt(s.dataset.value) <= data.stars);
+                    });
+
+                    // Atualiza média e contador CORRETAMENTE
+                    container.querySelector('.text-gold').textContent = data.avg_rating.toFixed(1);
+                    
+                    // SÓ +1 SE FOR A PRIMEIRA VEZ
+                    const currentCount = parseInt(container.querySelector('.text-muted').textContent.match(/\d+/)?.[0] || 0);
+                    const newCount = alreadyVoted ? currentCount : currentCount + 1;
+                    container.querySelector('.text-muted').textContent = `(${newCount})`;
+                }
+            })
+            .catch(err => {
+                console.error('Erro ao classificar:', err);
+                alert('Erro ao classificar. Tenta novamente.');
+            });
+        });
+    }
+</script>

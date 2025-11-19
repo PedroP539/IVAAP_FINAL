@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IVAAP - Resultados da Pesquisa</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.4/css/lightbox.min.css">
+    <style>
+        body {background:linear-gradient(135deg,#e8f5e9,#c8e6c9);font-family:'Quicksand',sans-serif;min-height:100vh;display:flex;flex-direction:column}
+        .sticky-nav{position:fixed;top:0;width:100%;z-index:1000;background:white}
+        .content{padding:2rem 0;flex:1}
+        .search-header{background:white;border-radius:20px;box-shadow:0 10px 30px rgba(0,0,0,.15);padding:2rem;margin-bottom:2rem;text-align:center}
+        .result-card {
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, .12);
+    overflow: hidden;
+    transition: transform .2s;
+    margin-bottom: 1.5rem;
+    min-height: 420px;
+}
+        .result-card:hover{transform:translateY(-5px)}
+        .result-img{height:200px;object-fit:cover;width:100%;border-radius:20px 20px 0 0}
+        .status-badge{padding:0.5rem 1.2rem;border-radius:50px;font-weight:bold;font-size:0.9rem;text-transform:uppercase}
+        .status-pending{background:#fff3cd;color:#856404}
+        .status-approved{background:#d4edda;color:#155724}
+        .status-rejected{background:#f8d7da;color:#721c24}
+        .no-results{text-align:center;padding:4rem;color:#666;font-size:1.3rem}
+        .btn-action{padding:0.7rem 1.8rem;border-radius:50px;font-weight:bold;font-size:1rem;margin:0.3rem}
+        .btn-reinstate{background:linear-gradient(135deg,#8e44ad,#9b59b6);border:none;color:white}
+		
+		
+.especie {
+			font-size: 1.65rem; 
+	/*		color: #27ae60;!important; */
+			background: #27AE60;
+background: repeating-linear-gradient(to top right, #27AE60 0%, #1C8247 100%);
+-webkit-background-clip: text;
+-webkit-text-fill-color: transparent;
+
+
+		}
+		
+		.variedade {
+			font-size: 1.25rem;!important;
+			color:#1c8247 !important;
+			font-weight: 300 !important;
+		}	
+		
+		
+    </style>
+</head>
+<body>
+<header>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light sticky-nav shadow-sm">
+        <a class="navbar-brand font-weight-bold" href="/">IVAAP</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav mx-auto">
+                <li class="nav-item"><a class="nav-link" href="/upload"><i class="fa-solid fa-upload"></i> CARREGAR</a></li>
+                <li class="nav-item"><a class="nav-link" href="/review"><i class="fa-solid fa-pencil"></i> REVER</a></li>
+                <li class="nav-item"><a class="nav-link" href="/approved"><i class="fa-solid fa-thumbs-up"></i> APROVADAS</a></li>
+                <li class="nav-item"><a class="nav-link" href="/rejected"><i class="fa-solid fa-thumbs-down"></i> REJEITADAS</a></li>
+                <li class="nav-item"><a class="nav-link" href="/statistics"><i class="fa-solid fa-bolt"></i> ESTATÍSTICAS</a></li>
+                <li class="nav-item"><a class="nav-link" href="/logout"><i class="fa-solid fa-right-from-bracket"></i> SAIR</a></li>
+            </ul>
+        </div>
+    </nav>
+</header>
+<br><br>
+
+<main class="container content">
+    <div class="search-header">
+        <h2 style="color:#27ae60;font-weight:bold">RESULTADOS DA PESQUISA</h2>
+        <p class="mb-0">
+            <% if (total === 0) { %>
+                <strong>Nenhum resultado encontrado.</strong>
+            <% } else { %>
+                Encontradas <strong><%= total %></strong> imagem<%= total > 1 ? 'ns' : '' %> 
+                <% if (query) { %> para "<strong><%= query %></strong>"<% } %>
+                <% if (date) { %> em <strong><%= new Date(date).toLocaleDateString('pt-PT') %></strong><% } %>
+                <% if (user) { %> por <strong><%= user %></strong><% } %>
+            <% } %>
+        </p>
+        <a href="javascript:history.back()" class="btn btn-secondary mt-3">Voltar</a>
+    </div>
+
+    <% if (success) { %>
+        <div class="alert alert-success text-center"><%= success %></div>
+    <% } %>
+    <% if (error) { %>
+        <div class="alert alert-danger text-center"><%= error %></div>
+    <% } %>
+
+    <% if (images.length > 0) { %>
+        <div class="row">
+            <% images.forEach(image => { %>
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="result-card">
+                        <a href="/uploads/<%= image.image_url %>" data-lightbox="search" data-title="<%= image.species %>">
+                            <img src="/uploads/<%= image.image_url %>" class="result-img" alt="<%= image.species %>" onerror="this.src='/images/placeholder.jpg'">
+                        </a>
+                        <div class="p-3">
+                            <h5 class="text-center mb-2"><strong>
+								<span class="especie">
+								<%= image.species %>
+								</span>
+								<br>
+								<span class="variedade">
+								<%= image.variety ? ''+image.variety+'' : '' %>
+								</span>
+								</strong></h5>
+                            <p class="text-center text-muted small mb-2">
+                                Por: <%= image.uploaded_by %> • <%= new Date(image.uploaded_at).toLocaleDateString('pt-PT') %>
+                            </p>
+                            <div class="text-center mb-3">
+                                <span class="status-badge status-<%= image.status %>">
+                                    <%= image.status === 'pending' ? 'Pendente' : image.status === 'approved' ? 'Aprovada' : 'Rejeitada' %>
+                                </span>
+                            </div>
+                            <div class="text-center">
+                                <a href="/details/<%= image.id %>" class="btn btn-info btn-action">Ver Detalhes</a>
+                                <% if (image.status !== 'pending') { %>
+                                    <form action="/review/<%= image.id %>/reinstate" method="POST" class="d-inline">
+                                        <button type="submit" class="btn btn-reinstate btn-action" onclick="return confirm('Voltar para revisão?')">
+                                            Rever
+                                        </button>
+                                    </form>
+                                <% } %>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            <% }); %>
+        </div>
+    <% } else if (total === 0) { %>
+        <div class="no-results">
+            <i class="fas fa-search fa-3x text-muted mb-3"></i>
+            <p>Nenhum resultado para a tua pesquisa.</p>
+            <a href="/" class="btn btn-success btn-lg rounded-pill px-5">Voltar ao Início</a>
+        </div>
+    <% } %>
+</main>
+
+<footer class="mt-5 py-4 text-center bg-light">
+    <p class="mb-0">FLORA LUSITANA - © 2025 IVAAP_2 - V. 6.9.8</p>
+</footer>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.4/js/lightbox.min.js"></script>
+<script>
+    lightbox.option({
+        resizeDuration: 200,
+        wrapAround: true,
+        albumLabel: "Imagem %1 de %2"
+    });
+    setTimeout(() => $('.alert').fadeOut(2000), 3000);
+</script>
+</body>
+</html>

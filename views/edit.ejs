@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IVAAP - Editar Imagem</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {background:linear-gradient(135deg,#e8f5e9,#c8e6c9);font-family:'Quicksand',sans-serif;min-height:100vh;display:flex;flex-direction:column}
+        .sticky-nav{position:fixed;top:0;width:100%;z-index:1000;background:white}
+        .content{padding:2rem 0;flex:1}
+        .edit-card{background:white;border-radius:20px;box-shadow:0 10px 30px rgba(0,0,0,.15);padding:2.5rem;overflow:hidden}
+        .form-control, .form-check-input{border-radius:12px}
+        .form-group label{font-weight:bold;color:#27ae60}
+		
+		
+		.form-control {
+    display: block;
+    width: 100%;
+    height: calc(1.5em + .75rem + 12px);
+    padding: .375rem .75rem;
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.5;
+    color: #495057;
+    background-color: #fff;
+    background-clip: padding-box;
+    border: 1px solid #ced4da;
+    border-radius: .25rem;
+    transition: border-color .15s 
+ease-in-out, box-shadow .15s 
+ease-in-out;
+}
+		
+	
+		
+        .btn-save{background:linear-gradient(135deg,#27ae60,#2ecc71);border:none;padding:1rem 3rem;font-size:1.2rem;border-radius:50px;box-shadow:0 4px 15px rgba(0,0,0,.2);}
+        .btn-cancel{background:#95a5a6;border:none;padding:1rem 2rem;font-size:1.1rem;border-radius:50px;box-shadow:0 4px 15px rgba(0,0,0,.2);}
+        .btn-save:hover, .btn-cancel:hover{transform:translateY(-3px);box-shadow:0 8px 25px rgba(0,0,0,.3);}
+        .drop-zone{border:3px dashed #27ae60;border-radius:20px;padding:2.5rem;text-align:center;background:#f8fff8;transition:all .3s;cursor:pointer;margin:1.5rem 0}
+        .drop-zone.dragover{background:#e8f5e9;border-color:#2ecc71}
+        .preview-img{max-width:100%;max-height:350px;border-radius:15px;box-shadow:0 8px 25px rgba(0,0,0,.2);margin:1.5rem 0;transition:opacity .4s}
+        .url-input-group{position:relative;margin:1rem 0}
+        .url-input{border-radius:50px!important;padding-right:60px}
+        .btn-fetch{position:absolute;right:0px;top:50%;transform:translateY(-50%);background:#27ae60;color:white;border:none;border-radius:50%;width:48px;height:48px;transition:all .4s}
+        .btn-fetch:hover{background:#219653;transform:translateY(-50%) scale(1.1)}
+        .alert-cors{background:#fff3cd;color:#856404;border:1px solid #ffeaa7;padding:1rem;border-radius:12px;margin:1rem 0;display:none}
+        textarea{min-height:120px}
+    </style>
+</head>
+<body>
+<header>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light sticky-nav shadow-sm">
+        <a class="navbar-brand font-weight-bold" href="/">IVAAP</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav mx-auto">
+                <li class="nav-item"><a class="nav-link" href="/upload">CARREGAR</a></li>
+                <li class="nav-item"><a class="nav-link" href="/review">REVER</a></li>
+                <li class="nav-item"><a class="nav-link" href="/approved">APROVADAS</a></li>
+                <li class="nav-item"><a class="nav-link" href="/rejected">REJEITADAS</a></li>
+                <li class="nav-item"><a class="nav-link" href="/statistics">ESTATÍSTICAS</a></li>
+                <li class="nav-item"><a class="nav-link" href="/logout">SAIR</a></li>
+            </ul>
+        </div>
+    </nav>
+</header>
+<br><br>
+
+<!-- BARRA DE BUSCA -->
+<div class="container mt-4 mb-3">
+    <div class="card border-0 shadow-sm" style="border-radius: 20px;">
+        <div class="card-body p-4">
+            <form id="searchForm" action="/search" method="GET" class="row g-3 align-items-end">
+                <div class="col-md-4"><input type="text" class="form-control form-control-lg rounded-pill" name="q" placeholder="Nome da Planta"></div>
+                <div class="col-md-3"><input type="date" class="form-control form-control-lg rounded-pill" name="date"></div>
+                <div class="col-md-3"><input type="text" class="form-control form-control-lg rounded-pill" name="user" placeholder="Utilizador"></div>
+                <div class="col-md-2"><button type="submit" class="btn btn-success btn-lg rounded-pill w-100">Pesquisar</button></div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<main class="container content">
+    <div class="text-center mb-4">
+        <h2 style="color:#27ae60;font-weight:bold">EDITAR IMAGEM</h2>
+    </div>
+    <div class="edit-card">
+        <form action="/edit/<%= image.id %>" method="POST" enctype="multipart/form-data" id="editForm">
+            <!-- TROCA DE IMAGEM -->
+            <div class="text-center mb-4">
+                <div class="drop-zone" id="dropZone">
+                    <i class="fas fa-cloud-upload-alt fa-4x text-success mb-3"></i>
+                    <p><strong>Arraste nova imagem ou clique para selecionar</strong></p>
+                    <input type="file" name="newImage" id="newImageInput" accept="image/*" style="display:none">
+                    <button type="button" class="btn btn-success rounded-pill px-5" onclick="document.getElementById('newImageInput').click()">
+                        TROCAR IMAGEM LOCAL
+                    </button>
+                </div>
+
+                <div class="url-input-group">
+                    <input type="url" id="newImageUrl" class="form-control url-input" placeholder=" Ou nova URL (ex: https://...jpg)" />
+                    <button type="button" class="btn btn-fetch" id="fetchNewUrlBtn">
+                        <i class="fas fa-arrow-down"></i>
+                    </button>
+                </div>
+                <div class="alert alert-cors text-center" id="corsAlert">Não foi possível carregar por CORS. Usa upload local.</div>
+
+                <img id="preview" src="/uploads/<%= image.image_url %>" class="preview-img" alt="Pré-visualização" onerror="this.src='/images/placeholder.jpg'">
+            </div>
+
+            <input type="hidden" name="imageFromUrl" id="imageFromUrl" value="">
+
+            <!-- RESTO DOS CAMPOS -->
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label>Espécie</label>
+                        <input type="text" name="species" class="form-control" value="<%= image.species || '' %>" required>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label>Variedade</label>
+                        <input type="text" name="variety" class="form-control" value="<%= image.variety || '' %>">
+                    </div>
+                </div>
+            </div>
+            <!-- ... [todos os outros campos iguais ao anterior] ... -->
+            <div class="form-group">
+                <label>Nome Botânico</label>
+                <input type="text" name="botanical_name" class="form-control" value="<%= image.botanical_name || '' %>">
+            </div>
+            <div class="row">
+                <div class="col-md-6"><div class="form-group"><label>Origem</label><input type="text" name="origem" class="form-control" value="<%= image.origem || '' %>"></div></div>
+                <div class="col-md-6"><div class="form-group"><label>Colheita/Floração</label><input type="text" name="colheitaFloracao" class="form-control" value="<%= image.colheitaFloracao || '' %>"></div></div>
+            </div>
+            <div class="row">
+                <div class="col-md-6"><div class="form-group"><label>Exposição Solar</label><input type="text" name="exposicaoSolar" class="form-control" value="<%= image.exposicaoSolar || '' %>"></div></div>
+                <div class="col-md-6"><div class="form-group"><label>Rega</label><input type="text" name="rega" class="form-control" value="<%= image.rega || '' %>"></div></div>
+            </div>
+            <div class="form-group"><label>Profundidade Sementeira</label><input type="text" name="profundidadeSementeira" class="form-control" value="<%= image.profundidadeSementeira || '' %>"></div>
+            <div class="form-group"><label>Sementeira Direta</label><div class="form-check"><input class="form-check-input" type="checkbox" name="sementeiraDireta" id="sementeiraDireta" <%= image.sementeiraDireta ? 'checked' : '' %>><label class="form-check-label" for="sementeiraDireta">Sim</label></div></div>
+            <div class="form-group"><label>Sementeira Alfobre</label><div class="form-check"><input class="form-check-input" type="checkbox" name="sementeiraAlfobre" id="sementeiraAlfobre" <%= image.sementeiraAlfobre ? 'checked' : '' %>><label class="form-check-label" for="sementeiraAlfobre">Sim</label></div></div>
+            <div class="row">
+                <div class="col-md-6"><div class="form-group"><label>Sementeira (mês)</label><input type="text" name="sementeira" class="form-control" value="<%= image.sementeira || '' %>"></div></div>
+                <div class="col-md-6"><div class="form-group"><label>Transplante (mês)</label><input type="text" name="transplante" class="form-control" value="<%= image.transplante || '' %>"></div></div>
+            </div>
+            <div class="form-group"><label>Compasso</label><input type="text" name="compasso" class="form-control" value="<%= image.compasso || '' %>"></div>
+            <div class="form-group"><label>Características</label><textarea name="caracteristicas" class="form-control" rows="3"><%= image.caracteristicas || '' %></textarea></div>
+            <div class="form-group"><label>Conselhos de Cultivo</label><textarea name="conselhos_de_cultivo" class="form-control" rows="4"><%= image.conselhos_de_cultivo || '' %></textarea></div>
+            <div class="form-group"><label>Shutterstock</label><div class="form-check"><input class="form-check-input" type="checkbox" name="shutterstock" id="shutterstock" <%= image.shutterstock ? 'checked' : '' %>><label class="form-check-label" for="shutterstock">Sim</label></div></div>
+            <div class="form-group"><label>Shutterstock Info</label><input type="text" name="shutterstock_info" class="form-control" value="<%= image.shutterstock_info || '' %>"></div>
+            <div class="form-group"><label>Comentários</label><textarea name="comentarios" class="form-control" rows="3"><%= image.comentarios || '' %></textarea></div>
+
+            <div class="text-center mt-5">
+                <button type="submit" class="btn btn-save text-white">GUARDAR ALTERAÇÕES</button>
+                <a href="/details/<%= image.id %>" class="btn btn-cancel text-white ml-3">CANCELAR</a>
+            </div>
+        </form>
+    </div>
+</main>
+
+<footer class="mt-5 py-4 text-center bg-light">
+    <p class="mb-0">FLORA LUSITANA - © 2025 IVAAP_2 - V. 6.9.8</p>
+</footer>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script>
+    const dropZone = document.getElementById('dropZone');
+    const newImageInput = document.getElementById('newImageInput');
+    const preview = document.getElementById('preview');
+    const newImageUrl = document.getElementById('newImageUrl');
+    const fetchBtn = document.getElementById('fetchNewUrlBtn');
+    const corsAlert = document.getElementById('corsAlert');
+    const imageFromUrl = document.getElementById('imageFromUrl');
+
+    // Drag & Drop
+    ['dragover', 'dragenter'].forEach(e => dropZone.addEventListener(e, ev => { ev.preventDefault(); dropZone.classList.add('dragover'); }));
+    ['dragleave', 'dragend'].forEach(e => dropZone.addEventListener(e, ev => { ev.preventDefault(); dropZone.classList.remove('dragover'); }));
+    dropZone.addEventListener('drop', e => {
+        e.preventDefault(); dropZone.classList.remove('dragover');
+        if (e.dataTransfer.files.length) {
+            newImageInput.files = e.dataTransfer.files;
+            handleFile(e.dataTransfer.files[0]);
+            newImageUrl.value = ''; imageFromUrl.value = '';
+        }
+    });
+    newImageInput.addEventListener('change', e => { if (e.target.files.length) { handleFile(e.target.files[0]); newImageUrl.value = ''; imageFromUrl.value = ''; } });
+
+    function handleFile(file) {
+        if (file && file.type.startsWith('image/')) {
+            const reader = new FileReader();
+            reader.onload = e => { preview.src = e.target.result; preview.style.opacity = 1; corsAlert.style.display = 'none'; };
+            reader.readAsDataURL(file);
+        }
+    }
+
+    // URL
+    fetchBtn.addEventListener('click', fetchFromUrl);
+    newImageUrl.addEventListener('keypress', e => { if (e.key === 'Enter') fetchFromUrl(); });
+
+    function fetchFromUrl() {
+        const url = newImageUrl.value.trim();
+        if (!url) return;
+        corsAlert.style.display = 'none';
+        preview.style.opacity = 0.5;
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.onload = () => {
+            preview.src = url;
+            preview.style.opacity = 1;
+            imageFromUrl.value = url;
+            corsAlert.style.display = 'none';
+        };
+        img.onerror = () => {
+            preview.style.opacity = 1;
+            corsAlert.style.display = 'block';
+            imageFromUrl.value = '';
+        };
+        img.src = url;
+    }
+</script>
+</body>
+</html>

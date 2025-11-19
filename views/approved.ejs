@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IVAAP - Imagens Aprovadas</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.4/css/lightbox.min.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+            font-family: 'Quicksand', sans-serif;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        .sticky-nav { position: fixed; top: 0; width: 100%; z-index: 1000; }
+        .image-card {
+            background: white; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            overflow: hidden; transition: transform 0.2s;
+			min-height: 420px;
+        }
+        .image-card:hover { transform: translateY(-5px); }
+        .card-img-container {
+            position: relative; width: 100%; height: 180px;
+            border-radius: 20px 20px 0 0;
+            background: #f0f8f0 url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100" height="100" fill="%23f0f8f0"/><path d="M30 40 L40 50 L35 55 L45 65 L30 60 L20 50 Z" fill="%23c8e6c9"/><circle cx="70" cy="35" r="8" fill="%23c8e6c9"/></svg>') center/40% no-repeat;
+            overflow: hidden;
+        }
+        .card-img-top {
+            width: 100%; height: 100%; object-fit: cover; object-position: center;
+            border-radius: 20px 20px 0 0; display: block;
+            opacity: 0; transition: opacity 0.4s ease;
+        }
+        .card-img-top.loaded { opacity: 1; }
+       
+		.approved-badge {
+            position: absolute; top: 12px; right: 12px; background: #27ae60; color: white;
+            padding: 0.35rem 0.9rem; border-radius: 50px; font-size: 0.8rem; font-weight: bold;
+            z-index: 100; box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+        .card-body { padding: 1.5rem; background: white; border-radius: 20px 20px 20px 20px; }
+        .card-title { font-size: 1.3rem; font-weight: bold; color: #27ae60; margin-bottom: 0.5rem; text-align: center; }
+        .btn-group-inline { display: flex; justify-content: center; gap: 0.75rem; flex-wrap: nowrap; margin-top: 1rem; }
+       
+		.action-btn { flex: 1; min-width: 90px; max-width: 120px; border-radius: 50px; padding: 0.7rem 0.5rem; font-weight: bold; font-size: 0.9rem; text-align: center; white-space: nowrap; transition: all 0.2s; }
+		
+		.action-btn-2 { flex: 1; min-width: 90px; max-width: 120px; border-radius: 50px; padding: 0.7rem 0.5rem; font-weight: bold; font-size: 0.9rem; text-align: center; white-space: nowrap; transition: all 0.2s; }
+       
+		.action-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,0.25);}
+		
+		.action-btn-2:hover { transform: none; color:#fff; }
+        
+		.btn-approved { background: #27ae60; color: white; }
+		
+		
+		.action-btn[disabled]:hover {
+		}
+       
+		.btn-view { background: #16a085; color: white; }
+        
+		.pagination .page-link { border-radius: 50px; margin: 0 3px; padding: 0.5rem 1rem; }
+        
+		.pagination .page-item.active .page-link { background: #27ae60; border-color: #27ae60; }
+        @media (max-width: 768px) {
+            .btn-group-inline { flex-direction: column; }
+       
+			.action-btn { max-width: none; }
+            .card-img-container { height: 150px; }
+        }
+		
+		.content { padding: 2rem 0; flex: 1; }
+		
+input#searchQuery, input#searchDate, input#searchUser, button.btn.btn-success.btn-lg.rounded-pill.w-100.h-100.d-flex.align-items-center.justify-content-center {
+    font-size: 1rem;
+}
+		
+		.especie {
+			font-size: 1.65rem; 
+	/*		color: #27ae60;!important; */
+			background: #27AE60;
+background: repeating-linear-gradient(to top right, #27AE60 0%, #1C8247 100%);
+-webkit-background-clip: text;
+-webkit-text-fill-color: transparent;
+
+
+		}
+		
+		.variedade {
+			font-size: 1.25rem;!important;
+			color:#1c8247 !important;
+			font-weight: 300 !important;
+		}
+		
+		
+		
+		
+    </style>
+</head>
+<body>
+<header>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light sticky-nav shadow-sm">
+        <a class="navbar-brand font-weight-bold" href="/">IVAAP</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav mx-auto">
+                <li class="nav-item"><a class="nav-link" href="/upload"><i class="fa-solid fa-upload"></i> CARREGAR</a></li>
+                <li class="nav-item"><a class="nav-link" href="/review"><i class="fa-solid fa-pencil"></i> REVER</a></li>
+                <li class="nav-item"><a class="nav-link" href="/approved"><i class="fa-solid fa-thumbs-up"></i> APROVADAS</a></li>
+                <li class="nav-item"><a class="nav-link" href="/rejected"><i class="fa-solid fa-thumbs-down"></i> REJEITADAS</a></li>
+                <li class="nav-item"><a class="nav-link" href="/statistics"><i class="fa-solid fa-bolt"></i> ESTATÍSTICAS</a></li>
+                <li class="nav-item"><a class="nav-link" href="/logout"><i class="fa-solid fa-right-from-bracket"></i> SAIR</a></li>
+            </ul>
+        </div>
+    </nav>
+</header>
+	
+	<br><br>
+	<!-- BARRA DE BUSCA EMBUTIDA (ABAIXO DO MENU) -->
+<div class="container mt-4 mb-3">
+    <div class="card border-0 shadow-sm" style="border-radius: 20px;">
+        <div class="card-body p-4">
+            <form id="searchForm" action="/search" method="GET" class="row g-3 align-items-end">
+                <div class="col-md-4">
+                    <label for="searchQuery" class="form-label text-success font-weight-bold">Nome da Planta</label>
+                    <input type="text" class="form-control form-control-lg rounded-pill" 
+                           id="searchQuery" name="q" placeholder="Ex: Tomate, Rosa..." 
+                           value="">
+                </div>
+                <div class="col-md-3">
+                    <label for="searchDate" class="form-label text-success font-weight-bold">Data</label>
+                    <input type="date" class="form-control form-control-lg rounded-pill" 
+                           id="searchDate" name="date" value="">
+                </div>
+                <div class="col-md-3">
+                    <label for="searchUser" class="form-label text-success font-weight-bold">Utilizador</label>
+                    <input type="text" class="form-control form-control-lg rounded-pill" 
+                           id="searchUser" name="user" placeholder="Ex: admin" value="">
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-success btn-lg rounded-pill w-100 h-100 d-flex align-items-center justify-content-center">Pesquisar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    #searchForm .form-control:focus {
+        border-color: #27ae60 !important;
+        box-shadow: 0 0 0 0.2rem rgba(39, 174, 96, 0.25) !important;
+    }
+    #searchForm .btn-success {
+        background-color: #27ae60;
+        border-color: #27ae60;
+    }
+    #searchForm .btn-success:hover {
+        background-color: #218838;
+        border-color: #1e7e34;
+    }
+</style>
+
+<script>
+    document.getElementById('searchForm').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') this.submit();
+    });
+</script>
+<!-- FIM DA BARRA DE BUSCA -->
+	
+<main class="container content">
+    <h2 class="text-center mb-4" style="color: #27ae60; font-weight: bold;">IMAGENS APROVADAS</h2>
+    <% if (error) { %>
+        <div class="alert alert-danger text-center"><strong>ERRO:</strong> <%= error %></div>
+    <% } %>
+    <% if (success) { %>
+        <div class="alert alert-success text-center"><strong>SUCESSO:</strong> <%= success %></div>
+    <% } %>
+    <% if (images.length === 0) { %>
+        <div class="text-center py-5">
+            <p class="text-muted">Nenhuma imagem aprovada ainda.</p>
+            <a href="/review" class="btn btn-warning rounded-pill px-4">REVER PENDENTES</a>
+        </div>
+    <% } else { %>
+        <div class="row">
+            <% images.forEach(image => { %>
+                <div class="col-md-4 mb-4">
+                    <div class="image-card">
+                        <div class="card-img-container">
+                            <a href="/uploads/<%= image.image_url %>" data-lightbox="approved" data-title="<%= image.species %>">
+                                <!-- CAMINHO GARANTIDO: SÓ /uploads/filename -->
+                                <img
+                                    data-src="/uploads/<%= image.image_url %>"
+                                    data-fallback="/images/placeholder.jpg"
+                                    alt="<%= image.species %>"
+                                    class="card-img-top lazy">
+                            </a>
+                            <span class="approved-badge">APROVADA</span>
+                        </div>
+                        <div class="card-body">
+                            <h5 class="card-title">
+							<span class="especie"><%= image.species %></span>
+                                 <br>
+								<span class="variedade"><% if (image.variety) { %></span>
+								
+								<small class="text-muted">
+								<span class="variedade"><%= image.variety %></small> <% } %></span>
+                            </h5>
+                            <p class="text-center text-muted small mb-2">
+                                <b>Aprovada por:</b><br><%= image.reviewed_by %> em <%= new Date(image.reviewed_at).toLocaleString('pt-PT') %>
+                            </p>
+	<div class="btn-group-inline">
+                                <button class="btn btn-approved action-btn-2" disabled >APROVADA</button>
+                                <a href="/details/<%= image.id %>" class="btn btn-view action-btn">VER</a>
+                            </div>
+							<%- include('partials/stars', { 
+    image: image, 
+    userRating: image.userRating || 0 
+}) %>
+                        </div>
+                    </div>
+                </div>
+            <% }); %>
+        </div>
+        <% if (totalPages > 1) { %>
+            <nav aria-label="Paginação">
+                <ul class="pagination justify-content-center">
+                    <li class="page-item <%= currentPage === 1 ? 'disabled' : '' %>">
+                        <a class="page-link" href="?page=<%= currentPage - 1 %>">Anterior</a>
+                    </li>
+                    <% for(let i = 1; i <= totalPages; i++) { %>
+                        <li class="page-item <%= currentPage === i ? 'active' : '' %>">
+                            <a class="page-link" href="?page=<%= i %>"><%= i %></a>
+                        </li>
+                    <% } %>
+                    <li class="page-item <%= currentPage === totalPages ? 'disabled' : '' %>">
+                        <a class="page-link" href="?page=<%= currentPage + 1 %>">Próximo</a>
+                    </li>
+                </ul>
+            </nav>
+        <% } %>
+    <% } %>
+</main>
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.4/js/lightbox.min.js"></script>
+<script>
+    lightbox.option({ resizeDuration: 200, wrapAround: true, albumLabel: "Imagem %1 de %2" });
+    document.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('#navLinks .nav-item a').forEach(link => {
+            if (link.getAttribute('href') === '/approved') {
+                link.parentElement.classList.add('active');
+            }
+        });
+        const images = document.querySelectorAll('img.lazy');
+        images.forEach(img => {
+            let src = img.getAttribute('data-src');
+            const fallback = img.getAttribute('data-fallback') || '/images/placeholder.jpg';
+            // REMOVE DOUBLE /uploads/ NO JS
+            src = src.replace(/^\/uploads\/uploads\//, '/uploads/');
+            src = src.replace(/^\/+/, '/');
+            const tempImg = new Image();
+            tempImg.onload = () => {
+                img.src = src;
+                img.classList.add('loaded');
+            };
+            tempImg.onerror = () => {
+                console.error('FALHA AO CARREGAR:', src);
+                img.src = fallback;
+                img.classList.add('loaded');
+            };
+            tempImg.src = src;
+        });
+    });
+    setTimeout(() => $('.alert').fadeOut(), 5000);
+</script>
+<footer class="mt-5 py-4 text-center bg-light">
+    <p class="mb-0">FLORA LUSITANA - © 2025 IVAAP_2 - V. 6.9.8</p>
+</footer>
+	
+	<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script>
+    setTimeout(() => $('.alert').fadeOut(1000), 5000);
+</script>
+</body>
+</html>
