@@ -214,15 +214,14 @@ background: repeating-linear-gradient(to top right, #27AE60 0%, #1C8247 100%);
                                 <button class="btn btn-approved action-btn-2" disabled >APROVADA</button>
                                 <a href="/details/<%= image.id %>" class="btn btn-view action-btn">VER</a>
                             </div>
-							<%- include('partials/stars', { 
+							<p class="text-center text-muted small mb-2">
+                                <b>Aprovada por:</b><br><%= image.reviewed_by %><br>em <%= new Date(image.reviewed_at).toLocaleString('pt-PT') %>
+                            </p>
+                            
+                            <%- include('partials/stars', { 
     image: image, 
     userRating: image.userRating || 0 
 }) %>
-                            
-                            
-                            <p class="text-center text-muted small mb-2">
-                                <b>Aprovada por:</b><br><%= image.reviewed_by %><br>em <%= new Date(image.reviewed_at).toLocaleString('pt-PT') %>
-                            </p>
                             
                             
                         </div>
