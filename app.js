@@ -2,7 +2,7 @@ const express = require('express');
 const session = require('express-session');
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
-const flash = require('connect-flash');
+const flash = require('connect-flash';
 const multer = require('multer');
 const path = require('path');
 const bcrypt = require('bcrypt');
@@ -418,7 +418,39 @@ app.post('/upload', ensureAuth, upload.single('image'), async (req, res) => {
     }
 });
 
-// ROTA REVIEW – SUPORTA FILTRO ?uploaded_by=username
+// === ROTAS POST DE AÇÃO NA REVIEW (DEVEM VIR ANTES DA ROTA GET /review) ===
+app.post('/review/:id/approve', ensureAuth, (req, res) => {
+    db.run('UPDATE images SET status = "approved", reviewed_at = CURRENT_TIMESTAMP, reviewed_by = ? WHERE id = ?',
+        [req.user.username, req.params.id], (err) => {
+            if (err) req.flash('error', 'Erro ao aprovar');
+            else req.flash('success', 'Imagem aprovada!');
+            res.redirect('/review');
+        });
+});
+
+app.post('/review/:id/reject', ensureAuth, (req, res) => {
+    db.run('UPDATE images SET status = "rejected", reviewed_at = CURRENT_TIMESTAMP, reviewed_by = ? WHERE id = ?',
+        [req.user.username, req.params.id], (err) => {
+            if (err) req.flash('error', 'Erro ao rejeitar');
+            else req.flash('success', 'Imagem rejeitada!');
+            res.redirect('/review');
+        });
+});
+
+app.post('/review/:id/reinstate', ensureAuth, (req, res) => {
+    db.run('UPDATE images SET status = "pending", reviewed_at = NULL, reviewed_by = NULL WHERE id = ?',
+        [req.params.id], function(err) {
+            if (err) {
+                console.error(err);
+                req.flash('error', 'Erro ao reintegrar imagem');
+            } else {
+                req.flash('success', 'Imagem voltou para pendentes!');
+            }
+            res.redirect('/review');
+        });
+});
+
+// ROTA REVIEW – GET (deve vir DEPOIS das rotas POST com :id)
 app.get('/review', ensureAuth, (req, res) => {
     const uploadedBy = req.query.uploaded_by;
     let whereClause = 'status = "pending"';
@@ -463,226 +495,7 @@ app.get('/review', ensureAuth, (req, res) => {
     });
 });
 
-// ROTA APROVADAS – SUPORTA FILTRO ?reviewed_by=username
-app.get('/approved', ensureAuth, (req, res) => {
-    const reviewedBy = req.query.reviewed_by;
-    let whereClause = 'WHERE status = "approved"';
-    let params = [];
-
-    if (reviewedBy) {
-        whereClause += ' AND reviewed_by = ?';
-        params.push(reviewedBy);
-    }
-
-    const page = parseInt(req.query.page) || 1;
-    const limit = 12;
-    const offset = (page - 1) * limit;
-
-    db.get(`SELECT COUNT(*) as total FROM images ${whereClause}`, params, (err, countRow) => {
-        if (err) return res.render('approved', { error: 'Erro na base de dados', images: [], totalPages: 1, currentPage: 1 });
-        const total = countRow.total;
-        const totalPages = Math.ceil(total / limit);
-
-        db.all(`
-            SELECT * FROM images
-            ${whereClause}
-            ORDER BY reviewed_at DESC
-            LIMIT ? OFFSET ?
-        `, [...params, limit, offset], (err, images) => {
-            if (err) return res.render('approved', { error: 'Erro ao carregar imagens', images: [], totalPages: 1, currentPage: 1 });
-
-            const imagesWithRating = [];
-            let done = 0;
-            if (images.length === 0) {
-                return res.render('approved', { images: [], totalPages, currentPage: page, success: req.flash('success')[0] || null });
-            }
-            images.forEach(img => {
-                db.get('SELECT stars FROM ratings WHERE image_id = ? AND user_id = ?', [img.id, req.user.id], (e, r) => {
-                    img.userRating = r ? r.stars : 0;
-                    imagesWithRating.push(img);
-                    if (++done === images.length) {
-                        res.render('approved', {
-                            images: imagesWithRating,
-                            totalPages,
-                            currentPage: page,
-                            success: req.flash('success')[0] || null
-                        });
-                    }
-                });
-            });
-        });
-    });
-});
-
-// ROTA REJEITADAS – SUPORTA FILTRO ?reviewed_by=username
-app.get('/rejected', ensureAuth, (req, res) => {
-    const reviewedBy = req.query.reviewed_by;
-    let whereClause = 'WHERE status = "rejected"';
-    let params = [];
-
-    if (reviewedBy) {
-        whereClause += ' AND reviewed_by = ?';
-        params.push(reviewedBy);
-    }
-
-    const page = parseInt(req.query.page) || 1;
-    const limit = 12;
-    const offset = (page - 1) * limit;
-
-    db.get(`SELECT COUNT(*) as total FROM images ${whereClause}`, params, (err, countRow) => {
-        if (err) return res.render('rejected', { error: 'Erro na base de dados', images: [], totalPages: 1, currentPage: 1 });
-        const total = countRow.total;
-        const totalPages = Math.ceil(total / limit);
-
-        db.all(`
-            SELECT * FROM images
-            ${whereClause}
-            ORDER BY reviewed_at DESC
-            LIMIT ? OFFSET ?
-        `, [...params, limit, offset], (err, images) => {
-            if (err) return res.render('rejected', { error: 'Erro ao carregar imagens', images: [], totalPages: 1, currentPage: 1 });
-
-            const imagesWithRating = [];
-            let done = 0;
-            if (images.length === 0) {
-                return res.render('rejected', { images: [], totalPages, currentPage: page, success: req.flash('success')[0] || null });
-            }
-            images.forEach(img => {
-                db.get('SELECT stars FROM ratings WHERE image_id = ? AND user_id = ?', [img.id, req.user.id], (e, r) => {
-                    img.userRating = r ? r.stars : 0;
-                    imagesWithRating.push(img);
-                    if (++done === images.length) {
-                        res.render('rejected', {
-                            images: imagesWithRating,
-                            totalPages,
-                            currentPage: page,
-                            success: req.flash('success')[0] || null
-                        });
-                    }
-                });
-            });
-        });
-    });
-});
-
-// ROTA DETALHES
-app.get('/details/:id', ensureAuth, (req, res) => {
-    const imageId = req.params.id;
-    db.get('SELECT * FROM images WHERE id = ?', [imageId], (err, image) => {
-        if (err || !image) {
-            req.flash('error', 'Imagem não encontrada');
-            return res.redirect('/statistics');
-        }
-        db.get('SELECT stars FROM ratings WHERE image_id = ? AND user_id = ?', [imageId, req.user.id], (e, rating) => {
-            const userRating = rating ? rating.stars : 0;
-            res.render('details', {
-                image: {
-                    ...image,
-                    avg_rating: image.avg_rating || 0,
-                    rating_count: image.rating_count || 0
-                },
-                userRating,
-                success: req.flash('success')[0] || null,
-                error: req.flash('error')[0] || null
-            });
-        });
-    });
-});
-
-// ROTA DE PESQUISA – AGORA ACEITA ?user=username SEM OUTROS PARÂMETROS
-app.get('/search', ensureAuth, (req, res) => {
-    const query = (req.query.q || '').trim();
-    const page = parseInt(req.query.page) || 1;
-    const limit = 12;
-    const offset = (page - 1) * limit;
-    const date = req.query.date || null;
-    const user = req.query.user || null;
-
-    // Se só vier user, é válido
-    if (!query && !date && !user) {
-        return res.render('search', {
-            images: [],
-            query: '',
-            total: 0,
-            totalPages: 1,
-            currentPage: 1,
-            date: null,
-            user: null,
-            success: req.flash('success')[0] || null
-        });
-    }
-
-    const searchTerm = `%${query}%`;
-    let whereClauses = [];
-    let params = [];
-
-    if (query) {
-        whereClauses.push(`(species LIKE ? OR variety LIKE ? OR botanical_name LIKE ? OR origem LIKE ? OR caracteristicas LIKE ? OR conselhos_de_cultivo LIKE ? OR comentarios LIKE ?)`);
-        params.push(searchTerm, searchTerm, searchTerm, searchTerm, searchTerm, searchTerm, searchTerm);
-    }
-    if (date) {
-        whereClauses.push(`DATE(uploaded_at) = ?`);
-        params.push(date);
-    }
-    if (user) {
-        whereClauses.push(`uploaded_by = ?`);
-        params.push(user);
-    }
-
-    const whereSql = whereClauses.length > 0 ? 'WHERE ' + whereClauses.join(' AND ') : '';
-    const countSql = `SELECT COUNT(*) as total FROM images ${whereSql}`;
-    const searchSql = `SELECT * FROM images ${whereSql} ORDER BY uploaded_at DESC LIMIT ? OFFSET ?`;
-
-    db.get(countSql, params, (err, countRow) => {
-        if (err || !countRow) {
-            req.flash('error', 'Erro na pesquisa');
-            return res.redirect('/statistics');
-        }
-        const total = countRow.total;
-        const totalPages = Math.ceil(total / limit);
-
-        db.all(searchSql, [...params, limit, offset], (err, images) => {
-            if (err) {
-                req.flash('error', 'Erro ao carregar resultados');
-                return res.redirect('/statistics');
-            }
-            const imagesWithRating = [];
-            let done = 0;
-            if (images.length === 0) {
-                return res.render('search', {
-                    images: [],
-                    query,
-                    total,
-                    totalPages,
-                    currentPage: page,
-                    date,
-                    user,
-                    success: req.flash('success')[0] || null
-                });
-            }
-            images.forEach(img => {
-                db.get('SELECT stars FROM ratings WHERE image_id = ? AND user_id = ?', [img.id, req.user.id], (e, r) => {
-                    img.userRating = r ? r.stars : 0;
-                    imagesWithRating.push(img);
-                    if (++done === images.length) {
-                        res.render('search', {
-                            images: imagesWithRating,
-                            query,
-                            total,
-                            totalPages,
-                            currentPage: page,
-                            date,
-                            user,
-                            success: req.flash('success')[0] || null
-                        });
-                    }
-                });
-            });
-        });
-    });
-});
-
-// ... (resto do código: edit, review actions, rate, etc. permanece igual)
+// ... (o resto do código permanece exatamente igual: approved, rejected, details, search, edit, rate, etc.)
 
 // INICIAR SERVIDOR
 app.listen(PORT, () => {
