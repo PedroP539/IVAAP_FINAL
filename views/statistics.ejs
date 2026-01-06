@@ -176,6 +176,58 @@
             </div>
         </div>
     </div>
+    
+    
+    
+    
+        <!-- TIMELINE DE ATIVIDADE DO UTILIZADOR -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <h4 class="text-center mb-4" style="color:#27ae60;font-weight:bold">TIMELINE DA TUA ATIVIDADE</h4>
+            <div class="activity-card p-4">
+                <% if (userActivity.length > 0) { %>
+                    <div class="timeline">
+                        <% userActivity.forEach(activity => { %>
+                            <div class="activity-item d-flex align-items-center mb-3 pb-3 border-bottom">
+                                <div class="me-3">
+                                    <% if (activity.action === 'upload') { %>
+                                        <i class="fa-solid fa-upload fa-2x text-primary"></i>
+                                    <% } else if (activity.action === 'approve') { %>
+                                        <i class="fa-solid fa-thumbs-up fa-2x text-success"></i>
+                                    <% } else if (activity.action === 'reject') { %>
+                                        <i class="fa-solid fa-thumbs-down fa-2x text-danger"></i>
+                                    <% } %>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <strong>
+                                        <% if (activity.action === 'upload') { %>Carregaste<% } %>
+                                        <% if (activity.action === 'approve') { %>Aprovaste<% } %>
+                                        <% if (activity.action === 'reject') { %>Rejeitaste<% } %>
+                                        <%= ' ' + activity.species %> <%= activity.variety ? '(' + activity.variety + ')' : '' %>
+                                    </strong>
+                                    <br>
+                                    <small class="text-muted">
+                                        <%= new Date(activity.timestamp).toLocaleString('pt-PT') %>
+                                    </small>
+                                </div>
+                                <div>
+                                    <a href="/details/<%= activity.id %>" class="btn btn-sm btn-outline-success rounded-pill">Ver</a>
+                                </div>
+                            </div>
+                        <% }); %>
+                    </div>
+                <% } else { %>
+                    <p class="text-center text-muted">Ainda não tens atividade registada.</p>
+                <% } %>
+            </div>
+        </div>
+    </div>
+    
+    
+    
+    
+    
+    
 
     <!-- 4 CARTÕES PRINCIPAIS – MOSTRA GLOBAIS PARA ADMIN, PESSOAIS PARA NORMAL -->
     <div class="row justify-content-center mb-5">

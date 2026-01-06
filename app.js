@@ -201,15 +201,16 @@ app.post('/login', passport.authenticate('local', {
 app.get('/logout', (req, res) => { req.logout(() => res.redirect('/login')); });
 app.get('/', (req, res) => res.redirect(req.user ? '/statistics' : '/login'));
 
-// ESTATÍSTICAS – PERSONALIZADAS POR UTILIZADOR + VISTA COMPLETA PARA ADMIN
+// ESTATÍSTICAS – PERSONALIZADAS + TIMELINE DE ATIVIDADE
 app.get('/statistics', ensureAuth, (req, res) => {
     const clientIP = req.clientIP;
     const isAdmin = req.user.cargo === 'Administrador';
 
     // Variáveis comuns
     const latestUser = {};
+    let userActivity = [];
 
-    // ---------- ESTATÍSTICAS PESSOAIS DO UTILIZADOR ----------
+    // ---------- ESTATÍSTICAS PESSOAIS ----------
     let userStats = {
         totalUploaded: 0,
         approvedByUser: 0,
@@ -245,78 +246,116 @@ app.get('/statistics', ensureAuth, (req, res) => {
                     db.get('SELECT * FROM images WHERE reviewed_by = ? AND status = "rejected" ORDER BY reviewed_at DESC LIMIT 1', [req.user.username], (e, row) => { latestUser.rejected = row || null; });
                     db.get('SELECT * FROM images WHERE uploaded_by = ? AND status = "pending" ORDER BY uploaded_at DESC LIMIT 1', [req.user.username], (e, row) => { latestUser.pending = row || null; });
 
-                    // Se for admin → calcular também estatísticas globais
-                    if (isAdmin) {
-                        const globalStats = { total: 0, approved: 0, rejected: 0, pending: 0, latestImages: {}, topUsers: {}, topRated: null, leastRated: null };
-                        let completed = 0;
-                        const totalQueries = 17;
-                        const checkGlobal = () => {
-                            if (++completed !== totalQueries) return;
-                            renderStats(globalStats, userStats);
-                        };
+                    // ---------- TIMELINE DE ATIVIDADE ----------
+                    db.all(`
+                        SELECT 
+                            id,
+                            image_url,
+                            species,
+                            variety,
+                            status,
+                            uploaded_at,
+                            reviewed_at,
+                            'upload' as action,
+                            uploaded_at as timestamp
+                        FROM images 
+                        WHERE uploaded_by = ?
+                        UNION ALL
+                        SELECT 
+                            id,
+                            image_url,
+                            species,
+                            variety,
+                            status,
+                            uploaded_at,
+                            reviewed_at,
+                            CASE WHEN status = 'approved' THEN 'approve' ELSE 'reject' END as action,
+                            reviewed_at as timestamp
+                        FROM images 
+                        WHERE reviewed_by = ?
+                        ORDER BY timestamp DESC
+                        LIMIT 10
+                    `, [req.user.username, req.user.username], (err, rows) => {
+                        if (!err && rows) {
+                            userActivity = rows.map(row => ({
+                                id: row.id,
+                                image_url: row.image_url,
+                                species: row.species,
+                                variety: row.variety || '',
+                                action: row.action,
+                                timestamp: row.timestamp
+                            }));
+                        }
 
-                        // CONTAGENS GLOBAIS
-                        db.get('SELECT COUNT(*) as count FROM images', (err, row) => { globalStats.total = row?.count || 0; checkGlobal(); });
-                        db.get('SELECT COUNT(*) as count FROM images WHERE status = "approved"', (err, row) => { globalStats.approved = row?.count || 0; checkGlobal(); });
-                        db.get('SELECT COUNT(*) as count FROM images WHERE status = "rejected"', (err, row) => { globalStats.rejected = row?.count || 0; checkGlobal(); });
-                        db.get('SELECT COUNT(*) as count FROM images WHERE status = "pending"', (err, row) => { globalStats.pending = row?.count || 0; checkGlobal(); });
+                        // Se for admin → calcular estatísticas globais
+                        if (isAdmin) {
+                            const globalStats = { total: 0, approved: 0, rejected: 0, pending: 0, latestImages: {}, topUsers: {}, topRated: null, leastRated: null };
+                            let completed = 0;
+                            const totalQueries = 17;
+                            const checkGlobal = () => {
+                                if (++completed !== totalQueries) return;
+                                renderStats(globalStats, userStats);
+                            };
 
-                        // ÚLTIMAS GLOBAIS
-                        db.get('SELECT * FROM images ORDER BY uploaded_at DESC LIMIT 1', (err, row) => { globalStats.latestImages.uploaded = row || null; checkGlobal(); });
-                        db.get('SELECT * FROM images WHERE status = "approved" ORDER BY reviewed_at DESC LIMIT 1', (err, row) => { globalStats.latestImages.approved = row || null; checkGlobal(); });
-                        db.get('SELECT * FROM images WHERE status = "rejected" ORDER BY reviewed_at DESC LIMIT 1', (err, row) => { globalStats.latestImages.rejected = row || null; checkGlobal(); });
+                            db.get('SELECT COUNT(*) as count FROM images', (err, row) => { globalStats.total = row?.count || 0; checkGlobal(); });
+                            db.get('SELECT COUNT(*) as count FROM images WHERE status = "approved"', (err, row) => { globalStats.approved = row?.count || 0; checkGlobal(); });
+                            db.get('SELECT COUNT(*) as count FROM images WHERE status = "rejected"', (err, row) => { globalStats.rejected = row?.count || 0; checkGlobal(); });
+                            db.get('SELECT COUNT(*) as count FROM images WHERE status = "pending"', (err, row) => { globalStats.pending = row?.count || 0; checkGlobal(); });
 
-                        // TOP USERS GLOBAIS
-                        db.get('SELECT uploaded_by as user, COUNT(*) as count FROM images GROUP BY uploaded_by ORDER BY count DESC LIMIT 1', (err, row) => {
-                            globalStats.topUsers.uploads = row ? { user: row.user || 'Ninguém', count: row.count } : { user: 'Ninguém', count: 0 }; checkGlobal();
-                        });
-                        db.get('SELECT reviewed_by as user, COUNT(*) as count FROM images WHERE status = "approved" AND reviewed_by IS NOT NULL GROUP BY reviewed_by ORDER BY count DESC LIMIT 1', (err, row) => {
-                            globalStats.topUsers.approvals = row ? { user: row.user || 'Ninguém', count: row.count } : { user: 'Ninguém', count: 0 }; checkGlobal();
-                        });
-                        db.get('SELECT reviewed_by as user, COUNT(*) as count FROM images WHERE status = "rejected" AND reviewed_by IS NOT NULL GROUP BY reviewed_by ORDER BY count DESC LIMIT 1', (err, row) => {
-                            globalStats.topUsers.rejections = row ? { user: row.user || 'Ninguém', count: row.count } : { user: 'Ninguém', count: 0 }; checkGlobal();
-                        });
-                        db.get('SELECT uploaded_by as user, COUNT(*) as count FROM images WHERE comentarios IS NOT NULL AND comentarios != "" GROUP BY uploaded_by ORDER BY count DESC LIMIT 1', (err, row) => {
-                            globalStats.topUsers.comments = row ? { user: row.user || 'Ninguém', count: row.count } : { user: 'Ninguém', count: 0 }; checkGlobal();
-                        });
+                            db.get('SELECT * FROM images ORDER BY uploaded_at DESC LIMIT 1', (err, row) => { globalStats.latestImages.uploaded = row || null; checkGlobal(); });
+                            db.get('SELECT * FROM images WHERE status = "approved" ORDER BY reviewed_at DESC LIMIT 1', (err, row) => { globalStats.latestImages.approved = row || null; checkGlobal(); });
+                            db.get('SELECT * FROM images WHERE status = "rejected" ORDER BY reviewed_at DESC LIMIT 1', (err, row) => { globalStats.latestImages.rejected = row || null; checkGlobal(); });
 
-                        // RAINHAS DAS ESTRELAS GLOBAIS
-                        db.get('SELECT * FROM images WHERE rating_count > 0 ORDER BY rating_count DESC, avg_rating DESC, uploaded_at DESC LIMIT 1', (err, row) => { globalStats.topRated = row || null; checkGlobal(); });
-                        db.get('SELECT * FROM images WHERE rating_count > 0 ORDER BY rating_count ASC, uploaded_at DESC LIMIT 1', (err, row) => { globalStats.leastRated = row || null; checkGlobal(); });
-                    } else {
-                        // Utilizador normal – só stats pessoais
-                        renderStats({
-                            total: userStats.totalUploaded,
-                            approved: userStats.approvedByUser,
-                            rejected: userStats.rejectedByUser,
-                            pending: 0,
-                            latestImages: { uploaded: latestUser.uploaded, approved: latestUser.approved, rejected: latestUser.rejected },
-                            topUsers: {},
-                            topRated: null,
-                            leastRated: null
-                        }, userStats);
-                    }
+                            db.get('SELECT uploaded_by as user, COUNT(*) as count FROM images GROUP BY uploaded_by ORDER BY count DESC LIMIT 1', (err, row) => {
+                                globalStats.topUsers.uploads = row ? { user: row.user || 'Ninguém', count: row.count } : { user: 'Ninguém', count: 0 }; checkGlobal();
+                            });
+                            db.get('SELECT reviewed_by as user, COUNT(*) as count FROM images WHERE status = "approved" AND reviewed_by IS NOT NULL GROUP BY reviewed_by ORDER BY count DESC LIMIT 1', (err, row) => {
+                                globalStats.topUsers.approvals = row ? { user: row.user || 'Ninguém', count: row.count } : { user: 'Ninguém', count: 0 }; checkGlobal();
+                            });
+                            db.get('SELECT reviewed_by as user, COUNT(*) as count FROM images WHERE status = "rejected" AND reviewed_by IS NOT NULL GROUP BY reviewed_by ORDER BY count DESC LIMIT 1', (err, row) => {
+                                globalStats.topUsers.rejections = row ? { user: row.user || 'Ninguém', count: row.count } : { user: 'Ninguém', count: 0 }; checkGlobal();
+                            });
+                            db.get('SELECT uploaded_by as user, COUNT(*) as count FROM images WHERE comentarios IS NOT NULL AND comentarios != "" GROUP BY uploaded_by ORDER BY count DESC LIMIT 1', (err, row) => {
+                                globalStats.topUsers.comments = row ? { user: row.user || 'Ninguém', count: row.count } : { user: 'Ninguém', count: 0 }; checkGlobal();
+                            });
+
+                            db.get('SELECT * FROM images WHERE rating_count > 0 ORDER BY rating_count DESC, avg_rating DESC, uploaded_at DESC LIMIT 1', (err, row) => { globalStats.topRated = row || null; checkGlobal(); });
+                            db.get('SELECT * FROM images WHERE rating_count > 0 ORDER BY rating_count ASC, uploaded_at DESC LIMIT 1', (err, row) => { globalStats.leastRated = row || null; checkGlobal(); });
+                        } else {
+                            renderStats({
+                                total: userStats.totalUploaded,
+                                approved: userStats.approvedByUser,
+                                rejected: userStats.rejectedByUser,
+                                pending: 0,
+                                latestImages: { uploaded: latestUser.uploaded, approved: latestUser.approved, rejected: latestUser.rejected },
+                                topUsers: {},
+                                topRated: null,
+                                leastRated: null
+                            }, userStats);
+                        }
+                    });
+
+                    // Função para renderizar
+                    const renderStats = (globalStats, userStats) => {
+                        res.render('statistics', {
+                            stats: globalStats,
+                            userStats: userStats,
+                            latestImages: globalStats.latestImages,
+                            latestUser,
+                            topUsers: globalStats.topUsers,
+                            topRated: globalStats.topRated,
+                            leastRated: globalStats.leastRated,
+                            user: req.user,
+                            clientIP,
+                            isAdmin,
+                            userActivity,  // nova variável enviada
+                            success: req.flash('success')[0] || null
+                        });
+                    };
                 });
             });
         });
     });
-
-    // Função para renderizar (usada no final)
-    const renderStats = (globalStats, userStats) => {
-        res.render('statistics', {
-            stats: globalStats,
-            userStats: userStats,
-            latestImages: globalStats.latestImages,
-            latestUser,
-            topUsers: globalStats.topUsers,
-            topRated: globalStats.topRated,
-            leastRated: globalStats.leastRated,
-            user: req.user,
-            clientIP,
-            isAdmin,
-            success: req.flash('success')[0] || null
-        });
-    };
 });
 
 // ROTA UPLOAD
@@ -489,7 +528,7 @@ app.get('/rejected', ensureAuth, (req, res) => {
     });
 });
 
-// ROTA DETALHES – FUNCIONA PARA TODAS AS IMAGENS (APROVADAS, PENDENTES, REJEITADAS)
+// ROTA DETALHES – FUNCIONA PARA TODAS AS IMAGENS
 app.get('/details/:id', ensureAuth, (req, res) => {
     const imageId = req.params.id;
     db.get('SELECT * FROM images WHERE id = ?', [imageId], (err, image) => {
@@ -513,7 +552,7 @@ app.get('/details/:id', ensureAuth, (req, res) => {
     });
 });
 
-// ROTA DE PESQUISA – V6.9.16 – PASSA `date` E `user` PARA O EJS
+// ROTA DE PESQUISA
 app.get('/search', ensureAuth, (req, res) => {
     const query = (req.query.q || '').trim();
     const page = parseInt(req.query.page) || 1;
@@ -599,7 +638,7 @@ app.get('/search', ensureAuth, (req, res) => {
     });
 });
 
-// ROTA EDITAR – GET (ABRIR FORMULÁRIO)
+// ROTA EDITAR – GET
 app.get('/edit/:id', ensureAuth, (req, res) => {
     const imageId = req.params.id;
     db.get('SELECT * FROM images WHERE id = ?', [imageId], (err, image) => {
@@ -619,7 +658,7 @@ app.get('/edit/:id', ensureAuth, (req, res) => {
     });
 });
 
-// ROTA EDITAR – POST (GUARDAR ALTERAÇÕES)
+// ROTA EDITAR – POST
 app.post('/edit/:id', ensureAuth, upload.single('image'), async (req, res) => {
     const imageId = req.params.id;
     const user = req.user;
@@ -712,7 +751,7 @@ app.post('/edit/:id', ensureAuth, upload.single('image'), async (req, res) => {
     });
 });
 
-// === TODAS AS OUTRAS ROTAS (review, approved, rejected, edit, search, rate) ===
+// === TODAS AS OUTRAS ROTAS ===
 app.post('/review/:id/approve', ensureAuth, (req, res) => {
     db.run('UPDATE images SET status = "approved", reviewed_at = CURRENT_TIMESTAMP, reviewed_by = ? WHERE id = ?',
         [req.user.username, req.params.id], (err) => {

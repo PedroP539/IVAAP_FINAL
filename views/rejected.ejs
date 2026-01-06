@@ -243,16 +243,18 @@ background: repeating-linear-gradient(to top right, #27AE60 0%, #1C8247 100%);
 									<%= image.variety %></small> <% } %>
 								</span>
                             </h5>
-                            <p class="text-center text-muted small mb-2">
-                                <b>Rejeitada por:</b><br><%= image.reviewed_by %> em <%= new Date(image.reviewed_at).toLocaleDateString('pt-PT') %>
-                            </p>
-							
+                            
 							
                             <div class="btn-group-inline">
                                 <a href="/details/<%= image.id %>" class="btn btn-view action-btn">
                                   <!--  <i class="fas fa-eye"></i> -->Ver
                                 </a>
                             </div>
+                            <br>
+                            <p class="text-center text-muted small mb-2">
+                                <b>Rejeitada por:</b><br><%= image.reviewed_by %> em <%= new Date(image.reviewed_at).toLocaleDateString('pt-PT') %>
+                            </p>
+                            
 							<%- include('partials/stars', { 
     image: image, 
     userRating: image.userRating || 0 
