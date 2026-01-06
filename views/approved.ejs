@@ -12,69 +12,115 @@
         body {
             background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
             font-family: 'Quicksand', sans-serif;
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
-            min-height: 100vh;
         }
         .sticky-nav { position: fixed; top: 0; width: 100%; z-index: 1000; }
+        .content { padding: 2rem 0; flex: 1; }
+        .page-title {
+            text-align: center;
+            color: #27ae60;
+            font-weight: bold;
+            font-size: 2.2rem;
+            margin-bottom: 1.5rem;
+        }
         .image-card {
-            background: white; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-            overflow: hidden; transition: transform 0.2s;
-			min-height: 420px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            overflow: hidden;
+            transition: transform 0.2s;
+            margin-bottom: 1.5rem;
+			    min-height: 420px;
         }
         .image-card:hover { transform: translateY(-5px); }
         .card-img-container {
-            position: relative; width: 100%; height: 180px;
-            border-radius: 20px 20px 0 0;
-            background: #f0f8f0 url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100" height="100" fill="%23f0f8f0"/><path d="M30 40 L40 50 L35 55 L45 65 L30 60 L20 50 Z" fill="%23c8e6c9"/><circle cx="70" cy="35" r="8" fill="%23c8e6c9"/></svg>') center/40% no-repeat;
+            position: relative;
+            height: 200px;
             overflow: hidden;
+            border-radius: 20px 20px 0 0;
         }
         .card-img-top {
-            width: 100%; height: 100%; object-fit: cover; object-position: center;
-            border-radius: 20px 20px 0 0; display: block;
-            opacity: 0; transition: opacity 0.4s ease;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
         }
-        .card-img-top.loaded { opacity: 1; }
-       
-		.approved-badge {
-            position: absolute; top: 12px; right: 12px; background: #27ae60; color: white;
-            padding: 0.35rem 0.9rem; border-radius: 50px; font-size: 0.8rem; font-weight: bold;
-            z-index: 100; box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        .image-card:hover .card-img-top {
+            transform: scale(1.05);
         }
-        .card-body { padding: 1.5rem; background: white; border-radius: 20px 20px 20px 20px; }
-        .card-title { font-size: 1.3rem; font-weight: bold; color: #27ae60; margin-bottom: 0.5rem; text-align: center; }
-        .btn-group-inline { display: flex; justify-content: center; gap: 0.75rem; flex-wrap: nowrap; margin-top: 1rem; }
-       
-		.action-btn { flex: 1; min-width: 90px; max-width: 120px; border-radius: 50px; padding: 0.7rem 0.5rem; font-weight: bold; font-size: 0.9rem; text-align: center; white-space: nowrap; transition: all 0.2s; }
-		
-		.action-btn-2 { flex: 1; min-width: 90px; max-width: 120px; border-radius: 50px; padding: 0.7rem 0.5rem; font-weight: bold; font-size: 0.9rem; text-align: center; white-space: nowrap; transition: all 0.2s; }
-       
-		.action-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,0.25);}
-		
-		.action-btn-2:hover { transform: none; color:#fff; }
-        
-		.btn-approved { background: #27ae60; color: white; }
-		
-		
-		.action-btn[disabled]:hover {
-		}
-       
-		.btn-view { background: #16a085; color: white; }
-        
-		.pagination .page-link { border-radius: 50px; margin: 0 3px; padding: 0.5rem 1rem; }
-        
-		.pagination .page-item.active .page-link { background: #27ae60; border-color: #27ae60; }
+        .rejected-badge {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: #e74c3c;
+            color: white;
+            padding: 0.35rem 0.9rem;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            z-index: 100;
+        }
+        .card-body { padding: 1.5rem; }
+        .card-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #27ae60;
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+        .btn-group-inline {
+            display: flex;
+            justify-content: center;
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+        .action-btn {
+            flex: 1;
+            min-width: 90px;
+            max-width: 120px;
+            border-radius: 50px;
+            padding: 0.7rem 0.5rem;
+            font-weight: bold;
+            font-size: 0.9rem;
+            text-align: center;
+            white-space: nowrap;
+            transition: all 0.2s;
+        }
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.25);
+        }
+        .btn-view { background: #16a085; color: white; }
+        .pagination .page-link {
+            border-radius: 50px;
+            margin: 0 3px;
+            padding: 0.5rem 1rem;
+        }
+        .pagination .page-item.active .page-link {
+            background: #27ae60;
+            border-color: #27ae60;
+        }
+        .no-images {
+            text-align: center;
+            color: #666;
+            font-style: italic;
+            font-size: 1.1rem;
+            padding: 3rem;
+        }
         @media (max-width: 768px) {
             .btn-group-inline { flex-direction: column; }
-       
-			.action-btn { max-width: none; }
-            .card-img-container { height: 150px; }
+            .action-btn { max-width: none; }
+            .card-img-container { height: 160px; }
         }
-		
-		.content { padding: 2rem 0; flex: 1; }
 		
 input#searchQuery, input#searchDate, input#searchUser, button.btn.btn-success.btn-lg.rounded-pill.w-100.h-100.d-flex.align-items-center.justify-content-center {
     font-size: 1rem;
+}
+		
+		button.btn.btn-success.btn-lg.rounded-pill.w-100.h-100.d-flex.align-items-center.justify-content-center {
+    font-size: 1rem !important;
 }
 		
 		.especie {
@@ -93,7 +139,10 @@ background: repeating-linear-gradient(to top right, #27AE60 0%, #1C8247 100%);
 			color:#1c8247 !important;
 			font-weight: 300 !important;
 		}
- </style>
+		
+		
+		
+    </style>
 </head>
 <body>
 <header>
