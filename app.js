@@ -411,40 +411,40 @@ app.post('/upload', ensureAuth, upload.single('image'), async (req, res) => {
     }
 });
 
-// ROTA REVIEW (PENDENTES)
+// ROTA REVIEW – MOSTRA TODAS AS IMAGENS PENDENTES (SEM PAGINAÇÃO)
 app.get('/review', ensureAuth, (req, res) => {
-    const page = parseInt(req.query.page) || 1;
-    const limit = 12;
-    const offset = (page - 1) * limit;
-    db.get('SELECT COUNT(*) as total FROM images WHERE status = "pending"', (err, countRow) => {
-        if (err) return res.render('review', { error: 'Erro na base de dados', images: [], totalPages: 1, currentPage: 1 });
-        const total = countRow.total;
-        const totalPages = Math.ceil(total / limit);
-        db.all(`
-            SELECT * FROM images
-            WHERE status = "pending"
-            ORDER BY uploaded_at DESC
-            LIMIT ? OFFSET ?
-        `, [limit, offset], (err, images) => {
-            if (err) return res.render('review', { error: 'Erro ao carregar imagens', images: [], totalPages: 1, currentPage: 1 });
-            const imagesWithRating = [];
-            let done = 0;
-            if (images.length === 0) {
-                return res.render('review', { images: [], totalPages, currentPage: page, success: req.flash('success')[0] || null });
-            }
-            images.forEach(img => {
-                db.get('SELECT stars FROM ratings WHERE image_id = ? AND user_id = ?', [img.id, req.user.id], (e, r) => {
-                    img.userRating = r ? r.stars : 0;
-                    imagesWithRating.push(img);
-                    if (++done === images.length) {
-                        res.render('review', {
-                            images: imagesWithRating,
-                            totalPages,
-                            currentPage: page,
-                            success: req.flash('success')[0] || null
-                        });
-                    }
-                });
+    db.all(`
+        SELECT * FROM images
+        WHERE status = "pending"
+        ORDER BY uploaded_at DESC
+    `, (err, images) => {
+        if (err) {
+            return res.render('review', { 
+                images: [], 
+                success: req.flash('success')[0] || null 
+            });
+        }
+
+        const imagesWithRating = [];
+        let done = 0;
+
+        if (images.length === 0) {
+            return res.render('review', { 
+                images: [], 
+                success: req.flash('success')[0] || null 
+            });
+        }
+
+        images.forEach(img => {
+            db.get('SELECT stars FROM ratings WHERE image_id = ? AND user_id = ?', [img.id, req.user.id], (e, r) => {
+                img.userRating = r ? r.stars : 0;
+                imagesWithRating.push(img);
+                if (++done === images.length) {
+                    res.render('review', {
+                        images: imagesWithRating,
+                        success: req.flash('success')[0] || null
+                    });
+                }
             });
         });
     });
