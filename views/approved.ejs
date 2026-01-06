@@ -209,9 +209,7 @@ background: repeating-linear-gradient(to top right, #27AE60 0%, #1C8247 100%);
 								<small class="text-muted">
 								<span class="variedade"><%= image.variety %></small> <% } %></span>
                             </h5>
-                            <p class="text-center text-muted small mb-2">
-                                <b>Aprovada por:</b><br><%= image.reviewed_by %> em <%= new Date(image.reviewed_at).toLocaleString('pt-PT') %>
-                            </p>
+                            
 	<div class="btn-group-inline">
                                 <button class="btn btn-approved action-btn-2" disabled >APROVADA</button>
                                 <a href="/details/<%= image.id %>" class="btn btn-view action-btn">VER</a>
@@ -220,6 +218,13 @@ background: repeating-linear-gradient(to top right, #27AE60 0%, #1C8247 100%);
     image: image, 
     userRating: image.userRating || 0 
 }) %>
+                            
+                            
+                            <p class="text-center text-muted small mb-2">
+                                <b>Aprovada por:</b><br><%= image.reviewed_by %> em <%= new Date(image.reviewed_at).toLocaleString('pt-PT') %>
+                            </p>
+                            
+                            
                         </div>
                     </div>
                 </div>
