@@ -151,7 +151,7 @@ background: repeating-linear-gradient(to top right, #27AE60 0%, #1C8247 100%);
     </div>
 </div>
 <main class="container content">
-    <h2 class="text-center mb-4" style="color:#27ae60;font-weight:bold">ESTATÍSTICAS</h2>
+    <h2 class="text-center mb-4" style="color:#27ae60;font-weight:bold">ESTATÍSTICAS GERAIS</h2>
     <% if (success) { %>
         <div class="alert alert-success text-center alert-dismissible fade show">
             <strong><%= success %></strong>
@@ -350,7 +350,7 @@ background: repeating-linear-gradient(to top right, #27AE60 0%, #1C8247 100%);
                         <%= ua.uploaded.species %><br><%= ua.uploaded.variety || '' %>
                     </a></p>
                     <small><%= new Date(ua.uploaded.uploaded_at).toLocaleString('pt-PT') %></small>
-                <% } else { %><p class="text-muted">Ainda não fizeste upload</p><% } %>
+                <% } else { %><p class="text-muted">Ainda não carregaste nenhuma imagem</p><% } %>
             </div>
         </div>
         <div class="col-md-3">
@@ -364,7 +364,7 @@ background: repeating-linear-gradient(to top right, #27AE60 0%, #1C8247 100%);
                         <%= ua.approved.species %><br><%= ua.approved.variety || '' %>
                     </a></p>
                     <small><%= new Date(ua.approved.reviewed_at).toLocaleString('pt-PT') %></small>
-                <% } else { %><p class="text-muted">Ainda não aprovaste</p><% } %>
+                <% } else { %><p class="text-muted">Ainda não aprovaste imagens</p><% } %>
             </div>
         </div>
         <div class="col-md-3">
@@ -378,7 +378,7 @@ background: repeating-linear-gradient(to top right, #27AE60 0%, #1C8247 100%);
                         <%= ua.rejected.species %><br><%= ua.rejected.variety || '' %>
                     </a></p>
                     <small><%= new Date(ua.rejected.reviewed_at).toLocaleString('pt-PT') %></small>
-                <% } else { %><p class="text-muted">Ainda não rejeitaste</p><% } %>
+                <% } else { %><p class="text-muted">Ainda não rejeitaste imagens</p><% } %>
             </div>
         </div>
         <div class="col-md-3">
@@ -392,7 +392,7 @@ background: repeating-linear-gradient(to top right, #27AE60 0%, #1C8247 100%);
                         <%= ua.pending.species %><br><%= ua.pending.variety || '' %>
                     </a></p>
                     <small><%= new Date(ua.pending.uploaded_at).toLocaleString('pt-PT') %></small>
-                <% } else { %><p class="text-muted">Nenhum pendente teu</p><% } %>
+                <% } else { %><p class="text-muted">Nenhum imagem pendente para tua avaliação</p><% } %>
             </div>
         </div>
     </div>
