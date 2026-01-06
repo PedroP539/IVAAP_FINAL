@@ -17,7 +17,7 @@
         .stats-card .stat-number{font-size:3.2rem;font-weight:bold;color:#27ae60;line-height:1}
         .stats-card p{margin:0.5rem 0 0;font-size:1.1rem;font-weight:600;color:#333}
         .user-avatar{width:80px;height:80px;border-radius:50%;background:#27ae60;color:white;display:flex;align-items:center;justify-content:center;font-size:2rem;font-weight:bold;margin:0 auto 1rem}
-       
+      
 .activity-card{background:white;border-radius:20px;box-shadow:0 10px 30px rgba(0,0,0,.15);padding:1.8rem;margin-bottom:1.5rem; min-height:330px;}
         .activity-item{display:flex;align-items:center;gap:1rem;padding:0.8rem 0;border-bottom:1px solid #eee}
         .activity-item:last-child{border:none}
@@ -46,7 +46,6 @@
         .champion-name{font-size:1.4rem;font-weight:bold;color:#27ae60;margin:0.5rem 0}
         .champion-count{font-size:3rem;font-weight:bold;color:#1e8449;margin:0.5rem 0}
         .champion-label{font-size:1rem;color:#555;text-transform:uppercase;letter-spacing:1px}
-
         /* NOVO: ESTILO DAS IMAGENS MAIS/MENOS VOTADAS */
         .vote-card{background:white;border-radius:20px;box-shadow:0 10px 30px rgba(0,0,0,.15);padding:1.8rem;transition:transform .3s;overflow:hidden}
         .vote-card:hover{transform:translateY(-8px)}
@@ -56,43 +55,33 @@
         .vote-info{font-size:0.95rem;color:#555;line-height:1.5}
         .vote-count{font-size:2.2rem;font-weight:bold;color:#1e8449;margin:0.5rem 0}
         .vote-label{font-size:0.9rem;text-transform:uppercase;letter-spacing:1px;color:#27ae60;font-weight:bold}
-		
-		
-		
-		.btn-success {
+.btn-success {
     color: #fff;
     background-color: #28a745;
     border-color: #28a745;
     padding: 10px 20px !important;
     font-size: 1rem !important;
 }
-		
-		.btn-outline-danger {
+.btn-outline-danger {
     color: #fff;
     background-color: #ff0000;
     border-color: #ff0000;
     padding: 10px 20px !important;
     font-size: 1rem !important;
 }
-		
-		
-		
-		.especie {
-			font-size: 1.65rem; 
-	/*		color: #27ae60;!important; */
-			background: #27AE60;
+.especie {
+font-size: 1.65rem;
+/* color: #27ae60;!important; */
+background: #27AE60;
 background: repeating-linear-gradient(to top right, #27AE60 0%, #1C8247 100%);
 -webkit-background-clip: text;
 -webkit-text-fill-color: transparent;
-
-
-		}
-		
-		.variedade {
-			font-size: 1.25rem;!important;
-			color:#1c8247 !important;
-			font-weight: 300 !important;
-		}
+}
+.variedade {
+font-size: 1.25rem;!important;
+color:#1c8247 !important;
+font-weight: 300 !important;
+}
     </style>
 </head>
 <body>
@@ -100,13 +89,12 @@ background: repeating-linear-gradient(to top right, #27AE60 0%, #1C8247 100%);
     <!-- GREEN TOP BAR WITH USER NAME AND LOGIN TIME -->
     <div class="bg-success text-white text-center py-3">
         <% if (user) { %>
-            <strong>Olá <%= user.nome %> <%= user.apelido || '' %></strong> 
+            <strong>Olá <%= user.nome %> <%= user.apelido || '' %></strong>
             — último login: <%= new Date().toLocaleString('pt-PT', {day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit'}) %>
         <% } else { %>
             <strong>Bem-vindo ao IVAAP</strong>
         <% } %>
     </div>
-
     <!-- MAIN NAVBAR BELOW THE GREEN BAR -->
     <nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
         <a class="navbar-brand font-weight-bold" href="/">IVAAP</a>
@@ -269,7 +257,6 @@ background: repeating-linear-gradient(to top right, #27AE60 0%, #1C8247 100%);
             </div>
         </div>
     </div>
-
     <!-- NOVO: IMAGENS MAIS E MENOS VOTADAS – 100% ROW, 2 COLUNAS -->
     <div class="row mb-5">
         <div class="col-12">
@@ -285,14 +272,13 @@ background: repeating-linear-gradient(to top right, #27AE60 0%, #1C8247 100%);
                                 <img src="/uploads/<%= topRated.image_url %>" class="vote-thumb" onerror="this.src='/images/placeholder.jpg'">
                             </a>
                             <div class="vote-title">
-								
-								<span class="especie">
-								<%= topRated.species %>
-								</span><br>
-								<span class="variedade">
-								<%= topRated.variety ? '('+topRated.variety+')' : '' %>
-									</span>
-						</div>
+<span class="especie">
+<%= topRated.species %>
+</span><br>
+<span class="variedade">
+<%= topRated.variety ? '('+topRated.variety+')' : '' %>
+</span>
+</div>
                             <div class="vote-info">
                                 por <strong><%= topRated.uploaded_by %></strong><br>
                                 <%= new Date(topRated.uploaded_at).toLocaleDateString('pt-PT') %>
@@ -303,7 +289,6 @@ background: repeating-linear-gradient(to top right, #27AE60 0%, #1C8247 100%);
                         <% } %>
                     </div>
                 </div>
-
                 <!-- IMAGEM MENOS VOTADA -->
                 <div class="col-md-6 mb-4">
                     <div class="vote-card text-center">
@@ -314,13 +299,13 @@ background: repeating-linear-gradient(to top right, #27AE60 0%, #1C8247 100%);
                                 <img src="/uploads/<%= leastRated.image_url %>" class="vote-thumb" onerror="this.src='/images/placeholder.jpg'">
                             </a>
                             <div class="vote-title">
-								<span class="especie">
-								<%= leastRated.species %>
-								</span><br>
-								<span class="variedade">
-								<%= leastRated.variety ? '('+leastRated.variety+')' : '' %>
-								</span>
-						</div>
+<span class="especie">
+<%= leastRated.species %>
+</span><br>
+<span class="variedade">
+<%= leastRated.variety ? '('+leastRated.variety+')' : '' %>
+</span>
+</div>
                             <div class="vote-info">
                                 por <strong><%= leastRated.uploaded_by %></strong><br>
                                 <%= new Date(leastRated.uploaded_at).toLocaleDateString('pt-PT') %>
@@ -334,7 +319,6 @@ background: repeating-linear-gradient(to top right, #27AE60 0%, #1C8247 100%);
             </div>
         </div>
     </div>
-
     <!-- TUA ATIVIDADE -->
     <div class="row mb-4">
         <div class="col-12"><h4 class="text-center mb-4" style="color:#27ae60;font-weight:bold">A TUA ATIVIDADE</h4></div>
@@ -399,9 +383,12 @@ background: repeating-linear-gradient(to top right, #27AE60 0%, #1C8247 100%);
     <div class="row">
         <div class="col-lg-6">
             <div class="stats-card">
-                <h3>Taxa de Aprovação</h3>
-                <div class="progress"><div class="progress-bar" style="width: <%= stats.approvalRate %>%"><%= stats.approvalRate %>%</div></div>
-                <p class="mt-3"><%= stats.approved %> de <%= stats.total %> imagens aprovadas</p>
+                <h3>A Tua Taxa de Aprovação</h3>
+                <div class="progress"><div class="progress-bar" style="width: <%= userApprovalRate %>%"><%= userApprovalRate %>%</div></div>
+                <p class="mt-3"><%= userApproved %> de <%= userReviewed %> imagens revistas por ti foram aprovadas</p>
+                <% if (userReviewed === 0) { %>
+                    <small class="text-muted">Ainda não reviste nenhuma imagem</small>
+                <% } %>
             </div>
         </div>
         <div class="col-lg-6">
@@ -446,7 +433,7 @@ background: repeating-linear-gradient(to top right, #27AE60 0%, #1C8247 100%);
     showQuote();
     setInterval(showQuote, 4000);
     setTimeout(() => {
-        document.querySelector('.progress-bar').style.width = '<%= stats.approvalRate %>%';
+        document.querySelector('.progress-bar').style.width = '<%= userApprovalRate %>%';
     }, 500);
 </script>
 <footer class="mt-5 py-4 text-center bg-light">
