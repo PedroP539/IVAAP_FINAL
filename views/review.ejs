@@ -54,23 +54,25 @@ background: repeating-linear-gradient(to top right, #27AE60 0%, #1C8247 100%);
 </head>
 <body>
 <header>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light sticky-nav shadow-sm">
-        <a class="navbar-brand font-weight-bold" href="/">IVAAP</a>
-        <a class="navbar-brand font-weight-bold" href="/">Olá username</a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav mx-auto">
-                <li class="nav-item"><a class="nav-link" href="/upload"><i class="fa-solid fa-upload"></i> CARREGAR</a></li>
-                <li class="nav-item"><a class="nav-link" href="/review"><i class="fa-solid fa-pencil"></i> REVER</a></li>
-                <li class="nav-item"><a class="nav-link" href="/approved"><i class="fa-solid fa-thumbs-up"></i> APROVADAS</a></li>
-                <li class="nav-item"><a class="nav-link" href="/rejected"><i class="fa-solid fa-thumbs-down"></i> REJEITADAS</a></li>
-                <li class="nav-item"><a class="nav-link" href="/statistics"><i class="fa-solid fa-bolt"></i> ESTATÍSTICAS</a></li>
-                <li class="nav-item"><a class="nav-link" href="/logout"><i class="fa-solid fa-right-from-bracket"></i> SAIR</a></li>
-            </ul>
-        </div>
-    </nav>
+<nav class="navbar navbar-expand-lg navbar-light bg-light sticky-nav shadow-sm">
+    <a class="navbar-brand font-weight-bold" href="/">IVAAP</a>
+    <a class="navbar-brand font-weight-bold" href="/">
+        Olá <%= user ? user.nome + ' ' + (user.apelido || '') : 'Visitante' %>
+    </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="#navbarNav">
+        <ul class="navbar-nav mx-auto">
+            <li class="nav-item"><a class="nav-link" href="/upload"><i class="fa-solid fa-upload"></i> CARREGAR</a></li>
+            <li class="nav-item"><a class="nav-link" href="/review"><i class="fa-solid fa-pencil"></i> REVER</a></li>
+            <li class="nav-item"><a class="nav-link" href="/approved"><i class="fa-solid fa-thumbs-up"></i> APROVADAS</a></li>
+            <li class="nav-item"><a class="nav-link" href="/rejected"><i class="fa-solid fa-thumbs-down"></i> REJEITADAS</a></li>
+            <li class="nav-item"><a class="nav-link" href="/statistics"><i class="fa-solid fa-bolt"></i> ESTATÍSTICAS</a></li>
+            <li class="nav-item"><a class="nav-link" href="/logout"><i class="fa-solid fa-right-from-bracket"></i> SAIR</a></li>
+        </ul>
+    </div>
+</nav>
 </header>
 <br><br>
 
