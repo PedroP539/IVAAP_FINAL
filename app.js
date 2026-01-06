@@ -2,7 +2,7 @@ const express = require('express');
 const session = require('express-session');
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
-const flash = require('connect-flash';
+const flash = require('connect-flash');
 const multer = require('multer');
 const path = require('path');
 const bcrypt = require('bcrypt');
@@ -215,7 +215,6 @@ function dbGet(sql, params = []) {
 app.get('/statistics', ensureAuth, async (req, res) => {
     const clientIP = req.clientIP;
     const isAdmin = req.user.cargo === 'Administrador';
-
     try {
         // 1. DADOS PESSOAIS DO UTILIZADOR
         const userStatsQueries = await Promise.all([
@@ -229,33 +228,29 @@ app.get('/statistics', ensureAuth, async (req, res) => {
             dbGet('SELECT * FROM images WHERE uploaded_by = ? AND status = "pending" ORDER BY uploaded_at DESC LIMIT 1', [req.user.username]),
             dbGet('SELECT COUNT(*) as count FROM images WHERE uploaded_by = ? AND status = "pending"', [req.user.username])
         ]);
-
         const userStats = {
             totalUploaded: userStatsQueries[0]?.count || 0,
             reviewedByUser: userStatsQueries[1]?.count || 0,
             approvedByUser: userStatsQueries[2]?.count || 0,
             rejectedByUser: userStatsQueries[3]?.count || 0,
-            userApprovalRate: userStatsQueries[1]?.count > 0 
-                ? Math.round((userStatsQueries[2]?.count / userStatsQueries[1]?.count) * 100) 
+            userApprovalRate: userStatsQueries[1]?.count > 0
+                ? Math.round((userStatsQueries[2]?.count / userStatsQueries[1]?.count) * 100)
                 : 0
         };
-
         const latestUser = {
             uploaded: userStatsQueries[4] || null,
             approved: userStatsQueries[5] || null,
             rejected: userStatsQueries[6] || null,
             pending: userStatsQueries[7] || null
         };
-
         const userPendingCount = userStatsQueries[8]?.count || 0;
-
         // 2. TIMELINE DE ATIVIDADE PESSOAL
         const userActivity = await new Promise((resolve, reject) => {
             db.all(`
                 SELECT id, image_url, species, variety, 'upload' as action, uploaded_at as timestamp
                 FROM images WHERE uploaded_by = ?
                 UNION ALL
-                SELECT id, image_url, species, variety, 
+                SELECT id, image_url, species, variety,
                        CASE WHEN status = 'approved' THEN 'approve' ELSE 'reject' END as action,
                        reviewed_at as timestamp
                 FROM images WHERE reviewed_by = ?
@@ -273,7 +268,6 @@ app.get('/statistics', ensureAuth, async (req, res) => {
                 })));
             });
         });
-
         // 3. ATIVIDADE GLOBAL
         const globalLatestQueries = await Promise.all([
             dbGet('SELECT * FROM images ORDER BY uploaded_at DESC LIMIT 1'),
@@ -281,15 +275,12 @@ app.get('/statistics', ensureAuth, async (req, res) => {
             dbGet('SELECT * FROM images WHERE status = "rejected" ORDER BY reviewed_at DESC LIMIT 1'),
             dbGet('SELECT COUNT(*) as count FROM images WHERE status = "pending"')
         ]);
-
         const latestImages = {
             uploaded: globalLatestQueries[0] || null,
             approved: globalLatestQueries[1] || null,
             rejected: globalLatestQueries[2] || null
         };
-
         const globalPendingCount = globalLatestQueries[3]?.count || 0;
-
         // 4. SE FOR ADMIN
         if (isAdmin) {
             const globalQueries = await Promise.all([
@@ -304,7 +295,6 @@ app.get('/statistics', ensureAuth, async (req, res) => {
                 dbGet('SELECT * FROM images WHERE rating_count > 0 ORDER BY rating_count DESC, avg_rating DESC, uploaded_at DESC LIMIT 1'),
                 dbGet('SELECT * FROM images WHERE rating_count > 0 ORDER BY rating_count ASC, uploaded_at DESC LIMIT 1')
             ]);
-
             const globalStats = {
                 total: globalQueries[0]?.count || 0,
                 approved: globalQueries[1]?.count || 0,
@@ -320,7 +310,6 @@ app.get('/statistics', ensureAuth, async (req, res) => {
                 topRated: globalQueries[8] || null,
                 leastRated: globalQueries[9] || null
             };
-
             return res.render('statistics', {
                 stats: globalStats,
                 userStats,
@@ -334,7 +323,6 @@ app.get('/statistics', ensureAuth, async (req, res) => {
                 success: req.flash('success')[0] || null
             });
         }
-
         // 5. UTILIZADOR NORMAL
         res.render('statistics', {
             stats: {
@@ -357,7 +345,6 @@ app.get('/statistics', ensureAuth, async (req, res) => {
             isAdmin: false,
             success: req.flash('success')[0] || null
         });
-
     } catch (err) {
         console.error('ERRO CRÍTICO NAS ESTATÍSTICAS:', err);
         req.flash('error', 'Erro ao carregar estatísticas. Tenta novamente.');
@@ -427,7 +414,6 @@ app.post('/review/:id/approve', ensureAuth, (req, res) => {
             res.redirect('/review');
         });
 });
-
 app.post('/review/:id/reject', ensureAuth, (req, res) => {
     db.run('UPDATE images SET status = "rejected", reviewed_at = CURRENT_TIMESTAMP, reviewed_by = ? WHERE id = ?',
         [req.user.username, req.params.id], (err) => {
@@ -436,7 +422,6 @@ app.post('/review/:id/reject', ensureAuth, (req, res) => {
             res.redirect('/review');
         });
 });
-
 app.post('/review/:id/reinstate', ensureAuth, (req, res) => {
     db.run('UPDATE images SET status = "pending", reviewed_at = NULL, reviewed_by = NULL WHERE id = ?',
         [req.params.id], function(err) {
@@ -455,12 +440,10 @@ app.get('/review', ensureAuth, (req, res) => {
     const uploadedBy = req.query.uploaded_by;
     let whereClause = 'status = "pending"';
     let params = [];
-
     if (uploadedBy) {
         whereClause += ' AND uploaded_by = ?';
         params.push(uploadedBy);
     }
-
     db.all(`
         SELECT * FROM images
         WHERE ${whereClause}
@@ -495,7 +478,513 @@ app.get('/review', ensureAuth, (req, res) => {
     });
 });
 
-// ... (o resto do código permanece exatamente igual: approved, rejected, details, search, edit, rate, etc.)
+// ROTA APROVADAS – SUPORTA FILTRO ?reviewed_by=username + AJAX PARA INFINITE SCROLL
+app.get('/approved', ensureAuth, (req, res) => {
+    const reviewedBy = req.query.reviewed_by;
+    let whereClause = 'WHERE status = "approved"';
+    let params = [];
+    if (reviewedBy) {
+        whereClause += ' AND reviewed_by = ?';
+        params.push(reviewedBy);
+    }
+    const page = parseInt(req.query.page) || 1;
+    const limit = 12;
+    const offset = (page - 1) * limit;
+    db.all(`
+        SELECT * FROM images
+        ${whereClause}
+        ORDER BY reviewed_at DESC
+        LIMIT ? OFFSET ?
+    `, [...params, limit, offset], (err, images) => {
+        if (err || images.length === 0) {
+            if (req.xhr || (req.headers.accept && req.headers.accept.indexOf('json') > -1)) {
+                return res.send('');
+            }
+            return res.render('approved', { images: [], success: req.flash('success')[0] || null });
+        }
+        const imagesWithRating = [];
+        let done = 0;
+        images.forEach(img => {
+            db.get('SELECT stars FROM ratings WHERE image_id = ? AND user_id = ?', [img.id, req.user.id], (e, r) => {
+                img.userRating = r ? r.stars : 0;
+                imagesWithRating.push(img);
+                if (++done === images.length) {
+                    if (req.xhr || (req.headers.accept && req.headers.accept.indexOf('json') > -1)) {
+                        const starsHtml = (image) => {
+                            let html = '<div class="text-center mt-2">';
+                            for (let i = 1; i <= 5; i++) {
+                                if (i <= image.userRating) {
+                                    html += '<i class="fas fa-star text-warning"></i>';
+                                } else {
+                                    html += '<i class="far fa-star text-muted"></i>';
+                                }
+                            }
+                            html += ` <small class="text-muted">(${image.rating_count || 0})</small></div>`;
+                            return html;
+                        };
+                        const cardsHtml = imagesWithRating.map(image => `
+                            <div class="col-md-4 mb-4">
+                                <div class="image-card">
+                                    <div class="card-img-container">
+                                        <a href="/uploads/${image.image_url}"
+                                           data-lightbox="approved-images"
+                                           data-title="${image.species || 'Sem espécie'}">
+                                            <img src="/uploads/${image.image_url}"
+                                                 class="card-img-top lazy"
+                                                 data-src="/uploads/${image.image_url}"
+                                                 alt="${image.species}"
+                                                 onerror="this.src='/images/placeholder.jpg'">
+                                        </a>
+                                        <span class="approved-badge">APROVADA</span>
+                                    </div>
+                                    <div class="card-body">
+                                        <h5 class="card-title">
+                                            <span class="especie">${image.species || 'Sem espécie'}</span>
+                                            <br>
+                                            ${image.variety ? `<small class="variedade">${image.variety}</small>` : ''}
+                                        </h5>
+                                        <div class="btn-group-inline">
+                                            <button class="btn btn-success action-btn" disabled>APROVADA</button>
+                                            <a href="/details/${image.id}" class="btn btn-view action-btn">VER</a>
+                                        </div>
+                                        <br>
+                                        <p class="text-center text-muted small mb-2">
+                                            <b>Aprovada por:</b><br>${image.reviewed_by}<br>em ${new Date(image.reviewed_at).toLocaleDateString('pt-PT')}
+                                        </p>
+                                        ${starsHtml(image)}
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('');
+                        return res.send(cardsHtml);
+                    } else {
+                        res.render('approved', {
+                            images: imagesWithRating,
+                            success: req.flash('success')[0] || null
+                        });
+                    }
+                }
+            });
+        });
+    });
+});
+
+// ROTA REJEITADAS – SUPORTA FILTRO ?reviewed_by=username + AJAX PARA INFINITE SCROLL
+app.get('/rejected', ensureAuth, (req, res) => {
+    const reviewedBy = req.query.reviewed_by;
+    let whereClause = 'WHERE status = "rejected"';
+    let params = [];
+    if (reviewedBy) {
+        whereClause += ' AND reviewed_by = ?';
+        params.push(reviewedBy);
+    }
+    const page = parseInt(req.query.page) || 1;
+    const limit = 12;
+    const offset = (page - 1) * limit;
+    db.all(`
+        SELECT * FROM images
+        ${whereClause}
+        ORDER BY reviewed_at DESC
+        LIMIT ? OFFSET ?
+    `, [...params, limit, offset], (err, images) => {
+        if (err || images.length === 0) {
+            if (req.xhr || (req.headers.accept && req.headers.accept.indexOf('json') > -1)) {
+                return res.send('');
+            }
+            return res.render('rejected', { images: [], success: req.flash('success')[0] || null });
+        }
+        const imagesWithRating = [];
+        let done = 0;
+        images.forEach(img => {
+            db.get('SELECT stars FROM ratings WHERE image_id = ? AND user_id = ?', [img.id, req.user.id], (e, r) => {
+                img.userRating = r ? r.stars : 0;
+                imagesWithRating.push(img);
+                if (++done === images.length) {
+                    if (req.xhr || (req.headers.accept && req.headers.accept.indexOf('json') > -1)) {
+                        const starsHtml = (image) => {
+                            let html = '<div class="text-center mt-2">';
+                            for (let i = 1; i <= 5; i++) {
+                                if (i <= image.userRating) {
+                                    html += '<i class="fas fa-star text-warning"></i>';
+                                } else {
+                                    html += '<i class="far fa-star text-muted"></i>';
+                                }
+                            }
+                            html += ` <small class="text-muted">(${image.rating_count || 0})</small></div>`;
+                            return html;
+                        };
+                        const cardsHtml = imagesWithRating.map(image => `
+                            <div class="col-md-4 mb-4">
+                                <div class="image-card">
+                                    <div class="card-img-container">
+                                        <a href="/uploads/${image.image_url}"
+                                           data-lightbox="rejected-images"
+                                           data-title="${image.species || 'Sem espécie'}">
+                                            <img src="/uploads/${image.image_url}"
+                                                 class="card-img-top lazy"
+                                                 data-src="/uploads/${image.image_url}"
+                                                 alt="${image.species}"
+                                                 onerror="this.src='/images/placeholder.jpg'">
+                                        </a>
+                                        <span class="rejected-badge">REJEITADA</span>
+                                    </div>
+                                    <div class="card-body">
+                                        <h5 class="card-title">
+                                            <span class="especie">${image.species || 'Sem espécie'}</span>
+                                            <br>
+                                            ${image.variety ? `<small class="variedade">${image.variety}</small>` : ''}
+                                        </h5>
+                                        <div class="btn-group-inline">
+                                            <a href="/details/${image.id}" class="btn btn-view action-btn">Ver</a>
+                                        </div>
+                                        <br>
+                                        <p class="text-center text-muted small mb-2">
+                                            <b>Rejeitada por:</b><br>${image.reviewed_by} em ${new Date(image.reviewed_at).toLocaleDateString('pt-PT')}
+                                        </p>
+                                        ${starsHtml(image)}
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('');
+                        return res.send(cardsHtml);
+                    } else {
+                        res.render('rejected', {
+                            images: imagesWithRating,
+                            success: req.flash('success')[0] || null
+                        });
+                    }
+                }
+            });
+        });
+    });
+});
+
+// ROTA DE PESQUISA – CORRIGIDO O COUNT TOTAL + INFINITE SCROLL
+app.get('/search', ensureAuth, (req, res) => {
+    const query = (req.query.q || '').trim();
+    const page = parseInt(req.query.page) || 1;
+    const limit = 12;
+    const offset = (page - 1) * limit;
+    const date = req.query.date || null;
+    const user = req.query.user || null;
+
+    if (!query && !date && !user) {
+        return res.render('search', {
+            images: [],
+            query: '',
+            date: null,
+            user: null,
+            total: 0,
+            success: req.flash('success')[0] || null
+        });
+    }
+
+    let whereClauses = [];
+    let params = [];
+
+    if (query) {
+        const searchTerm = `%${query}%`;
+        whereClauses.push(`(species LIKE ? OR variety LIKE ? OR botanical_name LIKE ? OR origem LIKE ? OR caracteristicas LIKE ? OR conselhos_de_cultivo LIKE ? OR comentarios LIKE ?)`);
+        params.push(searchTerm, searchTerm, searchTerm, searchTerm, searchTerm, searchTerm, searchTerm);
+    }
+    if (date) {
+        whereClauses.push(`DATE(uploaded_at) = ?`);
+        params.push(date);
+    }
+    if (user) {
+        whereClauses.push(`uploaded_by = ?`);
+        params.push(user);
+    }
+
+    const whereSql = whereClauses.length > 0 ? 'WHERE ' + whereClauses.join(' AND ') : '';
+
+    // 1. Contar o total real
+    const countSql = `SELECT COUNT(*) as total FROM images ${whereSql}`;
+    db.get(countSql, params, (err, countRow) => {
+        if (err || !countRow) {
+            req.flash('error', 'Erro na pesquisa');
+            return res.redirect('/statistics');
+        }
+        const total = countRow.total || 0;
+
+        // 2. Carregar as imagens da página
+        const searchSql = `SELECT * FROM images ${whereSql} ORDER BY uploaded_at DESC LIMIT ? OFFSET ?`;
+        db.all(searchSql, [...params, limit, offset], (err, images) => {
+            if (err) {
+                req.flash('error', 'Erro ao carregar resultados');
+                return res.redirect('/statistics');
+            }
+
+            if (images.length === 0) {
+                if (req.xhr || (req.headers.accept && req.headers.accept.indexOf('json') > -1)) {
+                    return res.send('');
+                }
+                return res.render('search', {
+                    images: [],
+                    query,
+                    date,
+                    user,
+                    total,
+                    success: req.flash('success')[0] || null
+                });
+            }
+
+            const imagesWithRating = [];
+            let done = 0;
+            images.forEach(img => {
+                db.get('SELECT stars FROM ratings WHERE image_id = ? AND user_id = ?', [img.id, req.user.id], (e, r) => {
+                    img.userRating = r ? r.stars : 0;
+                    imagesWithRating.push(img);
+
+                    if (++done === images.length) {
+                        if (req.xhr || (req.headers.accept && req.headers.accept.indexOf('json') > -1)) {
+                            // AJAX: gerar estrelas manualmente (como antes)
+                            const starsHtml = (image) => {
+                                let html = '<div class="text-center mt-3">';
+                                for (let i = 1; i <= 5; i++) {
+                                    if (i <= image.userRating) {
+                                        html += '<i class="fas fa-star text-warning"></i>';
+                                    } else {
+                                        html += '<i class="far fa-star text-muted"></i>';
+                                    }
+                                }
+                                html += ` <small class="text-muted">(${image.rating_count || 0})</small></div>`;
+                                return html;
+                            };
+
+                            const cardsHtml = imagesWithRating.map(image => `
+                                <div class="col-md-6 col-lg-4 mb-4">
+                                    <div class="result-card">
+                                        <a href="/uploads/${image.image_url}" data-lightbox="search" data-title="${image.species || 'Sem espécie'}">
+                                            <img src="/uploads/${image.image_url}" class="result-img" alt="${image.species}" onerror="this.src='/images/placeholder.jpg'">
+                                        </a>
+                                        <div class="p-3">
+                                            <h5 class="text-center mb-2"><strong>
+                                                <span class="especie">${image.species || 'Sem espécie'}</span>
+                                                <br>
+                                                ${image.variety ? `<small class="variedade">${image.variety}</small>` : ''}
+                                            </strong></h5>
+                                            <p class="text-center text-muted small mb-2">
+                                                Por: ${image.uploaded_by} • ${new Date(image.uploaded_at).toLocaleDateString('pt-PT')}
+                                            </p>
+                                            <div class="text-center mb-3">
+                                                <span class="status-badge status-${image.status}">
+                                                    ${image.status === 'pending' ? 'Pendente' : image.status === 'approved' ? 'Aprovada' : 'Rejeitada'}
+                                                </span>
+                                            </div>
+                                            <div class="text-center">
+                                                <a href="/details/${image.id}" class="btn btn-info btn-action">Ver Detalhes</a>
+                                                ${image.status !== 'pending' ? `
+                                                    <form action="/review/${image.id}/reinstate" method="POST" class="d-inline">
+                                                        <button type="submit" class="btn btn-reinstate btn-action" onclick="return confirm('Voltar para revisão?')">
+                                                            Rever
+                                                        </button>
+                                                    </form>
+                                                ` : ''}
+                                            </div>
+                                            ${starsHtml(image)}
+                                        </div>
+                                    </div>
+                                </div>
+                            `).join('');
+
+                            return res.send(cardsHtml);
+                        } else {
+                            // Primeira visita
+                            res.render('search', {
+                                images: imagesWithRating,
+                                query,
+                                date,
+                                user,
+                                total,  // <--- agora passa o total real
+                                success: req.flash('success')[0] || null
+                            });
+                        }
+                    }
+                });
+            });
+        });
+    });
+});
+
+// ROTA DETALHES
+app.get('/details/:id', ensureAuth, (req, res) => {
+    const imageId = req.params.id;
+    db.get('SELECT * FROM images WHERE id = ?', [imageId], (err, image) => {
+        if (err || !image) {
+            req.flash('error', 'Imagem não encontrada');
+            return res.redirect('/statistics');
+        }
+        db.get('SELECT stars FROM ratings WHERE image_id = ? AND user_id = ?', [imageId, req.user.id], (e, rating) => {
+            const userRating = rating ? rating.stars : 0;
+            res.render('details', {
+                image: {
+                    ...image,
+                    avg_rating: image.avg_rating || 0,
+                    rating_count: image.rating_count || 0
+                },
+                userRating,
+                success: req.flash('success')[0] || null,
+                error: req.flash('error')[0] || null
+            });
+        });
+    });
+});
+
+// ROTA EDITAR – GET
+app.get('/edit/:id', ensureAuth, (req, res) => {
+    const imageId = req.params.id;
+    db.get('SELECT * FROM images WHERE id = ?', [imageId], (err, image) => {
+        if (err || !image) {
+            req.flash('error', 'Imagem não encontrada');
+            return res.redirect('/statistics');
+        }
+        if (image.status !== 'pending' && image.uploaded_by !== req.user.username && req.user.cargo !== 'Administrador') {
+            req.flash('error', 'Não tens permissão para editar esta imagem');
+            return res.redirect('/details/' + imageId);
+        }
+        res.render('edit', {
+            image,
+            success: req.flash('success')[0] || null,
+            error: req.flash('error')[0] || null
+        });
+    });
+});
+
+// ROTA EDITAR – POST
+app.post('/edit/:id', ensureAuth, upload.single('image'), async (req, res) => {
+    const imageId = req.params.id;
+    const user = req.user;
+    db.get('SELECT * FROM images WHERE id = ?', [imageId], async (err, image) => {
+        if (err || !image) {
+            req.flash('error', 'Imagem não encontrada');
+            return res.redirect('/statistics');
+        }
+        if (image.status !== 'pending' && image.uploaded_by !== user.username && user.cargo !== 'Administrador') {
+            req.flash('error', 'Não tens permissão para editar esta imagem');
+            return res.redirect('/details/' + imageId);
+        }
+        let filename = image.image_url;
+        let deleteOld = false;
+        if (req.file) {
+            filename = req.file.filename;
+            deleteOld = true;
+        } else if (req.body.imageFromUrl && req.body.imageFromUrl.trim()) {
+            try {
+                const url = req.body.imageFromUrl.trim();
+                const response = await axios({ url, method: 'GET', responseType: 'stream', timeout: 20000 });
+                filename = `url_${Date.now()}_${Math.random().toString(36).substr(2, 9)}.jpg`;
+                const filePath = path.join('public/uploads', filename);
+                const writer = fs.createWriteStream(filePath);
+                response.data.pipe(writer);
+                await new Promise((resolve, reject) => {
+                    writer.on('finish', resolve);
+                    writer.on('error', reject);
+                });
+                deleteOld = true;
+            } catch (err) {
+                console.error('Erro ao baixar imagem por URL:', err.message);
+                req.flash('error', 'Erro ao carregar imagem por URL');
+                return res.redirect('/edit/' + imageId);
+            }
+        }
+        const updateData = {
+            species: req.body.species,
+            variety: req.body.variety,
+            botanical_name: req.body.botanical_name,
+            origem: req.body.origem,
+            colheitaFloracao: req.body.colheitaFloracao,
+            exposicaoSolar: req.body.exposicaoSolar,
+            rega: req.body.rega,
+            profundidadeSementeira: req.body.profundidadeSementeira,
+            sementeiraDireta: req.body.sementeiraDireta ? 1 : 0,
+            sementeiraAlfobre: req.body.sementeiraAlfobre ? 1 : 0,
+            sementeira: req.body.sementeira,
+            transplante: req.body.transplante,
+            compasso: req.body.compasso,
+            caracteristicas: req.body.caracteristicas,
+            conselhos_de_cultivo: req.body.conselhos_de_cultivo,
+            shutterstock: req.body.shutterstock ? 1 : 0,
+            shutterstock_info: req.body.shutterstock_info,
+            comentarios: req.body.comentarios,
+            image_url: filename
+        };
+        db.run(`
+            UPDATE images SET
+                species = ?, variety = ?, botanical_name = ?, origem = ?, colheitaFloracao = ?,
+                exposicaoSolar = ?, rega = ?, profundidadeSementeira = ?, sementeiraDireta = ?,
+                sementeiraAlfobre = ?, sementeira = ?, transplante = ?, compasso = ?,
+                caracteristicas = ?, conselhos_de_cultivo = ?, shutterstock = ?, shutterstock_info = ?,
+                comentarios = ?, image_url = ?
+            WHERE id = ?
+        `, [
+            updateData.species, updateData.variety, updateData.botanical_name, updateData.origem,
+            updateData.colheitaFloracao, updateData.exposicaoSolar, updateData.rega,
+            updateData.profundidadeSementeira, updateData.sementeiraDireta, updateData.sementeiraAlfobre,
+            updateData.sementeira, updateData.transplante, updateData.compasso,
+            updateData.caracteristicas, updateData.conselhos_de_cultivo,
+            updateData.shutterstock, updateData.shutterstock_info, updateData.comentarios,
+            updateData.image_url, imageId
+        ], function(err) {
+            if (err) {
+                console.error('Erro ao atualizar imagem:', err);
+                req.flash('error', 'Erro ao guardar alterações');
+                if (deleteOld && filename.startsWith('url_')) fs.unlinkSync(path.join('public/uploads', filename));
+                return res.redirect('/edit/' + imageId);
+            }
+            if (deleteOld && image.image_url !== filename) {
+                const oldPath = path.join('public/uploads', image.image_url);
+                if (fs.existsSync(oldPath)) {
+                    fs.unlinkSync(oldPath);
+                }
+            }
+            req.flash('success', 'Imagem editada com sucesso!');
+            res.redirect('/details/' + imageId);
+        });
+    });
+});
+
+// ROTA DE ESTRELAS
+app.post('/rate/:id', ensureAuth, (req, res) => {
+    const imageId = req.params.id;
+    const userId = req.user.id;
+    const stars = parseInt(req.body.stars);
+    if (!stars || stars < 1 || stars > 5) {
+        return res.status(400).json({ error: 'Estrelas inválidas' });
+    }
+    db.get('SELECT stars FROM ratings WHERE image_id = ? AND user_id = ?', [imageId, userId], (err, oldRating) => {
+        if (err) return res.status(500).json({ error: 'Erro no servidor' });
+        const updateImageStats = () => {
+            db.get('SELECT total_stars, rating_count FROM images WHERE id = ?', [imageId], (err, row) => {
+                if (err || !row) return res.status(500).json({ error: 'Erro ao calcular média' });
+                const avg = row.rating_count > 0 ? (row.total_stars / row.rating_count) : 0;
+                const avgRounded = parseFloat(avg.toFixed(2));
+                db.run('UPDATE images SET avg_rating = ? WHERE id = ?', [avgRounded, imageId], () => {
+                    res.json({ success: true, stars, avg_rating: avgRounded, rating_count: row.rating_count });
+                });
+            });
+        };
+        if (oldRating) {
+            const diff = stars - oldRating.stars;
+            db.run('UPDATE ratings SET stars = ? WHERE image_id = ? AND user_id = ?', [stars, imageId, userId], (err) => {
+                if (err) return res.status(500).json({ error: 'Erro ao atualizar classificação' });
+                db.run('UPDATE images SET total_stars = total_stars + ? WHERE id = ?', [diff, imageId], updateImageStats);
+            });
+        } else {
+            db.run('INSERT INTO ratings (image_id, user_id, stars) VALUES (?, ?, ?)', [imageId, userId, stars], (err) => {
+                if (err) {
+                    if (err.message.includes('UNIQUE constraint failed')) {
+                        db.run('UPDATE ratings SET stars = ? WHERE image_id = ? AND user_id = ?', [stars, imageId, userId], updateImageStats);
+                    } else {
+                        return res.status(500).json({ error: 'Erro ao inserir classificação' });
+                    }
+                } else {
+                    db.run('UPDATE images SET total_stars = total_stars + ?, rating_count = rating_count + 1 WHERE id = ?', [stars, imageId], updateImageStats);
+                }
+            });
+        }
+    });
+});
 
 // INICIAR SERVIDOR
 app.listen(PORT, () => {
