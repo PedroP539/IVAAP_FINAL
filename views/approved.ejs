@@ -121,6 +121,9 @@
             .action-btn { max-width: none; }
             .card-img-container { height: 160px; }
         }
+        input#searchQuery, input#searchDate, input#searchUser, button.btn.btn-success.btn-lg.rounded-pill.w-100.h-100.d-flex.align-items-center.justify-content-center {
+    font-size: 1rem;
+}
     </style>
 </head>
 <body>
@@ -151,8 +154,6 @@
     </nav>
 </header>
 <br><br><br><br>
-
-<!-- BARRA DE BUSCA -->
 <div class="container mt-4 mb-3">
     <div class="card border-0 shadow-sm" style="border-radius: 20px;">
         <div class="card-body p-4">
@@ -176,17 +177,14 @@
         </div>
     </div>
 </div>
-
 <main class="container content">
     <h2 class="text-center mb-4" style="color: #27ae60; font-weight: bold;">IMAGENS APROVADAS</h2>
-
     <% if (error) { %>
         <div class="alert alert-danger text-center"><strong>ERRO:</strong> <%= error %></div>
     <% } %>
     <% if (success) { %>
         <div class="alert alert-success text-center"><strong>SUCESSO:</strong> <%= success %></div>
     <% } %>
-
     <div class="row" id="images-container">
         <% if (images && images.length > 0) { %>
             <% images.forEach(image => { %>
@@ -212,16 +210,15 @@
                                     <small class="variedade"><%= image.variety %></small>
                                 <% } %>
                             </h5>
-
+                            <p class="text-center text-muted small mb-2">
+                                <strong>Gama:</strong> <%= image.gama_nome || 'Não definido' %><br>
+                                <b>Aprovada por:</b><br><%= image.reviewed_by %><br>
+                                em <%= new Date(image.reviewed_at).toLocaleDateString('pt-PT') %>
+                            </p>
                             <div class="btn-group-inline">
                                 <button class="btn btn-success action-btn" disabled>APROVADA</button>
                                 <a href="/details/<%= image.id %>" class="btn btn-view action-btn">VER</a>
                             </div>
-                            <br>
-                            <p class="text-center text-muted small mb-2">
-                                <b>Aprovada por:</b><br><%= image.reviewed_by %><br>em <%= new Date(image.reviewed_at).toLocaleDateString('pt-PT') %>
-                            </p>
-
                             <%- include('partials/stars', { image: image, userRating: image.userRating || 0 }) %>
                         </div>
                     </div>
@@ -236,23 +233,17 @@
             </div>
         <% } %>
     </div>
-
-    <!-- LOADING INDICATOR -->
     <div id="loading">
         <i class="fas fa-spinner fa-spin fa-3x text-success"></i>
         <p>A carregar mais imagens...</p>
     </div>
 </main>
-
 <footer class="mt-5 py-4 text-center bg-light">
     <p class="mb-0">FLORA LUSITANA - © 2025 IVAAP_2 - V. 6.9.8</p>
 </footer>
-
-<!-- SCRIPTS -->
 <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.4/js/lightbox.min.js"></script>
-
 <script>
     lightbox.option({
         resizeDuration: 200,
@@ -260,22 +251,15 @@
         disableScrolling: true,
         albumLabel: "Imagem %1 de %2"
     });
-
-    // AUTO-FADE ALERTS
     setTimeout(() => $('.alert').fadeOut(1000), 5000);
-
-    // INFINITE SCROLL
     let page = 2;
     let loading = false;
     let hasMore = true;
-
     $(window).scroll(function() {
         if (loading || !hasMore) return;
-
         if ($(window).scrollTop() + $(window).height() >= $(document).height() - 200) {
             loading = true;
             $('#loading').show();
-
             $.get(`/approved?page=${page}`)
                 .done(function(data) {
                     if (data.trim() === '' || data.includes('Nenhuma imagem aprovada')) {
@@ -283,7 +267,6 @@
                         $('#loading').hide();
                         return;
                     }
-
                     $('#images-container').append(data);
                     page++;
                     loading = false;
