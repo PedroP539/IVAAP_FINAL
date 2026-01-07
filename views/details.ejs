@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IVAAP - Detalhes da Imagem</title>
+    <title>IVAAP - Detalhes da Planta</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;700&display=swap" rel="stylesheet">
@@ -13,64 +13,34 @@
         .content{padding:2rem 0;flex:1}
         .sticky-nav{position:fixed;top:0;width:100%;z-index:1000;background:white}
         .detail-card{background:white;border-radius:20px;box-shadow:0 10px 30px rgba(0,0,0,.15);padding:2rem;overflow:hidden}
-        .detail-img{max-width:100%;border-radius:15px;box-shadow:0 8px 25px rgba(0,0,0,.2);transition:transform .3s;cursor:zoom-in}
-        .detail-img:hover{transform:scale(1.02)}
-        .status-badge{padding:0.6rem 1.4rem;border-radius:50px;font-weight:bold;font-size:1rem;text-transform:uppercase;letter-spacing:1px}
-        .btn-action {
-            padding: 0.8rem 2rem;
-            font-size: 1.1rem;
-            font-weight: bold;
-            border-radius: 50px;
-            margin: 0.5rem;
-            min-width: 180px;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-        }
-        .btn-action:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
-        }
-        .btn-success {background: linear-gradient(135deg, #27ae60, #2ecc71);border: none;color: white;}
-        .btn-danger {background: linear-gradient(135deg, #c0392b, #e74c3c);border: none;color: white;}
-        .btn-warning {background: linear-gradient(135deg, #f39c12, #f1c40f);border: none;color: white;}
-        .btn-info {background: linear-gradient(135deg, #2980b9, #3498db);border: none;color: white;}
-        .btn-secondary {background: linear-gradient(135deg, #7f8c8d, #95a5a6);border: none;color: white;}
-        .btn-reinstate {background: linear-gradient(135deg, #8e44ad, #9b59b6);border: none;color: white;}
-        .status-pending{background:#fff3cd;color:#856404}
-        .status-approved{background:#d4edda;color:#155724}
-        .status-rejected{background:#f8d7da;color:#721c24}
-		
-		input#searchQuery, input#searchDate, input#searchUser, button.btn.btn-success.btn-lg.rounded-pill.w-100.h-100.d-flex.align-items-center.justify-content-center {
+        .detail-img{max-width:100%;height:320px;object-fit:cover;border-radius:15px;box-shadow:0 8px 25px rgba(0,0,0,.2);transition:transform .3s;cursor:zoom-in}
+        .detail-img:hover{transform:scale(1.05)}
+        .vote-count{font-weight:bold;color:#27ae60;margin:1rem 0;font-size:1.1rem}
+        .btn-vote{padding:0.6rem 1.5rem;font-size:1rem;border-radius:50px;margin:0.3rem}
+        .btn-approve{background:#27ae60;color:white;border:none}
+        .btn-reject{background:#c0392b;color:white;border:none}
+        .btn-action{padding:0.8rem 2rem;font-size:1.1rem;font-weight:bold;border-radius:50px;margin:0.5rem;min-width:180px;transition:all .3s ease;box-shadow:0 4px 15px rgba(0,0,0,0.2)}
+        .btn-action:hover{transform:translateY(-3px);box-shadow:0 8px 25px rgba(0,0,0,0.3)}
+        .btn-warning{background:linear-gradient(135deg,#f39c12,#f1c40f);border:none;color:white}
+        .btn-secondary{background:#6c757d;border:none;color:white}
+        .especie{font-size:1.65rem;background:#27AE60;background:repeating-linear-gradient(to top right,#27AE60 0%,#1C8247 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+        .variedade{font-size:1.25rem;color:#1c8247;font-weight:300}
+                input#searchQuery, input#searchDate, input#searchUser, button.btn.btn-success.btn-lg.rounded-pill.w-100.h-100.d-flex.align-items-center.justify-content-center {
     font-size: 1rem;
 }
-		
-		
-		.especie {
-			font-size: 1.65rem; 
-	/*		color: #27ae60;!important; */
-			background: #27AE60;
-background: repeating-linear-gradient(to top right, #27AE60 0%, #1C8247 100%);
--webkit-background-clip: text;
--webkit-text-fill-color: transparent;
-
-
-		}
-		
-		.variedade {
-			font-size: 1.25rem;!important;
-			color:#1c8247 !important;
-			font-weight: 300 !important;
-		}
-		
-		
-		
-		
     </style>
 </head>
 <body>
-
-<header>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light sticky-nav shadow-sm">
+<header class="fixed-top">
+    <div class="bg-success text-white text-center py-3">
+        <% if (user) { %>
+            <strong>Olá <%= user.nome %> <%= user.apelido || '' %></strong>
+            — último login: <%= new Date().toLocaleString('pt-PT', {day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit'}) %>
+        <% } else { %>
+            <strong>Bem-vindo ao IVAAP</strong>
+        <% } %>
+    </div>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
         <a class="navbar-brand font-weight-bold" href="/">IVAAP</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
             <span class="navbar-toggler-icon"></span>
@@ -87,135 +57,85 @@ background: repeating-linear-gradient(to top right, #27AE60 0%, #1C8247 100%);
         </div>
     </nav>
 </header>
-<br><br>
-	
-	
-	
-	
-	
-			<!-- BARRA DE BUSCA EMBUTIDA (ABAIXO DO MENU) -->
+<br><br><br><br>
 <div class="container mt-4 mb-3">
     <div class="card border-0 shadow-sm" style="border-radius: 20px;">
         <div class="card-body p-4">
             <form id="searchForm" action="/search" method="GET" class="row g-3 align-items-end">
-                <div class="col-md-4">
-                    <label for="searchQuery" class="form-label text-success font-weight-bold">Nome da Planta</label>
-                    <input type="text" class="form-control form-control-lg rounded-pill" 
-                           id="searchQuery" name="q" placeholder="Ex: Tomate, Rosa..." 
-                           value="">
-                </div>
-                <div class="col-md-3">
-                    <label for="searchDate" class="form-label text-success font-weight-bold">Data</label>
-                    <input type="date" class="form-control form-control-lg rounded-pill" 
-                           id="searchDate" name="date" value="">
-                </div>
-                <div class="col-md-3">
-                    <label for="searchUser" class="form-label text-success font-weight-bold">Utilizador</label>
-                    <input type="text" class="form-control form-control-lg rounded-pill" 
-                           id="searchUser" name="user" placeholder="Ex: admin" value="">
-                </div>
-                <div class="col-md-2">
-                    <button type="submit" class="btn btn-success btn-lg rounded-pill w-100 h-100 d-flex align-items-center justify-content-center">Pesquisar</button>
-                </div>
+                <div class="col-md-4"><label for="searchQuery" class="form-label text-success font-weight-bold">Nome da Planta</label><input type="text" class="form-control form-control-lg rounded-pill" id="searchQuery" name="q" placeholder="Ex: Tomate, Rosa..."></div>
+                <div class="col-md-3"><label for="searchDate" class="form-label text-success font-weight-bold">Data</label><input type="date" class="form-control form-control-lg rounded-pill" id="searchDate" name="date"></div>
+                <div class="col-md-3"><label for="searchUser" class="form-label text-success font-weight-bold">Utilizador</label><input type="text" class="form-control form-control-lg rounded-pill" id="searchUser" name="user" placeholder="Ex: admin"></div>
+                <div class="col-md-2"><button type="submit" class="btn btn-success btn-lg rounded-pill w-100 h-100 d-flex align-items-center justify-content-center">Pesquisar</button></div>
             </form>
         </div>
     </div>
 </div>
-
 <main class="container content">
     <div class="text-center mb-4">
-        <h2 style="color:#27ae60;font-weight:bold">DETALHES DA IMAGEM</h2>
+        <h2 style="color:#27ae60;font-weight:bold">DETALHES DA PLANTA</h2>
     </div>
-
     <% if (success) { %>
         <div class="alert alert-success text-center alert-dismissible fade show">
             <strong><%= success %></strong>
             <button type="button" class="close" data-dismiss="alert">×</button>
         </div>
     <% } %>
-
     <div class="detail-card">
-        <div class="row">
-            <div class="col-lg-6 text-center mb-4">
-                <a href="/uploads/<%= image.image_url %>" data-lightbox="image" data-title="<%= image.species %><%= image.variety || '' %>">
-                    <img src="/uploads/<%= image.image_url %>" class="detail-img" alt="Imagem" onerror="this.src='/images/placeholder.jpg'">
-                </a>
-            </div>
-            <div class="col-lg-6">
-                <h3 class="mb-3">
-					<strong>
-						<span class="especie">
-						<%= image.species %></span>
-						<br>
-						<span class="variedade">
-						<%= image.variety ? '' + image.variety + '' : '' %></span>
-					</strong>
-				</h3><hr>
-				
-                <p><strong>Nome Botânico:</strong> <%= image.botanical_name || 'Não definido' %></p>
-                <p><strong>Origem:</strong> <%= image.origem || 'Não definido' %></p>
-                <p><strong>Colheita/Floração:</strong> <%= image.colheitaFloracao || 'Não definido' %></p>
-                <p><strong>Exposição Solar:</strong> <%= image.exposicaoSolar || 'Não definido' %></p>
-                <p><strong>Rega:</strong> <%= image.rega || 'Não definido' %></p>
-                <p><strong>Profundidade Sementeira:</strong> <%= image.profundidadeSementeira || 'Não definido' %></p>
-                <p><strong>Sementeira Direta:</strong> <%= image.sementeiraDireta ? 'Sim' : 'Não' %></p>
-                <p><strong>Sementeira Alfobre:</strong> <%= image.sementeiraAlfobre ? 'Sim' : 'Não' %></p>
-                <p><strong>Sementeira:</strong> <%= image.sementeira || 'Não definido' %></p>
-                <p><strong>Transplante:</strong> <%= image.transplante || 'Não definido' %></p>
-                <p><strong>Compasso:</strong> <%= image.compasso || 'Não definido' %></p>
-                <p><strong>Características:</strong> <%= image.caracteristicas || 'Não definido' %></p>
-                <p><strong>Conselhos de Cultivo:</strong> <%= image.conselhos_de_cultivo || 'Não definido' %></p>
-                <p><strong>Shutterstock:</strong> <%= image.shutterstock ? 'Sim' : 'Não' %> <%= image.shutterstock_info ? '(' + image.shutterstock_info + ')' : '' %></p>
-                <p><strong>Comentários:</strong> <%= image.comentarios || 'Sem comentários' %></p>
-
-                <hr>
-
-                <p><strong>Carregada por:</strong> <%= image.uploaded_by %> em <%= new Date(image.uploaded_at).toLocaleString('pt-PT') %></p>
-                <% if (image.reviewed_by) { %>
-                    <p><strong>Revista por:</strong> <%= image.reviewed_by %> em <%= new Date(image.reviewed_at).toLocaleString('pt-PT') %></p>
-                <% } %>
-
-                <div class="mt-3 text-center">
-                    <span class="status-badge status-<%= image.status %>">
-                        <%= image.status === 'pending' ? 'Pendente' : image.status === 'approved' ? 'Aprovada' : 'Rejeitada' %>
-                    </span>
-                </div>
-
-                <!-- BOTÕES GRANDES -->
-                <div class="text-center mt-5">
-                    <% if (image.status === 'pending') { %>
-                        <form action="/review/<%= image.id %>/approve" method="POST" class="d-inline">
-                            <button type="submit" class="btn btn-success btn-action">
-                                Aprovar
-                            </button>
-                        </form>
-                        <form action="/review/<%= image.id %>/reject" method="POST" class="d-inline">
-                            <button type="submit" class="btn btn-danger btn-action" onclick="return confirm('Queres mesmo rejeitar esta imagem?')">
-                                Rejeitar
-                            </button>
-                        </form>
-                    <% } else { %>
-                        <!-- BOTÃO REVER SÓ APARECE SE JÁ ESTIVER APROVADA OU REJEITADA -->
-                        <form action="/review/<%= image.id %>/reinstate" method="POST" class="d-inline">
-                            <button type="submit" class="btn btn-reinstate btn-action" onclick="return confirm('Queres mandar esta imagem de volta para revisão?')">
-                                Rever
-                            </button>
-                        </form>
-                    <% } %>
-
-                    <a href="/edit/<%= image.id %>" class="btn btn-warning btn-action">
-                        Editar
+        <div class="row mb-5 justify-content-center">
+            <% relatedImages.forEach(img => { %>
+                <div class="col-md-4 text-center mb-4">
+                    <a href="/uploads/<%= img.image_url %>" data-lightbox="plant-images" data-title="<%= image.species %>">
+                        <img src="/uploads/<%= img.image_url %>" class="detail-img" alt="<%= image.species %>" onerror="this.src='/images/placeholder.jpg'">
                     </a>
-
-                    <a href="javascript:history.back()" class="btn btn-secondary btn-action">
-                        Voltar
-                    </a>
+                    <p class="vote-count">Aprovações: <%= img.approvals || 0 %> | Rejeições: <%= img.rejections || 0 %></p>
+                    <div>
+                        <form action="/approve/<%= img.id %>" method="POST" class="d-inline">
+                            <button type="submit" class="btn btn-approve btn-vote">Aprovar esta</button>
+                        </form>
+                        <form action="/reject/<%= img.id %>" method="POST" class="d-inline">
+                            <button type="submit" class="btn btn-reject btn-vote">Rejeitar esta</button>
+                        </form>
+                    </div>
                 </div>
-            </div>
+            <% }); %>
+            <% for(let i = relatedImages.length; i < 3; i++) { %>
+                <div class="col-md-4 text-center mb-4">
+                    <img src="/images/placeholder.jpg" class="detail-img" alt="Sem imagem" style="opacity:0.4">
+                </div>
+            <% } %>
+        </div>
+        <h3 class="text-center mb-4">
+            <strong>
+                <span class="especie"><%= image.species %></span>
+                <br>
+                <span class="variedade"><%= image.variety || '' %></span>
+            </strong>
+        </h3>
+        <hr>
+        <p><strong>Gama:</strong> <%= image.gama_nome || 'Não definido' %></p>
+        <p><strong>Nome Botânico:</strong> <%= image.botanical_name || 'Não definido' %></p>
+        <p><strong>Origem:</strong> <%= image.origem || 'Não definido' %></p>
+        <p><strong>Colheita/Floração:</strong> <%= image.colheitaFloracao || 'Não definido' %></p>
+        <p><strong>Exposição Solar:</strong> <%= image.exposicaoSolar || 'Não definido' %></p>
+        <p><strong>Rega:</strong> <%= image.rega || 'Não definido' %></p>
+        <p><strong>Profundidade Sementeira:</strong> <%= image.profundidadeSementeira || 'Não definido' %></p>
+        <p><strong>Sementeira Direta:</strong> <%= image.sementeiraDireta ? 'Sim' : 'Não' %></p>
+        <p><strong>Sementeira Alfobre:</strong> <%= image.sementeiraAlfobre ? 'Sim' : 'Não' %></p>
+        <p><strong>Sementeira:</strong> <%= image.sementeira || 'Não definido' %></p>
+        <p><strong>Transplante:</strong> <%= image.transplante || 'Não definido' %></p>
+        <p><strong>Compasso:</strong> <%= image.compasso || 'Não definido' %></p>
+        <p><strong>Características:</strong> <%= image.caracteristicas || 'Não definido' %></p>
+        <p><strong>Conselhos de Cultivo:</strong> <%= image.conselhos_de_cultivo || 'Não definido' %></p>
+        <p><strong>Shutterstock:</strong> <%= image.shutterstock ? 'Sim' : 'Não' %> <%= image.shutterstock_info ? '(' + image.shutterstock_info + ')' : '' %></p>
+        <p><strong>Comentários:</strong> <%= image.comentarios || 'Sem comentários' %></p>
+        <hr>
+        <p><strong>Carregada por:</strong> <%= image.uploaded_by %> em <%= new Date(image.uploaded_at).toLocaleString('pt-PT') %></p>
+        <div class="text-center mt-5">
+            <a href="/edit/<%= image.id %>" class="btn btn-warning btn-action">Editar</a>
+            <a href="/review" class="btn btn-secondary btn-action">Voltar</a>
         </div>
     </div>
 </main>
-
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
@@ -228,7 +148,6 @@ background: repeating-linear-gradient(to top right, #27AE60 0%, #1C8247 100%);
         'alwaysShowNavOnTouchDevices': true
     });
 </script>
-
 <footer class="mt-5 py-4 text-center bg-light">
     <p class="mb-0">FLORA LUSITANA - © 2025 IVAAP_2 - V. 6.9.8</p>
 </footer>
