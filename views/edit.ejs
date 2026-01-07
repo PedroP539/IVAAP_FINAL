@@ -39,6 +39,7 @@
         .marca-title{font-weight:bold;color:#27ae60;font-size:1.4rem;margin-bottom:1rem;text-align:center}
         .alert-cors{background:#fff3cd;color:#856404;padding:0.8rem;border-radius:12px;margin:0.5rem 0;display:none}
         textarea {min-height: 200px;}
+        .image-info{font-size:0.85rem;color:#666;text-align:center;margin-top:0.5rem}
         @media (max-width: 768px) {
             .marca-section {margin-bottom:2rem;}
         }
@@ -76,107 +77,174 @@
 <main class="container content">
     <div class="text-center mb-4">
         <h2 style="color:#27ae60;font-weight:bold">EDITAR PLANTA</h2>
+        <p class="text-muted">Espécie: <strong><%= image.species %></strong> <%= image.variety ? '- ' + image.variety : '' %></p>
     </div>
     <% if (error) { %>
-        <div class="alert alert-danger text-center"><%= error %></div>
+        <div class="alert alert-danger text-center alert-dismissible fade show">
+            <%= error %>
+            <button type="button" class="close" data-dismiss="alert">×</button>
+        </div>
     <% } %>
     <% if (success) { %>
-        <div class="alert alert-success text-center"><%= success %></div>
+        <div class="alert alert-success text-center alert-dismissible fade show">
+            <%= success %>
+            <button type="button" class="close" data-dismiss="alert">×</button>
+        </div>
     <% } %>
     <div class="edit-card">
         <form action="/edit" method="POST" enctype="multipart/form-data" id="editForm">
+            <h4 class="text-center mb-4" style="color:#27ae60">
+                <i class="fas fa-images"></i> IMAGENS DA PLANTA (3 MARCAS)
+            </h4>
             <div class="row">
-                <% const marcasFixas = ['IMAGEM 1', 'IMAGEM 2', 'IMAGEM 3']; %>
-                <% for(let index = 0; index < 3; index++) { %>
-                    <% const img = relatedImages[index] || null; %>
+                <% 
+                const marcasFixas = ['IMAGEM 1', 'IMAGEM 2', 'IMAGEM 3'];
+                
+                // Debug: Mostrar quantas imagens relacionadas existem
+                console.log('Total de relatedImages:', relatedImages ? relatedImages.length : 0);
+                
+                for(let index = 0; index < 3; index++) { 
+                    const img = relatedImages && relatedImages[index] ? relatedImages[index] : null;
+                    console.log(`Imagem ${index}:`, img ? img.id : 'null');
+                %>
                     <div class="col-md-4">
                         <div class="marca-section">
-                            <h4 class="marca-title"><%= marcasFixas[index] %></h4>
+                            <h4 class="marca-title">
+                                <%= marcasFixas[index] %>
+                                <% if (img) { %>
+                                    <span class="badge badge-success ml-2">ID: <%= img.id %></span>
+                                <% } %>
+                            </h4>
+                            
                             <div class="drop-zone" id="dropZone<%= index %>">
                                 <i class="fas fa-cloud-upload-alt fa-4x text-success mb-3"></i>
                                 <p><strong>Arraste ou clique para <%= img ? 'trocar' : 'adicionar' %></strong></p>
                                 <input type="file" name="newImage<%= index %>" id="newImageInput<%= index %>" accept="image/*" style="display:none">
                                 <button type="button" class="btn btn-success rounded-pill px-4 mt-2" onclick="document.getElementById('newImageInput<%= index %>').click()">
-                                    <%= img ? 'TROCAR LOCAL' : 'ADICIONAR LOCAL' %>
+                                    <i class="fas fa-upload mr-2"></i><%= img ? 'TROCAR LOCAL' : 'ADICIONAR LOCAL' %>
                                 </button>
                             </div>
+                            
                             <div class="url-input-group">
-                                <input type="url" id="newImageUrl<%= index %>" class="form-control url-input" placeholder="Ou nova URL" />
-                                <button type="button" class="btn btn-fetch" id="fetchBtn<%= index %>">
+                                <input type="url" id="newImageUrl<%= index %>" class="form-control url-input" placeholder="Ou nova URL da imagem" />
+                                <button type="button" class="btn btn-fetch" id="fetchBtn<%= index %>" title="Carregar URL">
                                     <i class="fas fa-arrow-down"></i>
                                 </button>
                             </div>
-                            <div class="alert alert-cors text-center" id="corsAlert<%= index %>">Erro ao carregar URL. Usa local.</div>
-                            <% if (img) { %>
-                                <img id="preview<%= index %>" src="/uploads/<%= img.image_url %>" class="preview-img" alt="Imagem atual" onerror="this.src='/images/placeholder.jpg'">
+                            
+                            <div class="alert alert-cors text-center" id="corsAlert<%= index %>">
+                                <i class="fas fa-exclamation-triangle"></i> Erro ao carregar URL. Usa ficheiro local.
+                            </div>
+                            
+                            <% if (img && img.image_url) { %>
+                                <img id="preview<%= index %>" src="/uploads/<%= img.image_url %>" class="preview-img" alt="Imagem <%= index + 1 %>" onerror="this.src='/images/placeholder.jpg'">
                                 <input type="hidden" name="imageId<%= index %>" value="<%= img.id %>">
+                                <p class="image-info">
+                                    <i class="fas fa-check-circle text-success"></i> Imagem atual: <%= img.image_url %>
+                                </p>
                             <% } else { %>
                                 <img id="preview<%= index %>" src="/images/placeholder.jpg" class="preview-img" alt="Sem imagem" style="opacity:0.4">
+                                <p class="image-info text-muted">
+                                    <i class="fas fa-info-circle"></i> Nenhuma imagem nesta posição
+                                </p>
                             <% } %>
+                            
                             <input type="hidden" name="imageFromUrl<%= index %>" id="imageFromUrl<%= index %>" value="">
                         </div>
                     </div>
                 <% } %>
             </div>
+            
             <hr class="my-5">
+            
+            <h4 class="text-center mb-4" style="color:#27ae60">
+                <i class="fas fa-leaf"></i> INFORMAÇÕES DA PLANTA
+            </h4>
+            
             <!-- CAMPO GAMA -->
             <div class="form-group">
-                <label>Gama</label>
+                <label><i class="fas fa-tags"></i> Gama</label>
                 <select name="gama_id" class="form-control">
                     <option value="">Nenhuma / Remover</option>
-                    <% gamas.forEach(gama => { %>
-                        <option value="<%= gama.id %>" <%= image.gama_id == gama.id ? 'selected' : '' %>><%= gama.nome %></option>
-                    <% }); %>
+                    <% if (gamas && gamas.length > 0) { %>
+                        <% gamas.forEach(gama => { %>
+                            <option value="<%= gama.id %>" <%= image.gama_id == gama.id ? 'selected' : '' %>><%= gama.nome %></option>
+                        <% }); %>
+                    <% } %>
                 </select>
             </div>
+            
             <!-- RESTO DOS CAMPOS -->
             <div class="row">
                 <div class="col-md-6">
                     <div class="form-group">
-                        <label>Espécie *</label>
+                        <label><i class="fas fa-seedling"></i> Espécie *</label>
                         <input type="text" name="species" class="form-control" value="<%= image.species %>" required>
                     </div>
                 </div>
                 <div class="col-md-6">
                     <div class="form-group">
-                        <label>Variedade</label>
+                        <label><i class="fas fa-leaf"></i> Variedade</label>
                         <input type="text" name="variety" class="form-control" value="<%= image.variety || '' %>">
                     </div>
                 </div>
             </div>
+            
             <div class="form-group">
-                <label>Nome Botânico</label>
+                <label><i class="fas fa-book"></i> Nome Botânico</label>
                 <input type="text" name="botanical_name" class="form-control" value="<%= image.botanical_name || '' %>">
             </div>
+            
             <div class="row">
-                <div class="col-md-6"><div class="form-group"><label>Origem</label><input type="text" name="origem" class="form-control" value="<%= image.origem || '' %>"></div></div>
-                <div class="col-md-6"><div class="form-group"><label>Colheita/Floração</label><input type="text" name="colheitaFloracao" class="form-control" value="<%= image.colheitaFloracao || '' %>"></div></div>
+                <div class="col-md-6"><div class="form-group"><label><i class="fas fa-map-marker-alt"></i> Origem</label><input type="text" name="origem" class="form-control" value="<%= image.origem || '' %>"></div></div>
+                <div class="col-md-6"><div class="form-group"><label><i class="fas fa-calendar-alt"></i> Colheita/Floração</label><input type="text" name="colheitaFloracao" class="form-control" value="<%= image.colheitaFloracao || '' %>"></div></div>
             </div>
+            
             <div class="row">
-                <div class="col-md-6"><div class="form-group"><label>Exposição Solar</label><input type="text" name="exposicaoSolar" class="form-control" value="<%= image.exposicaoSolar || '' %>"></div></div>
-                <div class="col-md-6"><div class="form-group"><label>Rega</label><input type="text" name="rega" class="form-control" value="<%= image.rega || '' %>"></div></div>
+                <div class="col-md-6"><div class="form-group"><label><i class="fas fa-sun"></i> Exposição Solar</label><input type="text" name="exposicaoSolar" class="form-control" value="<%= image.exposicaoSolar || '' %>"></div></div>
+                <div class="col-md-6"><div class="form-group"><label><i class="fas fa-tint"></i> Rega</label><input type="text" name="rega" class="form-control" value="<%= image.rega || '' %>"></div></div>
             </div>
-            <div class="form-group"><label>Profundidade Sementeira</label><input type="text" name="profundidadeSementeira" class="form-control" value="<%= image.profundidadeSementeira || '' %>"></div>
-            <div class="form-group"><label>Sementeira Direta</label><div class="form-check"><input class="form-check-input" type="checkbox" name="sementeiraDireta" <%= image.sementeiraDireta ? 'checked' : '' %>><label class="form-check-label">Sim</label></div></div>
-            <div class="form-group"><label>Sementeira Alfobre</label><div class="form-check"><input class="form-check-input" type="checkbox" name="sementeiraAlfobre" <%= image.sementeiraAlfobre ? 'checked' : '' %>><label class="form-check-label">Sim</label></div></div>
+            
+            <div class="form-group"><label><i class="fas fa-ruler-vertical"></i> Profundidade Sementeira</label><input type="text" name="profundidadeSementeira" class="form-control" value="<%= image.profundidadeSementeira || '' %>"></div>
+            
+            <div class="row">
+                <div class="col-md-6"><div class="form-group"><label>Sementeira Direta</label><div class="form-check"><input class="form-check-input" type="checkbox" name="sementeiraDireta" <%= image.sementeiraDireta ? 'checked' : '' %>><label class="form-check-label">Sim</label></div></div></div>
+                <div class="col-md-6"><div class="form-group"><label>Sementeira Alfobre</label><div class="form-check"><input class="form-check-input" type="checkbox" name="sementeiraAlfobre" <%= image.sementeiraAlfobre ? 'checked' : '' %>><label class="form-check-label">Sim</label></div></div></div>
+            </div>
+            
             <div class="row">
                 <div class="col-md-6"><div class="form-group"><label>Sementeira (mês)</label><input type="text" name="sementeira" class="form-control" value="<%= image.sementeira || '' %>"></div></div>
                 <div class="col-md-6"><div class="form-group"><label>Transplante (mês)</label><input type="text" name="transplante" class="form-control" value="<%= image.transplante || '' %>"></div></div>
             </div>
+            
             <div class="form-group"><label>Compasso</label><input type="text" name="compasso" class="form-control" value="<%= image.compasso || '' %>"></div>
             <div class="form-group"><label>Características</label><textarea name="caracteristicas" class="form-control" rows="3"><%= image.caracteristicas || '' %></textarea></div>
             <div class="form-group"><label>Conselhos de Cultivo</label><textarea name="conselhos_de_cultivo" class="form-control" rows="4"><%= image.conselhos_de_cultivo || '' %></textarea></div>
             <div class="form-group"><label>Comentários</label><textarea name="comentarios" class="form-control" rows="3"><%= image.comentarios || '' %></textarea></div>
+            
             <div class="text-center mt-5">
-                <button type="submit" class="btn btn-save text-white">GUARDAR ALTERAÇÕES</button>
-                <a href="/details/<%= image.id %>" class="btn btn-cancel text-white ml-3">CANCELAR</a>
+                <button type="submit" class="btn btn-save text-white">
+                    <i class="fas fa-save mr-2"></i>GUARDAR ALTERAÇÕES
+                </button>
+                <a href="/details/<%= image.id %>" class="btn btn-cancel text-white ml-3">
+                    <i class="fas fa-times mr-2"></i>CANCELAR
+                </a>
             </div>
         </form>
     </div>
 </main>
+
+<footer class="mt-5 py-4 text-center bg-light">
+    <p class="mb-0">FLORA LUSITANA - © 2025 IVAAP_2 - V. 6.9.20</p>
+</footer>
+
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 <script>
+    console.log('🌱 Editor de Plantas Iniciado');
+    
+    // Configurar cada uma das 3 imagens
     for(let index = 0; index < 3; index++) {
         const dropZone = document.getElementById('dropZone' + index);
         const input = document.getElementById('newImageInput' + index);
@@ -186,62 +254,120 @@
         const corsAlert = document.getElementById('corsAlert' + index);
         const hiddenUrl = document.getElementById('imageFromUrl' + index);
 
+        console.log(`Configurando imagem ${index + 1}:`, {
+            dropZone: !!dropZone,
+            input: !!input,
+            preview: !!preview,
+            urlInput: !!urlInput,
+            fetchBtn: !!fetchBtn
+        });
+
+        // Drag & Drop
         if (dropZone) {
-            ['dragover', 'dragenter'].forEach(evt => dropZone.addEventListener(evt, e => { e.preventDefault(); dropZone.classList.add('dragover'); }));
-            ['dragleave', 'dragend'].forEach(evt => dropZone.addEventListener(evt, e => { e.preventDefault(); dropZone.classList.remove('dragover'); }));
+            ['dragover', 'dragenter'].forEach(evt => {
+                dropZone.addEventListener(evt, e => { 
+                    e.preventDefault(); 
+                    dropZone.classList.add('dragover'); 
+                });
+            });
+            
+            ['dragleave', 'dragend', 'drop'].forEach(evt => {
+                dropZone.addEventListener(evt, e => { 
+                    e.preventDefault(); 
+                    dropZone.classList.remove('dragover'); 
+                });
+            });
+            
             dropZone.addEventListener('drop', e => {
-                e.preventDefault(); dropZone.classList.remove('dragover');
+                e.preventDefault();
                 if (e.dataTransfer.files.length) {
                     input.files = e.dataTransfer.files;
-                    handleFile(e.dataTransfer.files[0]);
-                    urlInput.value = ''; hiddenUrl.value = '';
+                    handleFile(e.dataTransfer.files[0], index);
+                    urlInput.value = '';
+                    hiddenUrl.value = '';
+                    console.log(`✅ Ficheiro arrastado para imagem ${index + 1}`);
                 }
             });
         }
 
+        // File Input
         if (input) {
             input.addEventListener('change', e => {
                 if (e.target.files.length) {
-                    handleFile(e.target.files[0]);
-                    urlInput.value = ''; hiddenUrl.value = '';
+                    handleFile(e.target.files[0], index);
+                    urlInput.value = '';
+                    hiddenUrl.value = '';
+                    console.log(`✅ Ficheiro selecionado para imagem ${index + 1}`);
                 }
             });
         }
 
-        function handleFile(file) {
+        // Processar ficheiro
+        function handleFile(file, idx) {
             if (file && file.type.startsWith('image/')) {
                 const reader = new FileReader();
                 reader.onload = e => {
                     preview.src = e.target.result;
+                    preview.style.opacity = 1;
                     corsAlert.style.display = 'none';
+                    console.log(`🖼️ Preview atualizado para imagem ${idx + 1}`);
                 };
                 reader.readAsDataURL(file);
+            } else {
+                alert('Por favor, seleciona um ficheiro de imagem válido!');
             }
         }
 
+        // Fetch URL
         if (fetchBtn) {
-            fetchBtn.addEventListener('click', () => fetchUrl());
-            urlInput.addEventListener('keypress', e => { if (e.key === 'Enter') fetchUrl(); });
+            fetchBtn.addEventListener('click', () => fetchUrl(index));
+        }
+        
+        if (urlInput) {
+            urlInput.addEventListener('keypress', e => { 
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    fetchUrl(index);
+                }
+            });
         }
 
-        function fetchUrl() {
+        function fetchUrl(idx) {
             const url = urlInput.value.trim();
-            if (!url) return;
+            if (!url) {
+                alert('Por favor, insere uma URL!');
+                return;
+            }
+            
+            console.log(`🔗 A carregar URL para imagem ${idx + 1}:`, url);
+            
             corsAlert.style.display = 'none';
             preview.style.opacity = 0.5;
+            
             const proxyUrl = '/proxy?url=' + encodeURIComponent(url);
             preview.src = proxyUrl;
             preview.style.opacity = 1;
             hiddenUrl.value = url;
             input.value = '';
+            
+            preview.onload = () => {
+                console.log(`✅ URL carregada com sucesso para imagem ${idx + 1}`);
+            };
+            
             preview.onerror = () => {
                 preview.style.opacity = 1;
                 corsAlert.style.display = 'block';
                 hiddenUrl.value = '';
                 preview.src = '/images/placeholder.jpg';
+                console.error(`❌ Erro ao carregar URL para imagem ${idx + 1}`);
             };
         }
     }
+    
+    // Auto-hide alerts
+    setTimeout(() => $('.alert').fadeOut(1000), 5000);
+    
+    console.log('✅ Sistema de edição de 3 imagens configurado');
 </script>
 </body>
 </html>

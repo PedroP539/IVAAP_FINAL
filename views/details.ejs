@@ -22,12 +22,15 @@
         .btn-action{padding:0.8rem 2rem;font-size:1.1rem;font-weight:bold;border-radius:50px;margin:0.5rem;min-width:180px;transition:all .3s ease;box-shadow:0 4px 15px rgba(0,0,0,0.2)}
         .btn-action:hover{transform:translateY(-3px);box-shadow:0 8px 25px rgba(0,0,0,0.3)}
         .btn-warning{background:linear-gradient(135deg,#f39c12,#f1c40f);border:none;color:white}
+        .btn-success{background:linear-gradient(135deg,#27ae60,#2ecc71);border:none;color:white}
         .btn-secondary{background:#6c757d;border:none;color:white}
         .especie{font-size:1.65rem;background:#27AE60;background:repeating-linear-gradient(to top right,#27AE60 0%,#1C8247 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
         .variedade{font-size:1.25rem;color:#1c8247;font-weight:300}
-                input#searchQuery, input#searchDate, input#searchUser, button.btn.btn-success.btn-lg.rounded-pill.w-100.h-100.d-flex.align-items-center.justify-content-center {
-    font-size: 1rem;
-}
+        .winner-badge{position:absolute;top:10px;right:10px;background:#FFD700;color:#000;padding:5px 15px;border-radius:20px;font-weight:bold;font-size:0.9rem;box-shadow:0 4px 10px rgba(255,215,0,0.4)}
+        .image-container{position:relative}
+        input#searchQuery, input#searchDate, input#searchUser, button.btn.btn-success.btn-lg.rounded-pill.w-100.h-100.d-flex.align-items-center.justify-content-center {
+            font-size: 1rem;
+        }
     </style>
 </head>
 <body>
@@ -82,11 +85,27 @@
     <% } %>
     <div class="detail-card">
         <div class="row mb-5 justify-content-center">
+            <% 
+            // Encontrar a imagem com mais aprovações
+            let maxApprovals = -1;
+            let winningImageId = null;
+            relatedImages.forEach(img => {
+                if (img.approvals > maxApprovals) {
+                    maxApprovals = img.approvals;
+                    winningImageId = img.id;
+                }
+            });
+            %>
             <% relatedImages.forEach(img => { %>
                 <div class="col-md-4 text-center mb-4">
-                    <a href="/uploads/<%= img.image_url %>" data-lightbox="plant-images" data-title="<%= image.species %>">
-                        <img src="/uploads/<%= img.image_url %>" class="detail-img" alt="<%= image.species %>" onerror="this.src='/images/placeholder.jpg'">
-                    </a>
+                    <div class="image-container">
+                        <% if (img.id === winningImageId && maxApprovals > 0) { %>
+                            <span class="winner-badge">⭐ Mais Votada</span>
+                        <% } %>
+                        <a href="/uploads/<%= img.image_url %>" data-lightbox="plant-images" data-title="<%= image.species %>">
+                            <img src="/uploads/<%= img.image_url %>" class="detail-img" alt="<%= image.species %>" onerror="this.src='/images/placeholder.jpg'">
+                        </a>
+                    </div>
                     <p class="vote-count">Aprovações: <%= img.approvals || 0 %> | Rejeições: <%= img.rejections || 0 %></p>
                     <div>
                         <form action="/approve/<%= img.id %>" method="POST" class="d-inline">
@@ -133,6 +152,13 @@
         <p><strong>Carregada por:</strong> <%= image.uploaded_by %> em <%= new Date(image.uploaded_at).toLocaleString('pt-PT') %></p>
         <div class="text-center mt-5">
             <a href="/edit/<%= image.id %>" class="btn btn-warning btn-action">Editar</a>
+            <% if (winningImageId) { %>
+                <form action="/validate-winner/<%= winningImageId %>" method="POST" class="d-inline" onsubmit="return confirm('Tem certeza que deseja validar a imagem mais votada e movê-la para aprovadas?');">
+                    <button type="submit" class="btn btn-success btn-action">
+                        <i class="fas fa-check-circle"></i> Validar Mais Votada
+                    </button>
+                </form>
+            <% } %>
             <a href="/review" class="btn btn-secondary btn-action">Voltar</a>
         </div>
     </div>

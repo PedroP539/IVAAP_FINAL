@@ -25,6 +25,16 @@
             font-size: 2.2rem;
             margin-bottom: 1.5rem;
         }
+        .total-count {
+            text-align: center;
+            color: #27ae60;
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 2rem;
+            padding: 1rem;
+            background: rgba(39, 174, 96, 0.1);
+            border-radius: 15px;
+        }
         .image-card {
             background: white;
             border-radius: 20px;
@@ -60,6 +70,23 @@
             font-size: 0.8rem;
             font-weight: bold;
             z-index: 100;
+        }
+        .new-badge {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            background: #e74c3c;
+            color: white;
+            padding: 0.35rem 0.9rem;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            z-index: 100;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
         }
         .card-body { padding: 1.5rem; }
         .card-title {
@@ -99,11 +126,6 @@
             font-size: 1.1rem;
             padding: 3rem;
         }
-        #loading {
-            text-align: center;
-            padding: 2rem;
-            display: none;
-        }
         .especie {
             font-size: 1.65rem;
             background: #27AE60;
@@ -116,14 +138,40 @@
             color:#1c8247;
             font-weight: 300;
         }
+        .time-info {
+            font-size: 0.85rem;
+            color: #666;
+            margin-top: 0.5rem;
+        }
+        .scroll-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: #27ae60;
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            transition: all 0.3s;
+            z-index: 999;
+        }
+        .scroll-to-top:hover {
+            background: #1e8449;
+            transform: translateY(-5px);
+        }
         @media (max-width: 768px) {
             .btn-group-inline { flex-direction: column; }
             .action-btn { max-width: none; }
             .card-img-container { height: 160px; }
         }
         input#searchQuery, input#searchDate, input#searchUser, button.btn.btn-success.btn-lg.rounded-pill.w-100.h-100.d-flex.align-items-center.justify-content-center {
-    font-size: 1rem;
-}
+            font-size: 1rem;
+        }
     </style>
 </head>
 <body>
@@ -179,15 +227,44 @@
 </div>
 <main class="container content">
     <h2 class="text-center mb-4" style="color: #27ae60; font-weight: bold;">IMAGENS APROVADAS</h2>
+    
+    <% if (images && images.length > 0) { %>
+        <div class="total-count">
+            <i class="fas fa-check-circle"></i> Total de Imagens Aprovadas: <strong><%= images.length %></strong>
+        </div>
+    <% } %>
+    
     <% if (error) { %>
-        <div class="alert alert-danger text-center"><strong>ERRO:</strong> <%= error %></div>
+        <div class="alert alert-danger text-center alert-dismissible fade show">
+            <strong>ERRO:</strong> <%= error %>
+            <button type="button" class="close" data-dismiss="alert">×</button>
+        </div>
     <% } %>
     <% if (success) { %>
-        <div class="alert alert-success text-center"><strong>SUCESSO:</strong> <%= success %></div>
+        <div class="alert alert-success text-center alert-dismissible fade show">
+            <strong>SUCESSO:</strong> <%= success %>
+            <button type="button" class="close" data-dismiss="alert">×</button>
+        </div>
     <% } %>
     <div class="row" id="images-container">
         <% if (images && images.length > 0) { %>
-            <% images.forEach(image => { %>
+            <% 
+            // Ordenar imagens por data de aprovação (mais recentes primeiro)
+            const sortedImages = images.sort((a, b) => {
+                const dateA = new Date(a.reviewed_at || a.uploaded_at);
+                const dateB = new Date(b.reviewed_at || b.uploaded_at);
+                return dateB - dateA; // Ordem decrescente (mais recente primeiro)
+            });
+            
+            // Calcular se foi aprovada nas últimas 24 horas
+            const now = new Date();
+            const oneDayAgo = new Date(now - 24 * 60 * 60 * 1000);
+            %>
+            
+            <% sortedImages.forEach(image => { 
+                const reviewedDate = new Date(image.reviewed_at || image.uploaded_at);
+                const isNew = reviewedDate > oneDayAgo;
+            %>
                 <div class="col-md-4 mb-4">
                     <div class="image-card">
                         <div class="card-img-container">
@@ -195,11 +272,13 @@
                                data-lightbox="approved-images"
                                data-title="<%= image.species || 'Sem espécie' %>">
                                 <img src="/uploads/<%= image.image_url %>"
-                                     class="card-img-top lazy"
-                                     data-src="/uploads/<%= image.image_url %>"
+                                     class="card-img-top"
                                      alt="<%= image.species %>"
                                      onerror="this.src='/images/placeholder.jpg'">
                             </a>
+                            <% if (isNew) { %>
+                                <span class="new-badge">NOVO!</span>
+                            <% } %>
                             <span class="approved-badge">APROVADA</span>
                         </div>
                         <div class="card-body">
@@ -212,8 +291,17 @@
                             </h5>
                             <p class="text-center text-muted small mb-2">
                                 <strong>Gama:</strong> <%= image.gama_nome || 'Não definido' %><br>
-                                <b>Aprovada por:</b><br><%= image.reviewed_by %><br>
-                                em <%= new Date(image.reviewed_at).toLocaleDateString('pt-PT') %>
+                                <b>Aprovada por:</b> <%= image.reviewed_by || 'Sistema' %><br>
+                                <span class="time-info">
+                                    <i class="far fa-clock"></i> 
+                                    <%= reviewedDate.toLocaleDateString('pt-PT', { 
+                                        day: '2-digit', 
+                                        month: '2-digit', 
+                                        year: 'numeric',
+                                        hour: '2-digit',
+                                        minute: '2-digit'
+                                    }) %>
+                                </span>
                             </p>
                             <div class="btn-group-inline">
                                 <button class="btn btn-success action-btn" disabled>APROVADA</button>
@@ -227,57 +315,57 @@
         <% } else { %>
             <div class="col-12">
                 <div class="no-images">
+                    <i class="fas fa-inbox fa-3x mb-3 text-muted"></i>
                     <p class="text-muted">Nenhuma imagem aprovada ainda.</p>
-                    <a href="/review" class="btn btn-warning rounded-pill px-4">REVER PENDENTES</a>
+                    <a href="/review" class="btn btn-warning rounded-pill px-4 mt-3">
+                        <i class="fas fa-search"></i> REVER PENDENTES
+                    </a>
                 </div>
             </div>
         <% } %>
     </div>
-    <div id="loading">
-        <i class="fas fa-spinner fa-spin fa-3x text-success"></i>
-        <p>A carregar mais imagens...</p>
-    </div>
 </main>
+
+<!-- Botão Scroll to Top -->
+<div class="scroll-to-top" id="scrollToTop">
+    <i class="fas fa-arrow-up fa-lg"></i>
+</div>
+
 <footer class="mt-5 py-4 text-center bg-light">
     <p class="mb-0">FLORA LUSITANA - © 2025 IVAAP_2 - V. 6.9.8</p>
 </footer>
+
 <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.4/js/lightbox.min.js"></script>
 <script>
+    // Configuração do Lightbox
     lightbox.option({
         resizeDuration: 200,
         wrapAround: true,
         disableScrolling: true,
         albumLabel: "Imagem %1 de %2"
     });
+    
+    // Auto-hide alerts
     setTimeout(() => $('.alert').fadeOut(1000), 5000);
-    let page = 2;
-    let loading = false;
-    let hasMore = true;
+    
+    // Scroll to Top Button
     $(window).scroll(function() {
-        if (loading || !hasMore) return;
-        if ($(window).scrollTop() + $(window).height() >= $(document).height() - 200) {
-            loading = true;
-            $('#loading').show();
-            $.get(`/approved?page=${page}`)
-                .done(function(data) {
-                    if (data.trim() === '' || data.includes('Nenhuma imagem aprovada')) {
-                        hasMore = false;
-                        $('#loading').hide();
-                        return;
-                    }
-                    $('#images-container').append(data);
-                    page++;
-                    loading = false;
-                    $('#loading').hide();
-                })
-                .fail(function() {
-                    loading = false;
-                    $('#loading').hide();
-                });
+        if ($(this).scrollTop() > 300) {
+            $('#scrollToTop').fadeIn();
+        } else {
+            $('#scrollToTop').fadeOut();
         }
     });
+    
+    $('#scrollToTop').click(function() {
+        $('html, body').animate({scrollTop: 0}, 600);
+        return false;
+    });
+    
+    // Log total de imagens carregadas
+    console.log('Total de imagens aprovadas carregadas: <%= images ? images.length : 0 %>');
 </script>
 </body>
 </html>
