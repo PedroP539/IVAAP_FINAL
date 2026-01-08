@@ -17,6 +17,7 @@
         .carousel-img{height:260px;object-fit:cover;width:100%;border-radius:20px 20px 0 0}
         .pending-badge{background:#ffc107;color:#212529;padding:0.5rem 1.2rem;border-radius:50px;font-weight:bold}
         .btn-details{background:#16a085;color:white;padding:0.8rem 2rem;border-radius:50px;font-weight:bold}
+        .btn-danger{background:#dc3545;color:white;padding:0.8rem 2rem;border-radius:50px;font-weight:bold}
         .carousel-indicators {bottom: -45px !important;}
         .carousel-indicators li {background-color:#999;}
         .carousel-indicators .active {background-color:#27ae60;}
@@ -24,12 +25,12 @@
         .variedade {font-size: 1.25rem !important;color:#1c8247 !important;font-weight: 300 !important;}
         .vote-badge {position: absolute;top: 10px;right: 10px;background: #27ae60;color: white;width: 40px;height: 40px;border-radius: 50%;display: flex;align-items: center;justify-content: center;font-weight: bold;font-size: 1.1rem;box-shadow: 0 4px 10px rgba(0,0,0,0.3);z-index: 10;}
         .carousel-item {position: relative;}
-                input#searchQuery, input#searchDate, input#searchUser, button.btn.btn-success.btn-lg.rounded-pill.w-100.h-100.d-flex.align-items-center.justify-content-center {
-    font-size: 1rem;
-}
-.carousel-control-prev-icon, .carousel-control-next-icon {
-  filter: brightness(0); /* Makes them completely black */
-}
+        input#searchQuery, input#searchDate, input#searchUser, button.btn.btn-success.btn-lg.rounded-pill.w-100.h-100.d-flex.align-items-center.justify-content-center {
+            font-size: 1rem;
+        }
+        .carousel-control-prev-icon, .carousel-control-next-icon {
+            filter: brightness(0); /* Makes them completely black */
+        }
     </style>
 </head>
 <body>
@@ -151,6 +152,21 @@
                                     <a href="/details/<%= firstImg.id %>" class="btn btn-details">VER DETALHES</a>
                                 <% } %>
                             </div>
+                            <!-- Botão Remover da DB - AGORA SÓ UM BOTÃO POR PLANTA -->
+                            <% if (user && (user.cargo === 'Administrador' || group.uploaded_by === user.username)) { %>
+                                <% if (group.images && group.images.length > 0) { %>
+                                    <% const firstImgId = group.images[0].id; %>
+                                    <div class="text-center mt-3">
+                                        <form action="/delete-plant" method="POST" class="d-inline">
+                                            <input type="hidden" name="sampleImageId" value="<%= firstImgId %>">
+                                            <button type="submit" class="btn btn-danger"
+                                                    onclick="return confirm('⚠️ Tens a certeza que queres apagar TODA ESTA PLANTA (todas as imagens) PERMANENTEMENTE da base de dados?\nEsta ação não pode ser desfeita.');">
+                                                <i class="fas fa-trash-alt"></i> REMOVER PLANTA
+                                            </button>
+                                        </form>
+                                    </div>
+                                <% } %>
+                            <% } %>
                         </div>
                     </div>
                 </div>

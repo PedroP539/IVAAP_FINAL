@@ -46,7 +46,7 @@
         .image-card:hover { transform: translateY(-5px); }
         .card-img-container {
             position: relative;
-            height: 200px;
+            height: 280px;
             overflow: hidden;
             border-radius: 20px 20px 0 0;
         }
@@ -105,7 +105,6 @@
         .action-btn {
             flex: 1;
             min-width: 90px;
-            max-width: 120px;
             border-radius: 50px;
             padding: 0.7rem 0.5rem;
             font-weight: bold;
@@ -143,6 +142,11 @@
             color: #666;
             margin-top: 0.5rem;
         }
+        .upload-info {
+            font-size: 0.85rem;
+            color: #666;
+            margin-top: 0.3rem;
+        }
         .scroll-to-top {
             position: fixed;
             bottom: 30px;
@@ -167,11 +171,18 @@
         @media (max-width: 768px) {
             .btn-group-inline { flex-direction: column; }
             .action-btn { max-width: none; }
-            .card-img-container { height: 160px; }
+            .card-img-container { height: 200px; }
         }
         input#searchQuery, input#searchDate, input#searchUser, button.btn.btn-success.btn-lg.rounded-pill.w-100.h-100.d-flex.align-items-center.justify-content-center {
             font-size: 1rem;
         }
+        
+        .btn-group-sm>.btn, .btn-sm {
+    padding: .8rem 1rem;
+    font-size: .875rem;
+    line-height: 1.5;
+    border-radius: 50px;
+}
     </style>
 </head>
 <body>
@@ -227,13 +238,13 @@
 </div>
 <main class="container content">
     <h2 class="text-center mb-4" style="color: #27ae60; font-weight: bold;">IMAGENS APROVADAS</h2>
-    
+ 
     <% if (images && images.length > 0) { %>
         <div class="total-count">
-            <i class="fas fa-check-circle"></i> Total de Imagens Aprovadas: <strong><%= images.length %></strong>
+            <i class="fas fa-check-circle"></i> Total de Plantas Aprovadas: <strong><%= images.length %></strong>
         </div>
     <% } %>
-    
+ 
     <% if (error) { %>
         <div class="alert alert-danger text-center alert-dismissible fade show">
             <strong>ERRO:</strong> <%= error %>
@@ -248,30 +259,30 @@
     <% } %>
     <div class="row" id="images-container">
         <% if (images && images.length > 0) { %>
-            <% 
-            // Ordenar imagens por data de aprovação (mais recentes primeiro)
+            <%
+            // Ordenar por data de aprovação (mais recente primeiro)
             const sortedImages = images.sort((a, b) => {
                 const dateA = new Date(a.reviewed_at || a.uploaded_at);
                 const dateB = new Date(b.reviewed_at || b.uploaded_at);
-                return dateB - dateA; // Ordem decrescente (mais recente primeiro)
+                return dateB - dateA;
             });
-            
-            // Calcular se foi aprovada nas últimas 24 horas
+         
             const now = new Date();
             const oneDayAgo = new Date(now - 24 * 60 * 60 * 1000);
             %>
-            
-            <% sortedImages.forEach(image => { 
+         
+            <% sortedImages.forEach(image => {
                 const reviewedDate = new Date(image.reviewed_at || image.uploaded_at);
                 const isNew = reviewedDate > oneDayAgo;
             %>
-                <div class="col-md-4 mb-4">
+                <div class="col-md-6 col-lg-4 mb-4">
                     <div class="image-card">
                         <div class="card-img-container">
-                            <a href="/uploads/<%= image.image_url %>"
+                            <!-- Imagem fixa: a vencedora (mais votada) da planta -->
+                            <a href="/uploads/<%= image.winning_image_url %>"
                                data-lightbox="approved-images"
                                data-title="<%= image.species || 'Sem espécie' %>">
-                                <img src="/uploads/<%= image.image_url %>"
+                                <img src="/uploads/<%= image.winning_image_url %>"
                                      class="card-img-top"
                                      alt="<%= image.species %>"
                                      onerror="this.src='/images/placeholder.jpg'">
@@ -290,23 +301,41 @@
                                 <% } %>
                             </h5>
                             <p class="text-center text-muted small mb-2">
-                                <strong>Gama:</strong> <%= image.gama_nome || 'Não definido' %><br>
+                                <strong>Gama:</strong> <%= image.gama_nome || 'Não definido' %><br><br>
                                 <b>Aprovada por:</b> <%= image.reviewed_by || 'Sistema' %><br>
                                 <span class="time-info">
-                                    <i class="far fa-clock"></i> 
-                                    <%= reviewedDate.toLocaleDateString('pt-PT', { 
-                                        day: '2-digit', 
-                                        month: '2-digit', 
+                                    <i class="far fa-clock"></i>
+                                    <%= reviewedDate.toLocaleDateString('pt-PT', {
+                                        day: '2-digit',
+                                        month: '2-digit',
                                         year: 'numeric',
                                         hour: '2-digit',
                                         minute: '2-digit'
                                     }) %>
+                                </span><br>
+                                <span class="upload-info">
+                                    <br>
+                                    <i class="fas fa-upload"></i>
+                                    Carregada por:<br><%= image.uploaded_by || 'Desconhecido' %> • <%= new Date(image.uploaded_at).toLocaleDateString('pt-PT') %>
                                 </span>
                             </p>
                             <div class="btn-group-inline">
                                 <button class="btn btn-success action-btn" disabled>APROVADA</button>
                                 <a href="/details/<%= image.id %>" class="btn btn-view action-btn">VER</a>
                             </div>
+
+                            <!-- Botão Remover da DB - só aparece para admin ou quem carregou -->
+                            <% if (user && (user.cargo === 'Administrador' || image.uploaded_by === user.username)) { %>
+                                <div class="text-center mt-3">
+                                    <form action="/delete-image/<%= image.id %>" method="POST" class="d-inline" style="display:inline;">
+                                        <button type="submit" class="btn btn-danger btn-sm btn-action"
+                                                onclick="return confirm('⚠️ Tens a certeza que queres apagar esta imagem PERMANENTEMENTE da base de dados?\nEsta ação não pode ser desfeita.');">
+                                            <i class="fas fa-trash-alt"></i> REMOVER DA DB
+                                        </button>
+                                    </form>
+                                </div>
+                            <% } %>
+
                             <%- include('partials/stars', { image: image, userRating: image.userRating || 0 }) %>
                         </div>
                     </div>
@@ -325,32 +354,26 @@
         <% } %>
     </div>
 </main>
-
 <!-- Botão Scroll to Top -->
 <div class="scroll-to-top" id="scrollToTop">
     <i class="fas fa-arrow-up fa-lg"></i>
 </div>
-
 <footer class="mt-5 py-4 text-center bg-light">
     <p class="mb-0">FLORA LUSITANA - © 2025 IVAAP_2 - V. 6.9.8</p>
 </footer>
-
 <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.4/js/lightbox.min.js"></script>
 <script>
-    // Configuração do Lightbox
     lightbox.option({
         resizeDuration: 200,
         wrapAround: true,
         disableScrolling: true,
         albumLabel: "Imagem %1 de %2"
     });
-    
-    // Auto-hide alerts
+ 
     setTimeout(() => $('.alert').fadeOut(1000), 5000);
-    
-    // Scroll to Top Button
+ 
     $(window).scroll(function() {
         if ($(this).scrollTop() > 300) {
             $('#scrollToTop').fadeIn();
@@ -358,13 +381,12 @@
             $('#scrollToTop').fadeOut();
         }
     });
-    
+ 
     $('#scrollToTop').click(function() {
         $('html, body').animate({scrollTop: 0}, 600);
         return false;
     });
-    
-    // Log total de imagens carregadas
+ 
     console.log('Total de imagens aprovadas carregadas: <%= images ? images.length : 0 %>');
 </script>
 </body>
