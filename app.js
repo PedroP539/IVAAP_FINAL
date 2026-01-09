@@ -38,7 +38,6 @@ db.serialize(() => {
         telefone TEXT,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )`);
-
     db.run(`CREATE TABLE IF NOT EXISTS images (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         image_url TEXT NOT NULL,
@@ -73,17 +72,14 @@ db.serialize(() => {
         approvals INTEGER DEFAULT 0,
         rejections INTEGER DEFAULT 0
     )`);
-
     db.run(`CREATE TABLE IF NOT EXISTS marcas (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         nome TEXT UNIQUE NOT NULL
     )`);
-
     const marcas = ['Flora Lusitana', 'Jardinflora', 'Planto'];
     marcas.forEach(marca => {
         db.run(`INSERT OR IGNORE INTO marcas (nome) VALUES (?)`, [marca]);
     });
-
     db.run(`CREATE TABLE IF NOT EXISTS ratings (
         image_id INTEGER,
         user_id INTEGER,
@@ -92,7 +88,6 @@ db.serialize(() => {
         FOREIGN KEY (image_id) REFERENCES images (id) ON DELETE CASCADE,
         FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
     )`);
-
     // CRIA ADMIN SÓ SE NÃO EXISTIR (bcrypt só roda se necessário)
     db.get('SELECT id FROM users WHERE username = "admin"', (err, row) => {
         if (!row) {
@@ -106,7 +101,6 @@ db.serialize(() => {
             });
         }
     });
-
     db.run(`ALTER TABLE users ADD COLUMN nome TEXT`, () => {});
     db.run(`ALTER TABLE users ADD COLUMN apelido TEXT`, () => {});
     db.run(`ALTER TABLE users ADD COLUMN cargo TEXT`, () => {});
@@ -130,9 +124,9 @@ app.use(express.static('public'));
 app.use('/uploads', express.static(path.join(__dirname, 'public', 'uploads')));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-app.use(session({ 
-    secret: 'ivaap2025', 
-    resave: false, 
+app.use(session({
+    secret: 'ivaap2025',
+    resave: false,
     saveUninitialized: false,
     cookie: { maxAge: 24 * 60 * 60 * 1000 } // 24h
 }));
@@ -884,10 +878,15 @@ app.get('/details/:id', ensureAuth, (req, res) => {
                     status: mainImage.status
                 }];
             }
+
+            // DETETAR SE VEMOS DA PÁGINA DE REJEITADAS
+            const fromRejected = (req.headers.referer || '').includes('/rejected');
+
             res.render('details', {
                 image: mainImage,
                 relatedImages: relatedImages,
-                success: req.flash('success')[0] || null
+                success: req.flash('success')[0] || null,
+                fromRejected: fromRejected
             });
         });
     });
@@ -960,20 +959,16 @@ app.post('/delete-image/:id', ensureAuth, (req, res) => {
 
 app.post('/delete-plant', ensureAuth, (req, res) => {
     const sampleImageId = req.body.sampleImageId;
-
     if (!sampleImageId) {
         req.flash('error', 'Erro ao identificar a planta para apagar.');
         return res.redirect('/review');
     }
-
     db.get('SELECT * FROM images WHERE id = ?', [sampleImageId], (err, sampleImage) => {
         if (err || !sampleImage) {
             req.flash('error', 'Planta não encontrada.');
             return res.redirect('/review');
         }
-
         const timeKey = new Date(sampleImage.uploaded_at).toISOString().slice(0, 10);
-
         db.all(`
             SELECT id, image_url FROM images
             WHERE species = ?
@@ -985,13 +980,10 @@ app.post('/delete-plant', ensureAuth, (req, res) => {
                 req.flash('error', 'Nenhuma imagem encontrada para apagar.');
                 return res.redirect('/review');
             }
-
             let deletedCount = 0;
             const totalImages = plantImages.length;
-
             plantImages.forEach(img => {
                 const filePath = path.join(__dirname, 'public', 'uploads', img.image_url);
-
                 db.run('DELETE FROM images WHERE id = ?', [img.id], function(err) {
                     if (err) {
                         console.error('Erro ao apagar imagem ID ' + img.id + ':', err);
@@ -1003,7 +995,6 @@ app.post('/delete-plant', ensureAuth, (req, res) => {
                             });
                         }
                     }
-
                     if (deletedCount === totalImages) {
                         req.flash('success', `Planta apagada com sucesso! (${totalImages} imagem(ns) removida(s))`);
                         res.redirect('/review');
@@ -1021,20 +1012,17 @@ app.post('/edit', ensureAuth, upload.fields([
 ]), async (req, res) => {
     console.log('=== INÍCIO DA EDIÇÃO RÁPIDA ===');
     console.log('Files recebidos:', req.files);
-
     try {
         const sampleImageId = req.body.originalId;
         if (!sampleImageId) {
             req.flash('error', 'Erro ao identificar a planta');
             return res.redirect('/statistics');
         }
-
         db.get('SELECT * FROM images WHERE id = ?', [sampleImageId], async (err, sampleImage) => {
             if (err || !sampleImage) {
                 req.flash('error', 'Imagem não encontrada');
                 return res.redirect('/statistics');
             }
-
             const commonData = {
                 species: req.body.species,
                 variety: req.body.variety || null,
@@ -1054,9 +1042,7 @@ app.post('/edit', ensureAuth, upload.fields([
                 comentarios: req.body.comentarios || null,
                 gama_id: req.body.gama_id || null
             };
-
             const timeKey = new Date(sampleImage.uploaded_at).toISOString().slice(0, 10);
-
             db.all(`
                 SELECT id, image_url, marca_id FROM images
                 WHERE species = ?
@@ -1065,25 +1051,19 @@ app.post('/edit', ensureAuth, upload.fields([
                 ORDER BY marca_id ASC
             `, [sampleImage.species, sampleImage.uploaded_by, timeKey], async (err, plantImages) => {
                 if (err) plantImages = [];
-
                 let updatedCount = 0;
                 let createdCount = 0;
                 const promises = [];
-
                 for (let index = 0; index < 3; index++) {
                     const marcaId = index + 1;
                     const hasFile = req.files[`newImage${index}`] && req.files[`newImage${index}`].length;
                     const existingImage = plantImages.find(p => p.marca_id === marcaId);
-
                     let filename = null;
-
                     if (hasFile) {
                         filename = req.files[`newImage${index}`][0].filename;
                     }
-
                     if (existingImage) {
                         const updateFilename = filename || existingImage.image_url;
-
                         promises.push(new Promise((resolve, reject) => {
                             db.run(`
                                 UPDATE images SET
@@ -1139,9 +1119,7 @@ app.post('/edit', ensureAuth, upload.fields([
                         }));
                     }
                 }
-
                 await Promise.all(promises);
-
                 req.flash('success', `Planta editada! ${updatedCount} atualizada(s), ${createdCount} criada(s)`);
                 res.redirect('/details/' + sampleImageId);
             });
@@ -1247,15 +1225,12 @@ app.post('/validate-winner/:id', ensureAuth, (req, res) => {
     const imageId = req.params.id;
     const reviewedBy = req.user.username;
     const reviewedAt = new Date().toISOString();
-
     db.get('SELECT * FROM images WHERE id = ?', [imageId], (err, winnerImage) => {
         if (err || !winnerImage) {
             req.flash('error', 'Imagem não encontrada');
             return res.redirect('/review');
         }
-
         const timeKey = new Date(winnerImage.uploaded_at).toISOString().slice(0, 10);
-
         db.run(
             `UPDATE images
              SET status = 'approved',
@@ -1268,7 +1243,6 @@ app.post('/validate-winner/:id', ensureAuth, (req, res) => {
                     req.flash('error', 'Erro ao validar imagem');
                     return res.redirect('/details/' + imageId);
                 }
-
                 db.run(
                     `UPDATE images
                      SET status = 'rejected',
@@ -1305,8 +1279,9 @@ app.post('/validate-winner/:id', ensureAuth, (req, res) => {
 
 app.listen(PORT, () => {
     console.log(`IVAAP RODANDO EM http://localhost:${PORT}`);
-    console.log(`LOGIN INSTANTÂNEO (bcrypt só roda se admin não existir)`);
-    console.log(`EDIÇÃO RÁPIDA (sem download de URLs)`);
+    console.log(`LOGIN INSTANTÂNEO`);
+    console.log(`EDIÇÃO RÁPIDA`);
     console.log(`DELETE-PLANT FUNCIONA`);
-    console.log(`FLORA LUSITANA 2025 – COMPLETO E ESTÁVEL`);
+    console.log(`fromRejected PASSADO NA ROTA /details`);
+    console.log(`FLORA LUSITANA 2025 – AGORA SIM, ESTÁVEL`);
 });
