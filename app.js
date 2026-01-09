@@ -912,23 +912,33 @@ app.get('/edit/:id', ensureAuth, (req, res) => {
         }
         const timeKey = new Date(image.uploaded_at).toISOString().slice(0, 10);
         db.all(`
-            SELECT i.id, i.image_url, i.marca_id, m.nome AS marca_nome
-            FROM images i
-            LEFT JOIN marcas m ON i.marca_id = m.id
-            WHERE i.species = ?
-              AND (i.variety = ? OR (i.variety IS NULL AND ? IS NULL))
-              AND i.uploaded_by = ?
-              AND strftime('%Y-%m-%d', i.uploaded_at) = ?
-            ORDER BY i.marca_id ASC
-        `, [image.species, image.variety, image.variety, image.uploaded_by, timeKey], (err, relatedImages) => {
+                SELECT i.id, i.image_url, i.marca_id, m.nome AS marca_nome
+                FROM images i
+                LEFT JOIN marcas m ON i.marca_id = m.id
+                WHERE i.species = ?
+                  AND (i.variety = ? OR (i.variety IS NULL AND ? IS NULL))
+                  AND i.uploaded_by = ?
+                  AND strftime('%Y-%m-%d', i.uploaded_at) = ?
+                ORDER BY i.marca_id ASC, i.id ASC
+            `, [image.species, image.variety, image.variety, image.uploaded_by, timeKey], (err, relatedImages) => {
             if (err) relatedImages = [];
-            if (!relatedImages || relatedImages.length === 0) {
-                relatedImages = [{
-                    id: image.id,
-                    image_url: image.image_url,
-                    marca_id: image.marca_id || 1
-                }];
-            }
+
+            // GARANTIR QUE CADA IMAGEM TEM UM SLOT (MARCA_ID) PARA O FORM
+            const usedMarks = new Set();
+            relatedImages.forEach(r => { if (r.marca_id) usedMarks.add(r.marca_id); });
+
+            relatedImages.forEach(r => {
+                if (!r.marca_id) {
+                    for (let m = 1; m <= 3; m++) {
+                        if (!usedMarks.has(m)) {
+                            r.marca_id = m;
+                            usedMarks.add(m);
+                            break;
+                        }
+                    }
+                }
+            });
+
             db.all('SELECT id, nome FROM gamas ORDER BY nome', [], (err, gamas) => {
                 if (err) gamas = [];
                 res.render('edit', {
@@ -1069,7 +1079,17 @@ app.post('/edit', ensureAuth, upload.fields([
                 for (let index = 0; index < 3; index++) {
                     const marcaId = index + 1;
                     const hasFile = req.files[`newImage${index}`] && req.files[`newImage${index}`].length;
-                    const existingImage = plantImages.find(p => p.marca_id === marcaId);
+                    const formId = req.body[`existingImageId${index}`];
+
+                    // Identificar imagem existente: ou pelo ID direto do form (preferencial) ou pela marca no grupo
+                    let existingImage = null;
+                    if (formId) {
+                        existingImage = plantImages.find(p => p.id == formId);
+                    }
+                    if (!existingImage) {
+                        existingImage = plantImages.find(p => p.marca_id === marcaId);
+                    }
+
                     let filename = null;
                     if (hasFile) {
                         filename = req.files[`newImage${index}`][0].filename;
@@ -1083,7 +1103,7 @@ app.post('/edit', ensureAuth, upload.fields([
                                     colheitaFloracao = ?, exposicaoSolar = ?, rega = ?, profundidadeSementeira = ?,
                                     sementeiraDireta = ?, sementeiraAlfobre = ?, sementeira = ?, transplante = ?,
                                     compasso = ?, caracteristicas = ?, conselhos_de_cultivo = ?, comentarios = ?,
-                                    gama_id = ?
+                                    gama_id = ?, marca_id = ?
                                 WHERE id = ?
                             `, [
                                 updateFilename, commonData.species, commonData.variety, commonData.botanical_name,
@@ -1091,7 +1111,7 @@ app.post('/edit', ensureAuth, upload.fields([
                                 commonData.rega, commonData.profundidadeSementeira, commonData.sementeiraDireta,
                                 commonData.sementeiraAlfobre, commonData.sementeira, commonData.transplante,
                                 commonData.compasso, commonData.caracteristicas, commonData.conselhos_de_cultivo,
-                                commonData.comentarios, commonData.gama_id, existingImage.id
+                                commonData.comentarios, commonData.gama_id, marcaId, existingImage.id
                             ], function (err) {
                                 if (err) reject(err);
                                 else {
