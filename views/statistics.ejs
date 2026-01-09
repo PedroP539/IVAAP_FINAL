@@ -210,6 +210,48 @@
             font-style: italic
         }
 
+        .main-carousel-container {
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, .15);
+            background: #fff;
+            height: 100%;
+        }
+
+        .main-carousel-container .carousel-item {
+            height: 330px;
+        }
+
+        .main-carousel-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .carousel-caption-custom {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(transparent, rgba(0, 0, 0, 0.7));
+            color: white;
+            padding: 20px;
+            text-align: left;
+        }
+
+        .carousel-caption-custom h5 {
+            margin: 0;
+            font-weight: bold;
+            font-size: 1.2rem;
+            color: white !important;
+        }
+
+        .carousel-caption-custom p {
+            margin: 5px 0 0;
+            font-size: 0.9rem;
+            color: #ccc !important;
+        }
+
         .champion-card {
             background: white;
             border-radius: 20px;
@@ -333,6 +375,7 @@
             background: #27AE60;
             background: repeating-linear-gradient(to top right, #27AE60 0%, #1C8247 100%);
             -webkit-background-clip: text;
+            background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
@@ -525,478 +568,571 @@
                                 </div>
 
                                 <div class="col-lg-8">
-                                    <div class="activity-card">
-                                        <h5 class="mb-3">ÚLTIMA ATIVIDADE NA PLATAFORMA</h5>
-
-                                        <% if (latestImages.uploaded) { %>
-                                            <div class="activity-item">
-                                                <a href="/uploads/<%= latestImages.uploaded.image_url %>"
-                                                    data-lightbox="stats">
-                                                    <img src="/uploads/<%= latestImages.uploaded.image_url %>"
-                                                        class="activity-thumb"
-                                                        onerror="this.src='/images/placeholder.jpg'">
-                                                </a>
-                                                <div class="activity-text">
-                                                    <div class="activity-label"><i
-                                                            class="fa-solid fa-upload text-primary"></i>&nbsp; Último
-                                                        upload</div>
-                                                    <div class="activity-value"><a
-                                                            href="/details/<%= latestImages.uploaded.id %>">
-                                                            <%= latestImages.uploaded.species %>
-                                                                <%= latestImages.uploaded.variety || '' %>
-                                                        </a></div>
-                                                    <small class="text-muted">por <%= latestImages.uploaded.uploaded_by
-                                                            %> • <%= new
-                                                                Date(latestImages.uploaded.uploaded_at).toLocaleString('pt-PT')
-                                                                %></small>
+                                    <div class="main-carousel-container">
+                                        <% if (typeof pendingForCarousel !=='undefined' && pendingForCarousel &&
+                                            pendingForCarousel.length> 0) { %>
+                                            <div id="latestPendingCarousel" class="carousel slide h-100"
+                                                data-ride="carousel">
+                                                <ol class="carousel-indicators">
+                                                    <% pendingForCarousel.forEach((img, i)=> { %>
+                                                        <li data-target="#latestPendingCarousel"
+                                                            data-slide-to="<%= i %>"
+                                                            class="<%= i === 0 ? 'active' : '' %>"></li>
+                                                        <% }); %>
+                                                </ol>
+                                                <div class="carousel-inner h-100">
+                                                    <% pendingForCarousel.forEach((img, i)=> { %>
+                                                        <div class="carousel-item h-100 <%= i === 0 ? 'active' : '' %>">
+                                                            <a href="/review">
+                                                                <img src="/uploads/<%= img.image_url %>"
+                                                                    class="d-block w-100" alt="<%= img.species %>"
+                                                                    onerror="this.src='/images/placeholder.jpg'">
+                                                                <div class="carousel-caption-custom">
+                                                                    <h5>
+                                                                        <%= img.species %>
+                                                                            <%= img.variety || '' %>
+                                                                    </h5>
+                                                                    <p>Pendente para revisão • Por <%= img.uploaded_by
+                                                                            %>
+                                                                    </p>
+                                                                </div>
+                                                            </a>
+                                                        </div>
+                                                        <% }); %>
                                                 </div>
+                                                <a class="carousel-control-prev" href="#latestPendingCarousel"
+                                                    role="button" data-slide="prev">
+                                                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                                    <span class="sr-only">Anterior</span>
+                                                </a>
+                                                <a class="carousel-control-next" href="#latestPendingCarousel"
+                                                    role="button" data-slide="next">
+                                                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                                    <span class="sr-only">Seguinte</span>
+                                                </a>
                                             </div>
-                                            <% } %>
+                                            <% } else { %>
+                                                <div
+                                                    class="d-flex flex-column align-items-center justify-content-center h-100 text-muted p-5">
+                                                    <i class="fa-solid fa-check-circle fa-4x text-success mb-3"></i>
+                                                    <h5>Tudo em dia!</h5>
+                                                    <p>Nenhuma imagem pendente para revisão.</p>
+                                                </div>
+                                                <% } %>
+                                    </div>
+                                </div>
+                            </div>
 
-                                                <% if (latestImages.approved) { %>
+                            <!-- ÚLTIMA ATIVIDADE GLOBAL DETALHADA -->
+                            <div class="row mb-4">
+                                <div class="col-12">
+                                    <div class="activity-card" style="min-height: auto;">
+                                        <h5 class="mb-4 text-center">ÚLTIMA ATIVIDADE NA PLATAFORMA</h5>
+                                        <div class="row">
+                                            <% if (latestImages.uploaded) { %>
+                                                <div class="col-md-4">
                                                     <div class="activity-item">
-                                                        <a href="/uploads/<%= latestImages.approved.image_url %>"
+                                                        <a href="/uploads/<%= latestImages.uploaded.image_url %>"
                                                             data-lightbox="stats">
-                                                            <img src="/uploads/<%= latestImages.approved.image_url %>"
+                                                            <img src="/uploads/<%= latestImages.uploaded.image_url %>"
                                                                 class="activity-thumb"
                                                                 onerror="this.src='/images/placeholder.jpg'">
                                                         </a>
                                                         <div class="activity-text">
-                                                            <div class="activity-label text-success"><i
-                                                                    class="fa-solid fa-thumbs-up text-success"></i>&nbsp;
-                                                                Última aprovação</div>
+                                                            <div class="activity-label"><i
+                                                                    class="fa-solid fa-upload text-primary"></i>&nbsp;
+                                                                Último
+                                                                upload</div>
                                                             <div class="activity-value"><a
-                                                                    href="/details/<%= latestImages.approved.id %>">
-                                                                    <%= latestImages.approved.species %>
-                                                                        <%= latestImages.approved.variety || '' %>
+                                                                    href="/details/<%= latestImages.uploaded.id %>">
+                                                                    <%= latestImages.uploaded.species %>
+                                                                        <%= latestImages.uploaded.variety || '' %>
                                                                 </a></div>
-                                                            <small class="text-muted">por <%=
-                                                                    latestImages.approved.reviewed_by %> • <%= new
-                                                                        Date(latestImages.approved.reviewed_at).toLocaleString('pt-PT')
-                                                                        %></small>
+                                                            <small class="text-muted">
+                                                                <%= latestImages.uploaded.uploaded_by %> • <%= new
+                                                                        Date(latestImages.uploaded.uploaded_at).toLocaleString('pt-PT')
+                                                                        %>
+                                                            </small>
                                                         </div>
                                                     </div>
-                                                    <% } %>
+                                                </div>
+                                                <% } %>
 
-                                                        <% if (latestImages.rejected) { %>
+                                                    <% if (latestImages.approved) { %>
+                                                        <div class="col-md-4">
                                                             <div class="activity-item">
-                                                                <a href="/uploads/<%= latestImages.rejected.image_url %>"
+                                                                <a href="/uploads/<%= latestImages.approved.image_url %>"
                                                                     data-lightbox="stats">
-                                                                    <img src="/uploads/<%= latestImages.rejected.image_url %>"
+                                                                    <img src="/uploads/<%= latestImages.approved.image_url %>"
                                                                         class="activity-thumb"
                                                                         onerror="this.src='/images/placeholder.jpg'">
                                                                 </a>
                                                                 <div class="activity-text">
-                                                                    <div class="activity-label text-danger"><i
-                                                                            class="fa-solid fa-thumbs-down text-danger"></i>&nbsp;
-                                                                        Última rejeição</div>
+                                                                    <div class="activity-label text-success"><i
+                                                                            class="fa-solid fa-thumbs-up text-success"></i>&nbsp;
+                                                                        Última aprovação</div>
                                                                     <div class="activity-value"><a
-                                                                            href="/details/<%= latestImages.rejected.id %>">
-                                                                            <%= latestImages.rejected.species %>
-                                                                                <%= latestImages.rejected.variety || ''
+                                                                            href="/details/<%= latestImages.approved.id %>">
+                                                                            <%= latestImages.approved.species %>
+                                                                                <%= latestImages.approved.variety || ''
                                                                                     %>
                                                                         </a></div>
                                                                     <small class="text-muted">por <%=
-                                                                            latestImages.rejected.reviewed_by %> • <%=
+                                                                            latestImages.approved.reviewed_by %> • <%=
                                                                                 new
-                                                                                Date(latestImages.rejected.reviewed_at).toLocaleString('pt-PT')
+                                                                                Date(latestImages.approved.reviewed_at).toLocaleString('pt-PT')
                                                                                 %></small>
                                                                 </div>
                                                             </div>
-                                                            <% } %>
+                                                        </div>
+                                                        <% } %>
 
-                                                                <% if (!latestImages.uploaded && !latestImages.approved
-                                                                    && !latestImages.rejected) { %>
-                                                                    <p class="text-center text-muted mb-0">Ainda não há
-                                                                        atividade na plataforma.</p>
-                                                                    <% } %>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- NOVAS MÉTRICAS (4 Colunas) -->
-                            <div class="row mb-5">
-                                <div class="col-12">
-                                    <h4 class="text-center mb-4" style="color:#27ae60;font-weight:bold">TOP IMAGENS</h4>
-                                </div>
-
-                                <!-- 1. Global Pending Voted -->
-                                <div class="col-6 col-md-3">
-                                    <div class="vote-card text-center" style="min-height:350px">
-                                        <div class="vote-label" style="color:#f39c12">EM REVISÃO - MAIS VOTADA</div>
-                                        <% if (newMetrics.globalPendingVoted) { %>
-                                            <a href="/uploads/<%= newMetrics.globalPendingVoted.image_url %>"
-                                                data-lightbox="stats-new">
-                                                <img src="/uploads/<%= newMetrics.globalPendingVoted.image_url %>"
-                                                    class="vote-thumb mb-2"
-                                                    onerror="this.src='/images/placeholder.jpg'">
-                                            </a>
-                                            <div class="text-muted small"><strong>
-                                                    <%= newMetrics.globalPendingVoted.approvals %>
-                                                </strong> Aprovações</div>
-                                            <a href="/details/<%= newMetrics.globalPendingVoted.id %>"
-                                                class="btn-premium btn-premium-sm btn-premium-warning mt-2">Ver</a>
-                                            <% } else { %>
-                                                <p class="text-muted mt-4">Sem dados</p>
-                                                <% } %>
-                                    </div>
-                                </div>
-
-                                <!-- 2. Global Pending Rejected -->
-                                <div class="col-6 col-md-3">
-                                    <div class="vote-card text-center" style="min-height:350px">
-                                        <div class="vote-label" style="color:#e74c3c">EM REVISÃO - MAIS REJEITADA</div>
-                                        <% if (newMetrics.globalPendingRejected) { %>
-                                            <a href="/uploads/<%= newMetrics.globalPendingRejected.image_url %>"
-                                                data-lightbox="stats-new">
-                                                <img src="/uploads/<%= newMetrics.globalPendingRejected.image_url %>"
-                                                    class="vote-thumb mb-2"
-                                                    onerror="this.src='/images/placeholder.jpg'">
-                                            </a>
-                                            <div class="text-muted small"><strong>
-                                                    <%= newMetrics.globalPendingRejected.rejections %>
-                                                </strong> Rejeições</div>
-                                            <a href="/details/<%= newMetrics.globalPendingRejected.id %>"
-                                                class="btn-premium btn-premium-sm btn-premium-danger mt-2">Ver</a>
-                                            <% } else { %>
-                                                <p class="text-muted mt-4">Sem dados</p>
-                                                <% } %>
-                                    </div>
-                                </div>
-
-                                <!-- 3. User Most Voted -->
-                                <div class="col-6 col-md-3">
-                                    <div class="vote-card text-center" style="min-height:350px">
-                                        <div class="vote-label" style="color:#27ae60">TUA - MAIS VOTADA</div>
-                                        <% if (newMetrics.userMostVoted) { %>
-                                            <a href="/uploads/<%= newMetrics.userMostVoted.image_url %>"
-                                                data-lightbox="stats-new">
-                                                <img src="/uploads/<%= newMetrics.userMostVoted.image_url %>"
-                                                    class="vote-thumb mb-2"
-                                                    onerror="this.src='/images/placeholder.jpg'">
-                                            </a>
-                                            <div class="text-muted small"><strong>
-                                                    <%= newMetrics.userMostVoted.approvals %>
-                                                </strong> Aprovações</div>
-                                            <a href="/details/<%= newMetrics.userMostVoted.id %>"
-                                                class="btn-premium btn-premium-sm btn-premium-success mt-2">Ver</a>
-                                            <% } else { %>
-                                                <p class="text-muted mt-4">Sem dados</p>
-                                                <% } %>
-                                    </div>
-                                </div>
-
-                                <!-- 4. User Most Rejected -->
-                                <div class="col-6 col-md-3">
-                                    <div class="vote-card text-center" style="min-height:350px">
-                                        <div class="vote-label" style="color:#c0392b">TUA - MAIS REJEITADA</div>
-                                        <% if (newMetrics.userMostRejected) { %>
-                                            <a href="/uploads/<%= newMetrics.userMostRejected.image_url %>"
-                                                data-lightbox="stats-new">
-                                                <img src="/uploads/<%= newMetrics.userMostRejected.image_url %>"
-                                                    class="vote-thumb mb-2"
-                                                    onerror="this.src='/images/placeholder.jpg'">
-                                            </a>
-                                            <div class="text-muted small"><strong>
-                                                    <%= newMetrics.userMostRejected.rejections %>
-                                                </strong> Rejeições</div>
-                                            <a href="/details/<%= newMetrics.userMostRejected.id %>"
-                                                class="btn-premium btn-premium-sm btn-premium-danger mt-2">Ver</a>
-                                            <% } else { %>
-                                                <p class="text-muted mt-4">Sem dados</p>
-                                                <% } %>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- TIMELINE DE ATIVIDADE DO UTILIZADOR -->
-                            <div class="row mb-5">
-                                <div class="col-12">
-                                    <div class="accordion" id="activityAccordion">
-                                        <div class="card border-0 shadow-sm"
-                                            style="border-radius: 20px; overflow: hidden;">
-                                            <div class="card-header bg-white border-0 p-0" id="headingOne">
-                                                <button
-                                                    class="btn btn-link btn-block text-left p-4 text-decoration-none d-flex justify-content-between align-items-center"
-                                                    type="button" data-toggle="collapse" data-target="#collapseOne"
-                                                    aria-expanded="false" aria-controls="collapseOne">
-                                                    <h4 class="mb-0" style="color:#27ae60;font-weight:bold">TIMELINE DA
-                                                        TUA ATIVIDADE</h4>
-                                                    <i class="fas fa-chevron-down text-success"></i>
-                                                </button>
-                                            </div>
-
-                                            <div id="collapseOne" class="collapse" aria-labelledby="headingOne"
-                                                data-parent="#activityAccordion">
-                                                <div class="card-body p-4 pt-0">
-                                                    <% if (userActivity && userActivity.length> 0) { %>
-                                                        <div class="timeline">
-                                                            <% userActivity.forEach(activity=> { %>
-                                                                <div
-                                                                    class="activity-item d-flex align-items-center mb-3 pb-3 border-bottom">
-                                                                    <div class="me-3">
-                                                                        <% if (activity.action==='upload' ) { %>
-                                                                            <i
-                                                                                class="fa-solid fa-upload fa-2x text-primary"></i>
-                                                                            <% } else if (activity.action==='approve' )
-                                                                                { %>
-                                                                                <i
-                                                                                    class="fa-solid fa-thumbs-up fa-2x text-success"></i>
-                                                                                <% } else if (activity.action==='reject'
-                                                                                    ) { %>
-                                                                                    <i
-                                                                                        class="fa-solid fa-thumbs-down fa-2x text-danger"></i>
-                                                                                    <% } %>
-                                                                    </div>
-                                                                    <div class="flex-grow-1">
-                                                                        <strong>
-                                                                            <% if (activity.action==='upload' ) { %>
-                                                                                Carregaste<% } %>
-                                                                                    <% if (activity.action==='approve' )
-                                                                                        { %>Aprovaste<% } %>
-                                                                                            <% if
-                                                                                                (activity.action==='reject'
-                                                                                                ) { %>Rejeitaste<% } %>
-                                                                                                    <%= ' ' +
-                                                                                                        activity.species
-                                                                                                        %>
-                                                                                                        <%= activity.variety
-                                                                                                            ? '(' +
-                                                                                                            activity.variety
-                                                                                                            + ')' : ''
-                                                                                                            %>
-                                                                        </strong>
-                                                                        <br>
-                                                                        <small class="text-muted">
-                                                                            <%= new
-                                                                                Date(activity.timestamp).toLocaleString('pt-PT')
-                                                                                %>
-                                                                        </small>
-                                                                    </div>
-                                                                    <div>
-                                                                        <a href="/details/<%= activity.id %>"
-                                                                            class="btn-premium btn-premium-sm btn-premium-success">Ver</a>
+                                                            <% if (latestImages.rejected) { %>
+                                                                <div class="col-md-4">
+                                                                    <div class="activity-item">
+                                                                        <a href="/uploads/<%= latestImages.rejected.image_url %>"
+                                                                            data-lightbox="stats">
+                                                                            <img src="/uploads/<%= latestImages.rejected.image_url %>"
+                                                                                class="activity-thumb"
+                                                                                onerror="this.src='/images/placeholder.jpg'">
+                                                                        </a>
+                                                                        <div class="activity-text">
+                                                                            <div class="activity-label text-danger"><i
+                                                                                    class="fa-solid fa-thumbs-down text-danger"></i>&nbsp;
+                                                                                Última rejeição</div>
+                                                                            <div class="activity-value"><a
+                                                                                    href="/details/<%= latestImages.rejected.id %>">
+                                                                                    <%= latestImages.rejected.species %>
+                                                                                        <%= latestImages.rejected.variety
+                                                                                            || '' %>
+                                                                                </a></div>
+                                                                            <small class="text-muted">por <%=
+                                                                                    latestImages.rejected.reviewed_by %>
+                                                                                    •
+                                                                                    <%= new
+                                                                                        Date(latestImages.rejected.reviewed_at).toLocaleString('pt-PT')
+                                                                                        %></small>
+                                                                        </div>
                                                                     </div>
                                                                 </div>
-                                                                <% }); %>
-                                                        </div>
-                                                        <% } else { %>
-                                                            <p class="text-center text-muted mb-0">Ainda não tens
-                                                                atividade registada.</p>
-                                                            <% } %>
-                                                </div>
-                                            </div>
+                                                                <% } %>
+
+                                                                    <% if (!latestImages.uploaded &&
+                                                                        !latestImages.approved &&
+                                                                        !latestImages.rejected) { %>
+                                                                        <div class="col-12">
+                                                                            <p class="text-center text-muted mb-0">Ainda
+                                                                                não há
+                                                                                atividade na plataforma.</p>
+                                                                        </div>
+                                                                        <% } %>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
 
-
-
-                            <!-- CAMPEÕES DO IVAAP – APENAS PARA ADMIN -->
-                            <% if (isAdmin) { %>
+                                <!-- NOVAS MÉTRICAS (4 Colunas) -->
                                 <div class="row mb-5">
                                     <div class="col-12">
-                                        <h4 class="text-center mb-4" style="color:#27ae60;font-weight:bold">CAMPEÕES DO
-                                            IVAAP</h4>
-                                        <div class="row">
-                                            <div class="col-6 col-md-3">
-                                                <div class="champion-card">
-                                                    <div class="champion-avatar">
-                                                        <%= topUsers.uploads?.user?.charAt(0).toUpperCase() || '?' %>
-                                                    </div>
-                                                    <div class="champion-name">
-                                                        <%= topUsers.uploads?.user || 'Ninguém' %>
-                                                    </div>
-                                                    <div class="champion-count">
-                                                        <%= topUsers.uploads?.count || 0 %>
-                                                    </div>
-                                                    <div class="champion-label">Mais Uploads</div>
-                                                </div>
+                                        <h4 class="text-center mb-4" style="color:#27ae60;font-weight:bold">TOP IMAGENS
+                                        </h4>
+                                    </div>
+
+                                    <!-- 1. Global Pending Voted -->
+                                    <div class="col-6 col-md-3">
+                                        <div class="vote-card text-center" style="min-height:350px">
+                                            <div class="vote-label" style="color:#f39c12">EM REVISÃO - MAIS VOTADA</div>
+                                            <% if (newMetrics.globalPendingVoted) { %>
+                                                <a href="/uploads/<%= newMetrics.globalPendingVoted.image_url %>"
+                                                    data-lightbox="stats-new">
+                                                    <img src="/uploads/<%= newMetrics.globalPendingVoted.image_url %>"
+                                                        class="vote-thumb mb-2"
+                                                        onerror="this.src='/images/placeholder.jpg'">
+                                                </a>
+                                                <div class="text-muted small"><strong>
+                                                        <%= newMetrics.globalPendingVoted.approvals %>
+                                                    </strong> Aprovações</div>
+                                                <a href="/details/<%= newMetrics.globalPendingVoted.id %>"
+                                                    class="btn-premium btn-premium-sm btn-premium-warning mt-2">Ver</a>
+                                                <% } else { %>
+                                                    <p class="text-muted mt-4">Sem dados</p>
+                                                    <% } %>
+                                        </div>
+                                    </div>
+
+                                    <!-- 2. Global Pending Rejected -->
+                                    <div class="col-6 col-md-3">
+                                        <div class="vote-card text-center" style="min-height:350px">
+                                            <div class="vote-label" style="color:#e74c3c">EM REVISÃO - MAIS REJEITADA
                                             </div>
-                                            <div class="col-6 col-md-3">
-                                                <div class="champion-card">
-                                                    <div class="champion-avatar">
-                                                        <%= topUsers.approvals?.user?.charAt(0).toUpperCase() || '?' %>
-                                                    </div>
-                                                    <div class="champion-name">
-                                                        <%= topUsers.approvals?.user || 'Ninguém' %>
-                                                    </div>
-                                                    <div class="champion-count">
-                                                        <%= topUsers.approvals?.count || 0 %>
-                                                    </div>
-                                                    <div class="champion-label">Mais Aprovações</div>
+                                            <% if (newMetrics.globalPendingRejected) { %>
+                                                <a href="/uploads/<%= newMetrics.globalPendingRejected.image_url %>"
+                                                    data-lightbox="stats-new">
+                                                    <img src="/uploads/<%= newMetrics.globalPendingRejected.image_url %>"
+                                                        class="vote-thumb mb-2"
+                                                        onerror="this.src='/images/placeholder.jpg'">
+                                                </a>
+                                                <div class="text-muted small"><strong>
+                                                        <%= newMetrics.globalPendingRejected.rejections %>
+                                                    </strong> Rejeições</div>
+                                                <a href="/details/<%= newMetrics.globalPendingRejected.id %>"
+                                                    class="btn-premium btn-premium-sm btn-premium-danger mt-2">Ver</a>
+                                                <% } else { %>
+                                                    <p class="text-muted mt-4">Sem dados</p>
+                                                    <% } %>
+                                        </div>
+                                    </div>
+
+                                    <!-- 3. User Most Voted -->
+                                    <div class="col-6 col-md-3">
+                                        <div class="vote-card text-center" style="min-height:350px">
+                                            <div class="vote-label" style="color:#27ae60">TUA - MAIS VOTADA</div>
+                                            <% if (newMetrics.userMostVoted) { %>
+                                                <a href="/uploads/<%= newMetrics.userMostVoted.image_url %>"
+                                                    data-lightbox="stats-new">
+                                                    <img src="/uploads/<%= newMetrics.userMostVoted.image_url %>"
+                                                        class="vote-thumb mb-2"
+                                                        onerror="this.src='/images/placeholder.jpg'">
+                                                </a>
+                                                <div class="text-muted small"><strong>
+                                                        <%= newMetrics.userMostVoted.approvals %>
+                                                    </strong> Aprovações</div>
+                                                <a href="/details/<%= newMetrics.userMostVoted.id %>"
+                                                    class="btn-premium btn-premium-sm btn-premium-success mt-2">Ver</a>
+                                                <% } else { %>
+                                                    <p class="text-muted mt-4">Sem dados</p>
+                                                    <% } %>
+                                        </div>
+                                    </div>
+
+                                    <!-- 4. User Most Rejected -->
+                                    <div class="col-6 col-md-3">
+                                        <div class="vote-card text-center" style="min-height:350px">
+                                            <div class="vote-label" style="color:#c0392b">TUA - MAIS REJEITADA</div>
+                                            <% if (newMetrics.userMostRejected) { %>
+                                                <a href="/uploads/<%= newMetrics.userMostRejected.image_url %>"
+                                                    data-lightbox="stats-new">
+                                                    <img src="/uploads/<%= newMetrics.userMostRejected.image_url %>"
+                                                        class="vote-thumb mb-2"
+                                                        onerror="this.src='/images/placeholder.jpg'">
+                                                </a>
+                                                <div class="text-muted small"><strong>
+                                                        <%= newMetrics.userMostRejected.rejections %>
+                                                    </strong> Rejeições</div>
+                                                <a href="/details/<%= newMetrics.userMostRejected.id %>"
+                                                    class="btn-premium btn-premium-sm btn-premium-danger mt-2">Ver</a>
+                                                <% } else { %>
+                                                    <p class="text-muted mt-4">Sem dados</p>
+                                                    <% } %>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- TIMELINE DE ATIVIDADE DO UTILIZADOR -->
+                                <div class="row mb-5">
+                                    <div class="col-12">
+                                        <div class="accordion" id="activityAccordion">
+                                            <div class="card border-0 shadow-sm"
+                                                style="border-radius: 20px; overflow: hidden;">
+                                                <div class="card-header bg-white border-0 p-0" id="headingOne">
+                                                    <button
+                                                        class="btn btn-link btn-block text-left p-4 text-decoration-none d-flex justify-content-between align-items-center"
+                                                        type="button" data-toggle="collapse" data-target="#collapseOne"
+                                                        aria-expanded="false" aria-controls="collapseOne">
+                                                        <h4 class="mb-0" style="color:#27ae60;font-weight:bold">TIMELINE
+                                                            DA
+                                                            TUA ATIVIDADE</h4>
+                                                        <i class="fas fa-chevron-down text-success"></i>
+                                                    </button>
                                                 </div>
-                                            </div>
-                                            <div class="col-6 col-md-3">
-                                                <div class="champion-card">
-                                                    <div class="champion-avatar">
-                                                        <%= topUsers.rejections?.user?.charAt(0).toUpperCase() || '?' %>
+
+                                                <div id="collapseOne" class="collapse" aria-labelledby="headingOne"
+                                                    data-parent="#activityAccordion">
+                                                    <div class="card-body p-4 pt-0">
+                                                        <% if (userActivity && userActivity.length> 0) { %>
+                                                            <div class="timeline">
+                                                                <% userActivity.forEach(activity=> { %>
+                                                                    <div
+                                                                        class="activity-item d-flex align-items-center mb-3 pb-3 border-bottom">
+                                                                        <div class="me-3">
+                                                                            <% if (activity.action==='upload' ) { %>
+                                                                                <i
+                                                                                    class="fa-solid fa-upload fa-2x text-primary"></i>
+                                                                                <% } else if
+                                                                                    (activity.action==='approve' ) { %>
+                                                                                    <i
+                                                                                        class="fa-solid fa-thumbs-up fa-2x text-success"></i>
+                                                                                    <% } else if
+                                                                                        (activity.action==='reject' ) {
+                                                                                        %>
+                                                                                        <i
+                                                                                            class="fa-solid fa-thumbs-down fa-2x text-danger"></i>
+                                                                                        <% } %>
+                                                                        </div>
+                                                                        <div class="flex-grow-1">
+                                                                            <strong>
+                                                                                <% if (activity.action==='upload' ) { %>
+                                                                                    Carregaste<% } %>
+                                                                                        <% if
+                                                                                            (activity.action==='approve'
+                                                                                            ) { %>Aprovaste<% } %>
+                                                                                                <% if
+                                                                                                    (activity.action==='reject'
+                                                                                                    ) { %>Rejeitaste<% }
+                                                                                                        %>
+                                                                                                        <%= ' ' +
+                                                                                                            activity.species
+                                                                                                            %>
+                                                                                                            <%= activity.variety
+                                                                                                                ? '(' +
+                                                                                                                activity.variety
+                                                                                                                + ')'
+                                                                                                                : '' %>
+                                                                            </strong>
+                                                                            <br>
+                                                                            <small class="text-muted">
+                                                                                <%= new
+                                                                                    Date(activity.timestamp).toLocaleString('pt-PT')
+                                                                                    %>
+                                                                            </small>
+                                                                        </div>
+                                                                        <div>
+                                                                            <a href="/details/<%= activity.id %>"
+                                                                                class="btn-premium btn-premium-sm btn-premium-success">Ver</a>
+                                                                        </div>
+                                                                    </div>
+                                                                    <% }); %>
+                                                            </div>
+                                                            <% } else { %>
+                                                                <p class="text-center text-muted mb-0">Ainda não tens
+                                                                    atividade registada.</p>
+                                                                <% } %>
                                                     </div>
-                                                    <div class="champion-name">
-                                                        <%= topUsers.rejections?.user || 'Ninguém' %>
-                                                    </div>
-                                                    <div class="champion-count">
-                                                        <%= topUsers.rejections?.count || 0 %>
-                                                    </div>
-                                                    <div class="champion-label">Mais Rejeições</div>
-                                                </div>
-                                            </div>
-                                            <div class="col-6 col-md-3">
-                                                <div class="champion-card">
-                                                    <div class="champion-avatar">
-                                                        <%= topUsers.comments?.user?.charAt(0).toUpperCase() || '?' %>
-                                                    </div>
-                                                    <div class="champion-name">
-                                                        <%= topUsers.comments?.user || 'Ninguém' %>
-                                                    </div>
-                                                    <div class="champion-count">
-                                                        <%= topUsers.comments?.count || 0 %>
-                                                    </div>
-                                                    <div class="champion-label">Mais Comentários</div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                                <% } %>
 
 
 
-                                    <!-- A TUA ATIVIDADE -->
-                                    <div class="row mb-4">
+                                <!-- CAMPEÕES DO IVAAP – APENAS PARA ADMIN -->
+                                <% if (isAdmin) { %>
+                                    <div class="row mb-5">
                                         <div class="col-12">
-                                            <h4 class="text-center mb-4" style="color:#27ae60;font-weight:bold">A TUA
-                                                ATIVIDADE</h4>
-                                        </div>
-                                        <% const ua=latestUser || {}; %>
-                                            <div class="col-md-3">
-                                                <div class="activity-card text-center">
-                                                    <p><strong>Último Upload</strong></p>
-                                                    <% if (ua.uploaded) { %>
-                                                        <a href="/uploads/<%= ua.uploaded.image_url %>"
-                                                            data-lightbox="stats">
-                                                            <img src="/uploads/<%= ua.uploaded.image_url %>"
-                                                                class="latest-thumb mb-2"
-                                                                onerror="this.src='/images/placeholder.jpg'">
-                                                        </a>
-                                                        <p><a href="/details/<%= ua.uploaded.id %>"
-                                                                style="color:#27ae60;font-weight:bold;text-decoration:none">
-                                                                <%= ua.uploaded.species %><br>
-                                                                    <%= ua.uploaded.variety || '' %>
-                                                            </a></p>
-                                                        <small>
-                                                            <%= new
-                                                                Date(ua.uploaded.uploaded_at).toLocaleString('pt-PT') %>
-                                                        </small>
-                                                        <% } else { %>
-                                                            <p class="text-muted">Ainda não carregaste nenhuma imagem
-                                                            </p>
-                                                            <% } %>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-3">
-                                                <div class="activity-card text-center">
-                                                    <p><strong>Última Aprovação</strong></p>
-                                                    <% if (ua.approved) { %>
-                                                        <a href="/uploads/<%= ua.approved.image_url %>"
-                                                            data-lightbox="stats">
-                                                            <img src="/uploads/<%= ua.approved.image_url %>"
-                                                                class="latest-thumb mb-2"
-                                                                onerror="this.src='/images/placeholder.jpg'">
-                                                        </a>
-                                                        <p><a href="/details/<%= ua.approved.id %>"
-                                                                style="color:#27ae60;font-weight:bold;text-decoration:none">
-                                                                <%= ua.approved.species %><br>
-                                                                    <%= ua.approved.variety || '' %>
-                                                            </a></p>
-                                                        <small>
-                                                            <%= new
-                                                                Date(ua.approved.reviewed_at).toLocaleString('pt-PT') %>
-                                                        </small>
-                                                        <% } else { %>
-                                                            <p class="text-muted">Ainda não aprovaste imagens</p>
-                                                            <% } %>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-3">
-                                                <div class="activity-card text-center">
-                                                    <p><strong>Última Rejeição</strong></p>
-                                                    <% if (ua.rejected) { %>
-                                                        <a href="/uploads/<%= ua.rejected.image_url %>"
-                                                            data-lightbox="stats">
-                                                            <img src="/uploads/<%= ua.rejected.image_url %>"
-                                                                class="latest-thumb mb-2"
-                                                                onerror="this.src='/images/placeholder.jpg'">
-                                                        </a>
-                                                        <p><a href="/details/<%= ua.rejected.id %>"
-                                                                style="color:#27ae60;font-weight:bold;text-decoration:none">
-                                                                <%= ua.rejected.species %><br>
-                                                                    <%= ua.rejected.variety || '' %>
-                                                            </a></p>
-                                                        <small>
-                                                            <%= new
-                                                                Date(ua.rejected.reviewed_at).toLocaleString('pt-PT') %>
-                                                        </small>
-                                                        <% } else { %>
-                                                            <p class="text-muted">Ainda não rejeitaste imagens</p>
-                                                            <% } %>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-3">
-                                                <div class="activity-card text-center">
-                                                    <p><strong>Último Pendente</strong></p>
-                                                    <% if (ua.pending) { %>
-                                                        <a href="/uploads/<%= ua.pending.image_url %>"
-                                                            data-lightbox="stats">
-                                                            <img src="/uploads/<%= ua.pending.image_url %>"
-                                                                class="latest-thumb mb-2"
-                                                                onerror="this.src='/images/placeholder.jpg'">
-                                                        </a>
-                                                        <p><a href="/details/<%= ua.pending.id %>"
-                                                                style="color:#27ae60;font-weight:bold;text-decoration:none">
-                                                                <%= ua.pending.species %><br>
-                                                                    <%= ua.pending.variety || '' %>
-                                                            </a></p>
-                                                        <small>
-                                                            <%= new Date(ua.pending.uploaded_at).toLocaleString('pt-PT')
+                                            <h4 class="text-center mb-4" style="color:#27ae60;font-weight:bold">CAMPEÕES
+                                                DO
+                                                IVAAP</h4>
+                                            <div class="row">
+                                                <div class="col-6 col-md-3">
+                                                    <div class="champion-card">
+                                                        <div class="champion-avatar">
+                                                            <%= topUsers.uploads?.user?.charAt(0).toUpperCase() || '?'
                                                                 %>
-                                                        </small>
-                                                        <% } else { %>
-                                                            <p class="text-muted">Nenhum imagem pendente para tua
-                                                                avaliação</p>
-                                                            <% } %>
-                                                </div>
-                                            </div>
-                                    </div>
-
-                                    <!-- TAXA DE APROVAÇÃO PESSOAL -->
-                                    <div class="row">
-                                        <div class="col-lg-6">
-                                            <div class="stats-card">
-                                                <h3>A Tua Taxa de Aprovação</h3>
-                                                <div class="progress">
-                                                    <div class="progress-bar"
-                                                        style="width: <%= userStats.userApprovalRate %>%">
-                                                        <%= userStats.userApprovalRate %>%
+                                                        </div>
+                                                        <div class="champion-name">
+                                                            <%= topUsers.uploads?.user || 'Ninguém' %>
+                                                        </div>
+                                                        <div class="champion-count">
+                                                            <%= topUsers.uploads?.count || 0 %>
+                                                        </div>
+                                                        <div class="champion-label">Mais Uploads</div>
                                                     </div>
                                                 </div>
-                                                <p class="mt-3">
-                                                    <%= userStats.approvedByUser %> de <%= userStats.reviewedByUser %>
-                                                            imagens revistas por ti foram aprovadas
-                                                </p>
-                                                <% if (userStats.reviewedByUser===0) { %>
-                                                    <small class="text-muted">Ainda não reviste nenhuma imagem</small>
-                                                    <% } %>
-                                            </div>
-                                        </div>
-                                        <div class="col-lg-6">
-                                            <div class="quote-card">
-                                                <div class="quote-text" id="quote-text">Carregando frase épica...</div>
-                                                <div class="quote-author" id="quote-author">— IVAAP</div>
+                                                <div class="col-6 col-md-3">
+                                                    <div class="champion-card">
+                                                        <div class="champion-avatar">
+                                                            <%= topUsers.approvals?.user?.charAt(0).toUpperCase() || '?'
+                                                                %>
+                                                        </div>
+                                                        <div class="champion-name">
+                                                            <%= topUsers.approvals?.user || 'Ninguém' %>
+                                                        </div>
+                                                        <div class="champion-count">
+                                                            <%= topUsers.approvals?.count || 0 %>
+                                                        </div>
+                                                        <div class="champion-label">Mais Aprovações</div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-6 col-md-3">
+                                                    <div class="champion-card">
+                                                        <div class="champion-avatar">
+                                                            <%= topUsers.rejections?.user?.charAt(0).toUpperCase()
+                                                                || '?' %>
+                                                        </div>
+                                                        <div class="champion-name">
+                                                            <%= topUsers.rejections?.user || 'Ninguém' %>
+                                                        </div>
+                                                        <div class="champion-count">
+                                                            <%= topUsers.rejections?.count || 0 %>
+                                                        </div>
+                                                        <div class="champion-label">Mais Rejeições</div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-6 col-md-3">
+                                                    <div class="champion-card">
+                                                        <div class="champion-avatar">
+                                                            <%= topUsers.comments?.user?.charAt(0).toUpperCase() || '?'
+                                                                %>
+                                                        </div>
+                                                        <div class="champion-name">
+                                                            <%= topUsers.comments?.user || 'Ninguém' %>
+                                                        </div>
+                                                        <div class="champion-count">
+                                                            <%= topUsers.comments?.count || 0 %>
+                                                        </div>
+                                                        <div class="champion-label">Mais Comentários</div>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
+                                    <% } %>
+
+
+
+                                        <!-- A TUA ATIVIDADE -->
+                                        <div class="row mb-4">
+                                            <div class="col-12">
+                                                <h4 class="text-center mb-4" style="color:#27ae60;font-weight:bold">A
+                                                    TUA
+                                                    ATIVIDADE</h4>
+                                            </div>
+                                            <% const ua=latestUser || {}; %>
+                                                <div class="col-md-3">
+                                                    <div class="activity-card text-center">
+                                                        <p><strong>Último Upload</strong></p>
+                                                        <% if (ua.uploaded) { %>
+                                                            <a href="/uploads/<%= ua.uploaded.image_url %>"
+                                                                data-lightbox="stats">
+                                                                <img src="/uploads/<%= ua.uploaded.image_url %>"
+                                                                    class="latest-thumb mb-2"
+                                                                    onerror="this.src='/images/placeholder.jpg'">
+                                                            </a>
+                                                            <p><a href="/details/<%= ua.uploaded.id %>"
+                                                                    style="color:#27ae60;font-weight:bold;text-decoration:none">
+                                                                    <%= ua.uploaded.species %><br>
+                                                                        <%= ua.uploaded.variety || '' %>
+                                                                </a></p>
+                                                            <small>
+                                                                <%= new
+                                                                    Date(ua.uploaded.uploaded_at).toLocaleString('pt-PT')
+                                                                    %>
+                                                            </small>
+                                                            <% } else { %>
+                                                                <p class="text-muted">Ainda não carregaste nenhuma
+                                                                    imagem
+                                                                </p>
+                                                                <% } %>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <div class="activity-card text-center">
+                                                        <p><strong>Última Aprovação</strong></p>
+                                                        <% if (ua.approved) { %>
+                                                            <a href="/uploads/<%= ua.approved.image_url %>"
+                                                                data-lightbox="stats">
+                                                                <img src="/uploads/<%= ua.approved.image_url %>"
+                                                                    class="latest-thumb mb-2"
+                                                                    onerror="this.src='/images/placeholder.jpg'">
+                                                            </a>
+                                                            <p><a href="/details/<%= ua.approved.id %>"
+                                                                    style="color:#27ae60;font-weight:bold;text-decoration:none">
+                                                                    <%= ua.approved.species %><br>
+                                                                        <%= ua.approved.variety || '' %>
+                                                                </a></p>
+                                                            <small>
+                                                                <%= new
+                                                                    Date(ua.approved.reviewed_at).toLocaleString('pt-PT')
+                                                                    %>
+                                                            </small>
+                                                            <% } else { %>
+                                                                <p class="text-muted">Ainda não aprovaste imagens</p>
+                                                                <% } %>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <div class="activity-card text-center">
+                                                        <p><strong>Última Rejeição</strong></p>
+                                                        <% if (ua.rejected) { %>
+                                                            <a href="/uploads/<%= ua.rejected.image_url %>"
+                                                                data-lightbox="stats">
+                                                                <img src="/uploads/<%= ua.rejected.image_url %>"
+                                                                    class="latest-thumb mb-2"
+                                                                    onerror="this.src='/images/placeholder.jpg'">
+                                                            </a>
+                                                            <p><a href="/details/<%= ua.rejected.id %>"
+                                                                    style="color:#27ae60;font-weight:bold;text-decoration:none">
+                                                                    <%= ua.rejected.species %><br>
+                                                                        <%= ua.rejected.variety || '' %>
+                                                                </a></p>
+                                                            <small>
+                                                                <%= new
+                                                                    Date(ua.rejected.reviewed_at).toLocaleString('pt-PT')
+                                                                    %>
+                                                            </small>
+                                                            <% } else { %>
+                                                                <p class="text-muted">Ainda não rejeitaste imagens</p>
+                                                                <% } %>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <div class="activity-card text-center">
+                                                        <p><strong>Último Pendente</strong></p>
+                                                        <% if (ua.pending) { %>
+                                                            <a href="/uploads/<%= ua.pending.image_url %>"
+                                                                data-lightbox="stats">
+                                                                <img src="/uploads/<%= ua.pending.image_url %>"
+                                                                    class="latest-thumb mb-2"
+                                                                    onerror="this.src='/images/placeholder.jpg'">
+                                                            </a>
+                                                            <p><a href="/details/<%= ua.pending.id %>"
+                                                                    style="color:#27ae60;font-weight:bold;text-decoration:none">
+                                                                    <%= ua.pending.species %><br>
+                                                                        <%= ua.pending.variety || '' %>
+                                                                </a></p>
+                                                            <small>
+                                                                <%= new
+                                                                    Date(ua.pending.uploaded_at).toLocaleString('pt-PT')
+                                                                    %>
+                                                            </small>
+                                                            <% } else { %>
+                                                                <p class="text-muted">Nenhum imagem pendente para tua
+                                                                    avaliação</p>
+                                                                <% } %>
+                                                    </div>
+                                                </div>
+                                        </div>
+
+                                        <!-- TAXA DE APROVAÇÃO PESSOAL -->
+                                        <div class="row">
+                                            <div class="col-lg-6">
+                                                <div class="stats-card">
+                                                    <h3>A Tua Taxa de Aprovação</h3>
+                                                    <div class="progress">
+                                                        <div class="progress-bar"
+                                                            style="width: <%= userStats.userApprovalRate %>%">
+                                                            <%= userStats.userApprovalRate %>%
+                                                        </div>
+                                                    </div>
+                                                    <p class="mt-3">
+                                                        <%= userStats.approvedByUser %> de <%= userStats.reviewedByUser
+                                                                %>
+                                                                imagens revistas por ti foram aprovadas
+                                                    </p>
+                                                    <% if (userStats.reviewedByUser===0) { %>
+                                                        <small class="text-muted">Ainda não reviste nenhuma
+                                                            imagem</small>
+                                                        <% } %>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-6">
+                                                <div class="quote-card">
+                                                    <div class="quote-text" id="quote-text">Carregando frase épica...
+                                                    </div>
+                                                    <div class="quote-author" id="quote-author">— IVAAP</div>
+                                                </div>
+                                            </div>
+                                        </div>
     </main>
 
     <footer class="mt-5 py-4 text-center bg-light">

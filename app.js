@@ -300,7 +300,8 @@ app.get('/statistics', ensureAuth, async (req, res) => {
             dbGet('SELECT * FROM images ORDER BY uploaded_at DESC LIMIT 1'),
             dbGet('SELECT * FROM images WHERE status = "approved" ORDER BY reviewed_at DESC LIMIT 1'),
             dbGet('SELECT * FROM images WHERE status = "rejected" ORDER BY reviewed_at DESC LIMIT 1'),
-            dbGet('SELECT COUNT(*) as count FROM images WHERE status = "pending"')
+            dbGet('SELECT COUNT(*) as count FROM images WHERE status = "pending"'),
+            dbAll('SELECT * FROM images WHERE status = "pending" ORDER BY uploaded_at DESC LIMIT 6')
         ]);
         const latestImages = {
             uploaded: globalLatestQueries[0] || null,
@@ -308,6 +309,7 @@ app.get('/statistics', ensureAuth, async (req, res) => {
             rejected: globalLatestQueries[2] || null
         };
         const globalPendingCount = globalLatestQueries[3]?.count || 0;
+        const pendingForCarousel = globalLatestQueries[4] || [];
 
         const newMetricsQueries = await Promise.all([
             dbGet('SELECT * FROM images WHERE status = "pending" ORDER BY approvals DESC, uploaded_at ASC LIMIT 1'),
@@ -353,6 +355,7 @@ app.get('/statistics', ensureAuth, async (req, res) => {
                 userStats,
                 latestUser,
                 latestImages,
+                pendingForCarousel,
                 userActivity, newMetrics,
                 userPendingCount: globalPendingCount,
                 user: req.user,
@@ -374,6 +377,7 @@ app.get('/statistics', ensureAuth, async (req, res) => {
             userStats,
             latestUser,
             latestImages,
+            pendingForCarousel,
             userActivity, newMetrics,
             userPendingCount,
             user: req.user,
@@ -707,13 +711,18 @@ app.get('/rejected', ensureAuth, (req, res) => {
             groupRows.forEach(row => {
                 const key = `${row.species || ''}|${row.variety || ''}|${row.uploaded_by}|${row.upload_day}`;
                 groups[key] = {
-                    key: key,
+                    key: key.replace(/[|]/g, '-'), // Sanitize key for use as ID
                     species: row.species || 'Sem espécie',
                     variety: row.variety || '',
                     gama_nome: row.gama_nome || 'Não definido',
                     reviewed_by: row.reviewed_by,
                     reviewed_at: row.reviewed_at,
                     sample_id: row.sample_id,
+                    // Store original values for the query
+                    q_species: row.species,
+                    q_variety: row.variety,
+                    q_uploaded_by: row.uploaded_by,
+                    q_upload_day: row.upload_day,
                     images: []
                 };
             });
@@ -721,17 +730,16 @@ app.get('/rejected', ensureAuth, (req, res) => {
             let completed = 0;
             groupKeys.forEach(key => {
                 const group = groups[key];
-                const [species, variety, uploaded_by, upload_day] = key.split('|');
                 db.all(`
                     SELECT id, image_url
                     FROM images
-                    WHERE species = ?
+                    WHERE (species = ? OR (species IS NULL AND ? IS NULL))
                       AND (variety = ? OR (variety IS NULL AND ? IS NULL))
                       AND uploaded_by = ?
                       AND strftime('%Y-%m-%d', uploaded_at) = ?
                       AND status = 'rejected'
                     ORDER BY marca_id ASC
-                `, [species, variety, variety, uploaded_by, upload_day], (err, imgs) => {
+                `, [group.q_species, group.q_species, group.q_variety, group.q_variety, group.q_uploaded_by, group.q_upload_day], (err, imgs) => {
                     group.images = err ? [] : imgs;
                     if (++completed === groupKeys.length) {
                         const groupedImages = Object.values(groups);
