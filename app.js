@@ -101,12 +101,12 @@ db.serialize(() => {
             });
         }
     });
-    db.run(`ALTER TABLE users ADD COLUMN nome TEXT`, () => {});
-    db.run(`ALTER TABLE users ADD COLUMN apelido TEXT`, () => {});
-    db.run(`ALTER TABLE users ADD COLUMN cargo TEXT`, () => {});
-    db.run(`ALTER TABLE users ADD COLUMN email TEXT`, () => {});
-    db.run(`ALTER TABLE users ADD COLUMN telefone TEXT`, () => {});
-    db.run(`ALTER TABLE users ADD COLUMN created_at DATETIME DEFAULT CURRENT_TIMESTAMP`, () => {});
+    db.run(`ALTER TABLE users ADD COLUMN nome TEXT`, () => { });
+    db.run(`ALTER TABLE users ADD COLUMN apelido TEXT`, () => { });
+    db.run(`ALTER TABLE users ADD COLUMN cargo TEXT`, () => { });
+    db.run(`ALTER TABLE users ADD COLUMN email TEXT`, () => { });
+    db.run(`ALTER TABLE users ADD COLUMN telefone TEXT`, () => { });
+    db.run(`ALTER TABLE users ADD COLUMN created_at DATETIME DEFAULT CURRENT_TIMESTAMP`, () => { });
 });
 
 const storage = multer.diskStorage({
@@ -162,12 +162,12 @@ app.use((req, res, next) => {
 
 app.use((req, res, next) => {
     req.clientIP = req.headers['x-forwarded-for']?.split(',')[0].trim() ||
-                   req.headers['cf-connecting-ip'] ||
-                   req.headers['x-real-ip'] ||
-                   req.connection.remoteAddress ||
-                   req.socket.remoteAddress ||
-                   req.ip ||
-                   'Desconhecido';
+        req.headers['cf-connecting-ip'] ||
+        req.headers['x-real-ip'] ||
+        req.connection.remoteAddress ||
+        req.socket.remoteAddress ||
+        req.ip ||
+        'Desconhecido';
     next();
 });
 
@@ -200,7 +200,7 @@ app.post('/register', async (req, res) => {
             `INSERT INTO users (username, password, nome, apelido, cargo, email, telefone)
              VALUES (?, ?, ?, ?, ?, ?, ?)`,
             [username, hashedPassword, nome, apelido, cargo || '', email || '', telefone || ''],
-            function(err) {
+            function (err) {
                 if (err) {
                     if (err.message.includes('UNIQUE constraint failed')) {
                         req.flash('error', 'Este utilizador já existe!');
@@ -332,7 +332,7 @@ app.get('/statistics', ensureAuth, async (req, res) => {
                 dbGet('SELECT reviewed_by as user, COUNT(*) as count FROM images WHERE status = "approved" AND reviewed_by IS NOT NULL GROUP BY reviewed_by ORDER BY count DESC LIMIT 1'),
                 dbGet('SELECT reviewed_by as user, COUNT(*) as count FROM images WHERE status = "rejected" AND reviewed_by IS NOT NULL GROUP BY reviewed_by ORDER BY count DESC LIMIT 1'),
                 dbGet('SELECT uploaded_by as user, COUNT(*) as count FROM images WHERE comentarios IS NOT NULL AND comentarios != "" GROUP BY uploaded_by ORDER BY count DESC LIMIT 1'),
-                
+
             ]);
             const globalStats = {
                 total: globalQueries[0]?.count || 0,
@@ -346,7 +346,7 @@ app.get('/statistics', ensureAuth, async (req, res) => {
                     rejections: globalQueries[6] ? { user: globalQueries[6].user || 'Ninguém', count: globalQueries[6].count } : { user: 'Ninguém', count: 0 },
                     comments: globalQueries[7] ? { user: globalQueries[7].user || 'Ninguém', count: globalQueries[7].count } : { user: 'Ninguém', count: 0 }
                 },
-                
+
             };
             return res.render('statistics', {
                 stats: globalStats,
@@ -369,7 +369,7 @@ app.get('/statistics', ensureAuth, async (req, res) => {
                 pending: 0,
                 latestImages,
                 topUsers: {},
-                
+
             },
             userStats,
             latestUser,
@@ -449,22 +449,22 @@ app.post('/upload', ensureAuth, upload.fields([
                     sementeira, transplante, compasso, caracteristicas, conselhos_de_cultivo,
                     shutterstock, shutterstock_info, comentarios, uploaded_by, marca_id
                 ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-                [
-                    filename, commonData.species, commonData.variety, commonData.botanical_name,
-                    commonData.origem, commonData.colheitaFloracao, commonData.exposicaoSolar, commonData.rega,
-                    commonData.profundidadeSementeira, commonData.sementeiraDireta, commonData.sementeiraAlfobre,
-                    commonData.sementeira, commonData.transplante, commonData.compasso,
-                    commonData.caracteristicas, commonData.conselhos_de_cultivo,
-                    shutterstock ? 1 : 0, shutterstock_info || '', commonData.comentarios || '',
-                    commonData.uploaded_by, marca_id
-                ], function(err) {
-                    if (err) {
-                        console.error('Erro ao inserir imagem:', err);
-                        return reject(err);
-                    }
-                    uploadedCount++;
-                    resolve();
-                });
+                    [
+                        filename, commonData.species, commonData.variety, commonData.botanical_name,
+                        commonData.origem, commonData.colheitaFloracao, commonData.exposicaoSolar, commonData.rega,
+                        commonData.profundidadeSementeira, commonData.sementeiraDireta, commonData.sementeiraAlfobre,
+                        commonData.sementeira, commonData.transplante, commonData.compasso,
+                        commonData.caracteristicas, commonData.conselhos_de_cultivo,
+                        shutterstock ? 1 : 0, shutterstock_info || '', commonData.comentarios || '',
+                        commonData.uploaded_by, marca_id
+                    ], function (err) {
+                        if (err) {
+                            console.error('Erro ao inserir imagem:', err);
+                            return reject(err);
+                        }
+                        uploadedCount++;
+                        resolve();
+                    });
             });
         };
         const tasks = [];
@@ -535,20 +535,20 @@ app.get('/review', ensureAuth, (req, res) => {
                 success: req.flash('success')[0] || null
             });
         }
-    
+
         if (rows.length === 0) {
             return res.render('review', {
                 images: [],
                 success: req.flash('success')[0] || null
             });
         }
-    
+
         const groups = {};
         rows.forEach(row => {
             const date = new Date(row.uploaded_at);
             const timeKey = date.toISOString().slice(0, 10);
             const key = `${row.species || ''}|${row.variety || ''}|${row.uploaded_by}|${timeKey}`;
-        
+
             if (!groups[key]) {
                 groups[key] = {
                     species: row.species || 'Sem espécie',
@@ -559,7 +559,7 @@ app.get('/review', ensureAuth, (req, res) => {
                     images: []
                 };
             }
-        
+
             groups[key].images.push({
                 id: row.id,
                 image_url: row.image_url,
@@ -568,9 +568,9 @@ app.get('/review', ensureAuth, (req, res) => {
                 rejections: row.rejections || 0
             });
         });
-    
+
         const groupedImages = Object.values(groups);
-    
+
         res.render('review', {
             images: groupedImages,
             success: req.flash('success')[0] || null
@@ -649,7 +649,7 @@ app.get('/approved', ensureAuth, (req, res) => {
                 (e, r) => {
                     img.userRating = r ? r.stars : 0;
                     imagesWithRating.push(img);
-                
+
                     if (++done === images.length) {
                         res.render('approved', {
                             images: imagesWithRating,
@@ -951,7 +951,7 @@ app.post('/delete-image/:id', ensureAuth, (req, res) => {
             return res.redirect('back');
         }
         const filePath = path.join(__dirname, 'public', 'uploads', row.image_url);
-        db.run('DELETE FROM images WHERE id = ?', [imageId], function(err) {
+        db.run('DELETE FROM images WHERE id = ?', [imageId], function (err) {
             if (err) {
                 console.error('Erro ao apagar imagem da DB:', err);
                 req.flash('error', 'Erro ao apagar imagem da base de dados.');
@@ -995,7 +995,7 @@ app.post('/delete-plant', ensureAuth, (req, res) => {
             const totalImages = plantImages.length;
             plantImages.forEach(img => {
                 const filePath = path.join(__dirname, 'public', 'uploads', img.image_url);
-                db.run('DELETE FROM images WHERE id = ?', [img.id], function(err) {
+                db.run('DELETE FROM images WHERE id = ?', [img.id], function (err) {
                     if (err) {
                         console.error('Erro ao apagar imagem ID ' + img.id + ':', err);
                     } else {
@@ -1036,7 +1036,7 @@ app.post('/edit', ensureAuth, upload.fields([
             }
             const commonData = {
                 species: req.body.species,
-                variety: req.body.variety || null,
+                variety: req.body.variety ? req.body.variety.trim() : null,
                 botanical_name: req.body.botanical_name || null,
                 origem: req.body.origem || null,
                 colheitaFloracao: req.body.colheitaFloracao || null,
@@ -1053,14 +1053,15 @@ app.post('/edit', ensureAuth, upload.fields([
                 comentarios: req.body.comentarios || null,
                 gama_id: req.body.gama_id || null
             };
-            const timeKey = new Date(sampleImage.uploaded_at).toISOString().slice(0, 10);
+
             db.all(`
                 SELECT id, image_url, marca_id FROM images
                 WHERE species = ?
+                  AND (variety = ? OR (variety IS NULL AND ? IS NULL))
                   AND uploaded_by = ?
-                  AND strftime('%Y-%m-%d', uploaded_at) = ?
+                  AND strftime('%Y-%m-%d', uploaded_at) = strftime('%Y-%m-%d', ?)
                 ORDER BY marca_id ASC
-            `, [sampleImage.species, sampleImage.uploaded_by, timeKey], async (err, plantImages) => {
+            `, [sampleImage.species, sampleImage.variety, sampleImage.variety, sampleImage.uploaded_by, sampleImage.uploaded_at], async (err, plantImages) => {
                 if (err) plantImages = [];
                 let updatedCount = 0;
                 let createdCount = 0;
@@ -1091,7 +1092,7 @@ app.post('/edit', ensureAuth, upload.fields([
                                 commonData.sementeiraAlfobre, commonData.sementeira, commonData.transplante,
                                 commonData.compasso, commonData.caracteristicas, commonData.conselhos_de_cultivo,
                                 commonData.comentarios, commonData.gama_id, existingImage.id
-                            ], function(err) {
+                            ], function (err) {
                                 if (err) reject(err);
                                 else {
                                     updatedCount++;
@@ -1120,7 +1121,7 @@ app.post('/edit', ensureAuth, upload.fields([
                                 commonData.compasso, commonData.caracteristicas, commonData.conselhos_de_cultivo,
                                 commonData.comentarios, sampleImage.uploaded_by, sampleImage.uploaded_at,
                                 sampleImage.status, commonData.gama_id, marcaId
-                            ], function(err) {
+                            ], function (err) {
                                 if (err) reject(err);
                                 else {
                                     createdCount++;
@@ -1209,7 +1210,7 @@ app.post('/validate-winner/:id', ensureAuth, (req, res) => {
                  reviewed_at = ?
              WHERE id = ?`,
             [reviewedBy, reviewedAt, imageId],
-            function(err) {
+            function (err) {
                 if (err) {
                     req.flash('error', 'Erro ao validar imagem');
                     return res.redirect('/details/' + imageId);
@@ -1235,7 +1236,7 @@ app.post('/validate-winner/:id', ensureAuth, (req, res) => {
                         timeKey,
                         imageId
                     ],
-                    function(err) {
+                    function (err) {
                         if (err) {
                             console.error('Erro ao rejeitar outras imagens:', err);
                         }
