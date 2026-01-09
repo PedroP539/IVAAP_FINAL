@@ -335,19 +335,21 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label>Espécie *</label>
-                                    <input type="text" name="species" class="form-control" required>
+                                    <input type="text" name="species" id="species" class="form-control" required>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label>Variedade</label>
-                                    <input type="text" name="variety" class="form-control">
+                                    <input type="text" name="variety" id="variety" class="form-control">
                                 </div>
                             </div>
                         </div>
                         <div class="form-group">
                             <label>Nome Botânico</label>
-                            <input type="text" name="botanical_name" class="form-control">
+                            <input type="text" name="botanical_name" id="botanical_name" class="form-control"
+                                list="botanical_suggestions">
+                            <datalist id="botanical_suggestions"></datalist>
                         </div>
                         <div class="row">
                             <div class="col-md-6">
@@ -487,6 +489,33 @@
                     alert('Carrega pelo menos uma imagem!');
                 }
             });
+
+        // Lógica de sugestões de Nome Botânico
+        $(document).ready(function () {
+            const speciesInput = $('#species');
+            const varietyInput = $('#variety');
+            const botanicalSuggestions = $('#botanical_suggestions');
+
+            function fetchSuggestions() {
+                const species = speciesInput.val();
+                const variety = varietyInput.val();
+                if (!species && !variety) {
+                    botanicalSuggestions.empty();
+                    return;
+                }
+
+                $.get(`/api/suggestions/botanical-name?species=${encodeURIComponent(species)}&variety=${encodeURIComponent(variety)}`)
+                    .done(function (data) {
+                        botanicalSuggestions.empty();
+                        data.forEach(name => {
+                            botanicalSuggestions.append(`<option value="${name}">`);
+                        });
+                    });
+            }
+
+            speciesInput.on('input', fetchSuggestions);
+            varietyInput.on('input', fetchSuggestions);
+        });
     </script>
 </body>
 

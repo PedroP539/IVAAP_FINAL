@@ -842,6 +842,39 @@ app.get('/search', ensureAuth, (req, res) => {
         });
     });
 });
+// API para sugestões de Nome Botânico
+app.get('/api/suggestions/botanical-name', ensureAuth, (req, res) => {
+    const { species, variety } = req.query;
+    if (!species && !variety) return res.json([]);
+
+    let query = `
+        SELECT DISTINCT botanical_name 
+        FROM images 
+        WHERE botanical_name IS NOT NULL AND botanical_name != ''
+    `;
+    let params = [];
+
+    if (species && variety) {
+        query += ` AND (species LIKE ? AND variety LIKE ?)`;
+        params.push(`%${species}%`, `%${variety}%`);
+    } else if (species) {
+        query += ` AND species LIKE ?`;
+        params.push(`%${species}%`);
+    } else if (variety) {
+        query += ` AND variety LIKE ?`;
+        params.push(`%${variety}%`);
+    }
+
+    query += ` LIMIT 10`;
+
+    db.all(query, params, (err, rows) => {
+        if (err) {
+            console.error('Erro na API de sugestões:', err);
+            return res.status(500).json([]);
+        }
+        res.json(rows.map(r => r.botanical_name));
+    });
+});
 
 app.get('/details/:id', ensureAuth, (req, res) => {
     const imageId = req.params.id;
