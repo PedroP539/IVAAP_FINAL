@@ -314,6 +314,20 @@ app.get('/statistics', ensureAuth, async (req, res) => {
             rejected: globalLatestQueries[2] || null
         };
         const globalPendingCount = globalLatestQueries[3]?.count || 0;
+
+        const newMetricsQueries = await Promise.all([
+            dbGet('SELECT * FROM images WHERE status = "pending" ORDER BY approvals DESC, uploaded_at ASC LIMIT 1'),
+            dbGet('SELECT * FROM images WHERE status = "pending" ORDER BY rejections DESC, uploaded_at ASC LIMIT 1'),
+            dbGet('SELECT * FROM images WHERE uploaded_by = ? ORDER BY approvals DESC, uploaded_at ASC LIMIT 1', [req.user.username]),
+            dbGet('SELECT * FROM images WHERE uploaded_by = ? ORDER BY rejections DESC, uploaded_at ASC LIMIT 1', [req.user.username])
+        ]);
+        const newMetrics = {
+            globalPendingVoted: newMetricsQueries[0] || null,
+            globalPendingRejected: newMetricsQueries[1] || null,
+            userMostVoted: newMetricsQueries[2] || null,
+            userMostRejected: newMetricsQueries[3] || null
+        };
+
         if (isAdmin) {
             const globalQueries = await Promise.all([
                 dbGet('SELECT COUNT(*) as count FROM images'),
@@ -324,8 +338,7 @@ app.get('/statistics', ensureAuth, async (req, res) => {
                 dbGet('SELECT reviewed_by as user, COUNT(*) as count FROM images WHERE status = "approved" AND reviewed_by IS NOT NULL GROUP BY reviewed_by ORDER BY count DESC LIMIT 1'),
                 dbGet('SELECT reviewed_by as user, COUNT(*) as count FROM images WHERE status = "rejected" AND reviewed_by IS NOT NULL GROUP BY reviewed_by ORDER BY count DESC LIMIT 1'),
                 dbGet('SELECT uploaded_by as user, COUNT(*) as count FROM images WHERE comentarios IS NOT NULL AND comentarios != "" GROUP BY uploaded_by ORDER BY count DESC LIMIT 1'),
-                dbGet('SELECT * FROM images WHERE rating_count > 0 ORDER BY rating_count DESC, avg_rating DESC, uploaded_at DESC LIMIT 1'),
-                dbGet('SELECT * FROM images WHERE rating_count > 0 ORDER BY rating_count ASC, uploaded_at DESC LIMIT 1')
+                
             ]);
             const globalStats = {
                 total: globalQueries[0]?.count || 0,
@@ -339,15 +352,14 @@ app.get('/statistics', ensureAuth, async (req, res) => {
                     rejections: globalQueries[6] ? { user: globalQueries[6].user || 'Ninguém', count: globalQueries[6].count } : { user: 'Ninguém', count: 0 },
                     comments: globalQueries[7] ? { user: globalQueries[7].user || 'Ninguém', count: globalQueries[7].count } : { user: 'Ninguém', count: 0 }
                 },
-                topRated: globalQueries[8] || null,
-                leastRated: globalQueries[9] || null
+                
             };
             return res.render('statistics', {
                 stats: globalStats,
                 userStats,
                 latestUser,
                 latestImages,
-                userActivity,
+                userActivity, newMetrics,
                 userPendingCount: globalPendingCount,
                 user: req.user,
                 clientIP,
@@ -363,13 +375,12 @@ app.get('/statistics', ensureAuth, async (req, res) => {
                 pending: 0,
                 latestImages,
                 topUsers: {},
-                topRated: null,
-                leastRated: null
+                
             },
             userStats,
             latestUser,
             latestImages,
-            userActivity,
+            userActivity, newMetrics,
             userPendingCount,
             user: req.user,
             clientIP,
@@ -1153,46 +1164,6 @@ app.post('/edit', ensureAuth, upload.fields([
     }
 });
 
-app.post('/rate/:id', ensureAuth, (req, res) => {
-    const imageId = req.params.id;
-    const userId = req.user.id;
-    const stars = parseInt(req.body.stars);
-    if (!stars || stars < 1 || stars > 5) {
-        return res.status(400).json({ error: 'Estrelas inválidas' });
-    }
-    db.get('SELECT stars FROM ratings WHERE image_id = ? AND user_id = ?', [imageId, userId], (err, oldRating) => {
-        if (err) return res.status(500).json({ error: 'Erro no servidor' });
-        const updateImageStats = () => {
-            db.get('SELECT total_stars, rating_count FROM images WHERE id = ?', [imageId], (err, row) => {
-                if (err || !row) return res.status(500).json({ error: 'Erro ao calcular média' });
-                const avg = row.rating_count > 0 ? (row.total_stars / row.rating_count) : 0;
-                const avgRounded = parseFloat(avg.toFixed(2));
-                db.run('UPDATE images SET avg_rating = ? WHERE id = ?', [avgRounded, imageId], () => {
-                    res.json({ success: true, stars, avg_rating: avgRounded, rating_count: row.rating_count });
-                });
-            });
-        };
-        if (oldRating) {
-            const diff = stars - oldRating.stars;
-            db.run('UPDATE ratings SET stars = ? WHERE image_id = ? AND user_id = ?', [stars, imageId, userId], (err) => {
-                if (err) return res.status(500).json({ error: 'Erro ao atualizar classificação' });
-                db.run('UPDATE images SET total_stars = total_stars + ? WHERE id = ?', [diff, imageId], updateImageStats);
-            });
-        } else {
-            db.run('INSERT INTO ratings (image_id, user_id, stars) VALUES (?, ?, ?)', [imageId, userId, stars], (err) => {
-                if (err) {
-                    if (err.message.includes('UNIQUE constraint failed')) {
-                        db.run('UPDATE ratings SET stars = ? WHERE image_id = ? AND user_id = ?', [stars, imageId, userId], updateImageStats);
-                    } else {
-                        return res.status(500).json({ error: 'Erro ao inserir classificação' });
-                    }
-                } else {
-                    db.run('UPDATE images SET total_stars = total_stars + ?, rating_count = rating_count + 1 WHERE id = ?', [stars, imageId], updateImageStats);
-                }
-            });
-        }
-    });
-});
 
 app.get('/proxy', async (req, res) => {
     const url = req.query.url;

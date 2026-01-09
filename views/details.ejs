@@ -145,90 +145,135 @@
         // Outras imagens (ordenadas por approvals descendente)
         const otherImages = relatedImages
             .filter(img => img.id !== (winningImage ? winningImage.id : null))
-            .sort((a, b) => (b.approvals || 0) - (a.approvals || 0))
-            .slice(0, 2);
+            .sort((a, b) => (b.approvals || 0) - (a.approvals || 0)); // Taken all others
+            
         // Planta já aprovada?
         const isApproved = image.status === 'approved';
+        const isRejected = image.status === 'rejected';
         %>
-        <div class="image-row">
-            <!-- Coluna Esquerda: Imagem Vencedora -->
-            <div class="winner-col">
-                <% if (winningImage) { %>
-                    <div class="image-container">
-                        <span class="badge-common winner-badge">
-                            <%= isApproved ? 'APROVADA' : '⭐ IMAGEM VENCEDORA' %>
-                        </span>
-                        <a href="/uploads/<%= winningImage.image_url %>" data-lightbox="plant-images" data-title="<%= image.species %> <%= isApproved ? '(Aprovada)' : '(Vencedora)' %>">
-                            <img src="/uploads/<%= winningImage.image_url %>" class="detail-img" alt="<%= image.species %>" onerror="this.src='/images/placeholder.jpg'">
-                        </a>
-                    </div>
-                    <div class="vote-count">Aprovações: <%= winningImage.approvals || 0 %> | Rejeições: <%= winningImage.rejections || 0 %></div>
-                    <!-- Botões de voto para a imagem vencedora -->
-                    <% if (!isApproved) { %>
-                        <div class="vote-buttons">
-                            <form action="/approve/<%= winningImage.id %>" method="POST" class="d-inline">
-                                <button type="submit" class="btn btn-success btn-action">
-                                    <i class="fas fa-thumbs-up"></i> APROVAR
-                                </button>
-                            </form>
-                            <form action="/reject/<%= winningImage.id %>" method="POST" class="d-inline">
-                                <button type="submit" class="btn btn-danger btn-action">
-                                    <i class="fas fa-thumbs-down"></i> REJEITAR
-                                </button>
-                            </form>
+        
+        <% if (isRejected) { %>
+            <!-- VIEW ESPECÍFICA PARA REJEITADAS (APENAS AS 2 REJEITADAS LADO A LADO) -->
+            <div class="row image-row justify-content-center">
+                <% 
+                // Exclui a vencedora/aprovada, mostra apenas as restantes (rejeitadas)
+                // Assumindo que num grupo de 3, se 1 é vencedora, sobram 2 rejeitadas.
+                const rejectedImages = relatedImages.filter(img => img.id !== (winningImage ? winningImage.id : null));
+                
+                rejectedImages.forEach(img => { %>
+                    <div class="col-md-6 mb-4">
+                        <div class="image-container" style="height: 500px;">
+                             <span class="badge-common rejected-badge">Rejeitada</span>
+                             <a href="/uploads/<%= img.image_url %>" data-lightbox="plant-images" data-title="<%= image.species %> (Rejeitada)">
+                                 <img src="/uploads/<%= img.image_url %>" class="detail-img" alt="<%= image.species %>" onerror="this.src='/images/placeholder.jpg'">
+                             </a>
                         </div>
-                    <% } %>
-                <% } else { %>
-                    <div class="image-container">
-                        <img src="/images/placeholder.jpg" class="detail-img" alt="Sem imagem" style="opacity:0.4">
+                        <div class="vote-count">
+                            Aprovações: <%= img.approvals || 0 %> | Rejeições: <%= img.rejections || 0 %>
+                        </div>
+                        <!-- Botões de voto (se ainda for relevante votar em rejeitadas que não voltaram a pending) -->
+                        <div class="vote-buttons">
+                             <form action="/approve/<%= img.id %>" method="POST" class="d-inline">
+                                 <button type="submit" class="btn btn-success btn-action">
+                                     <i class="fas fa-thumbs-up"></i> APROVAR
+                                 </button>
+                             </form>
+                             <form action="/reject/<%= img.id %>" method="POST" class="d-inline">
+                                 <button type="submit" class="btn btn-danger btn-action">
+                                     <i class="fas fa-thumbs-down"></i> REJEITAR
+                                 </button>
+                             </form>
+                        </div>
                     </div>
-                    <p class="vote-count text-muted">Nenhuma imagem disponível.</p>
+                <% }); %>
+                
+                <% if (rejectedImages.length === 0) { %>
+                    <div class="col-12 text-center text-muted">Não há outras imagens rejeitadas para mostrar.</div>
                 <% } %>
             </div>
-            <!-- Coluna Direita: Outras imagens -->
-            <div class="others-col">
-                <%
-                const displayedOthers = otherImages.concat(
-                    Array(2 - otherImages.length).fill(null)
-                );
-                displayedOthers.forEach((img) => { %>
-                    <div class="image-container-2">
-                        <% if (img) { %>
-                            <span class="badge-common rejected-badge">
-                                <%= isApproved ? 'Rejeitada' : 'Menos votada' %>
+
+        <% } else { %>
+            <!-- VIEW ORIGINAL (Pending/Approved) -->
+            <div class="image-row">
+                <!-- Coluna Esquerda: Imagem Vencedora -->
+                <div class="winner-col">
+                    <% if (winningImage) { %>
+                        <div class="image-container">
+                            <span class="badge-common winner-badge">
+                                <%= isApproved ? 'APROVADA' : '⭐ IMAGEM VENCEDORA' %>
                             </span>
-                            <a href="/uploads/<%= img.image_url %>" data-lightbox="plant-images" data-title="<%= image.species %>">
-                                <img src="/uploads/<%= img.image_url %>" class="secondary-img" alt="<%= image.species %>" onerror="this.src='/images/placeholder.jpg'">
+                            <a href="/uploads/<%= winningImage.image_url %>" data-lightbox="plant-images" data-title="<%= image.species %> <%= isApproved ? '(Aprovada)' : '(Vencedora)' %>">
+                                <img src="/uploads/<%= winningImage.image_url %>" class="detail-img" alt="<%= image.species %>" onerror="this.src='/images/placeholder.jpg'">
                             </a>
-                        <% } else { %>
-                            <img src="/images/placeholder.jpg" class="secondary-img" alt="Sem imagem" style="opacity:0.4">
+                        </div>
+                        <div class="vote-count">Aprovações: <%= winningImage.approvals || 0 %> | Rejeições: <%= winningImage.rejections || 0 %></div>
+                        <!-- Botões de voto para a imagem vencedora -->
+                        <% if (!isApproved) { %>
+                            <div class="vote-buttons">
+                                <form action="/approve/<%= winningImage.id %>" method="POST" class="d-inline">
+                                    <button type="submit" class="btn btn-success btn-action">
+                                        <i class="fas fa-thumbs-up"></i> APROVAR
+                                    </button>
+                                </form>
+                                <form action="/reject/<%= winningImage.id %>" method="POST" class="d-inline">
+                                    <button type="submit" class="btn btn-danger btn-action">
+                                        <i class="fas fa-thumbs-down"></i> REJEITAR
+                                    </button>
+                                </form>
+                            </div>
                         <% } %>
-                    </div>
-                    <p class="vote-count">
-                        <% if (img) { %>
-                            Aprovações: <%= img.approvals || 0 %> | Rejeições: <%= img.rejections || 0 %>
-                            <!-- Botões de voto para as outras imagens (se ainda não aprovada) -->
-                            <% if (!isApproved) { %>
-                                <div class="vote-buttons">
-                                    <form action="/approve/<%= img.id %>" method="POST" class="d-inline">
-                                        <button type="submit" class="btn btn-success btn-action">
-                                            <i class="fas fa-thumbs-up"></i> APROVAR
-                                        </button>
-                                    </form>
-                                    <form action="/reject/<%= img.id %>" method="POST" class="d-inline">
-                                        <button type="submit" class="btn btn-danger btn-action">
-                                            <i class="fas fa-thumbs-down"></i> REJEITAR
-                                        </button>
-                                    </form>
-                                </div>
+                    <% } else { %>
+                        <div class="image-container">
+                            <img src="/images/placeholder.jpg" class="detail-img" alt="Sem imagem" style="opacity:0.4">
+                        </div>
+                        <p class="vote-count text-muted">Nenhuma imagem disponível.</p>
+                    <% } %>
+                </div>
+                <!-- Coluna Direita: Outras imagens -->
+                <div class="others-col">
+                    <%
+                    // Limit original view to 2 others
+                    const displayedOthers = otherImages.slice(0, 2).concat(
+                        Array(Math.max(0, 2 - otherImages.length)).fill(null)
+                    );
+                    displayedOthers.forEach((img) => { %>
+                        <div class="image-container-2">
+                            <% if (img) { %>
+                                <span class="badge-common rejected-badge">
+                                    <%= isApproved ? 'Rejeitada' : 'Menos votada' %>
+                                </span>
+                                <a href="/uploads/<%= img.image_url %>" data-lightbox="plant-images" data-title="<%= image.species %>">
+                                    <img src="/uploads/<%= img.image_url %>" class="secondary-img" alt="<%= image.species %>" onerror="this.src='/images/placeholder.jpg'">
+                                </a>
+                            <% } else { %>
+                                <img src="/images/placeholder.jpg" class="secondary-img" alt="Sem imagem" style="opacity:0.4">
                             <% } %>
-                        <% } else { %>
-                            —
-                        <% } %>
-                    </p>
-                <% }); %>
+                        </div>
+                        <p class="vote-count">
+                            <% if (img) { %>
+                                Aprovações: <%= img.approvals || 0 %> | Rejeições: <%= img.rejections || 0 %>
+                                <% if (!isApproved) { %>
+                                    <div class="vote-buttons">
+                                        <form action="/approve/<%= img.id %>" method="POST" class="d-inline">
+                                            <button type="submit" class="btn btn-success btn-action">
+                                                <i class="fas fa-thumbs-up"></i> APROVAR
+                                            </button>
+                                        </form>
+                                        <form action="/reject/<%= img.id %>" method="POST" class="d-inline">
+                                            <button type="submit" class="btn btn-danger btn-action">
+                                                <i class="fas fa-thumbs-down"></i> REJEITAR
+                                            </button>
+                                        </form>
+                                    </div>
+                                <% } %>
+                            <% } else { %>
+                                —
+                            <% } %>
+                        </p>
+                    <% }); %>
+                </div>
             </div>
-        </div>
+        <% } %>
      
         <h3 class="text-center mb-4">
             <strong>
