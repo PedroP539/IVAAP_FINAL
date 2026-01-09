@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-PT">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,328 +10,525 @@
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/css/lightbox.min.css">
     <style>
-        body {background:linear-gradient(135deg,#e8f5e9,#c8e6c9);font-family:'Quicksand',sans-serif;min-height:100vh;display:flex;flex-direction:column}
-        .content{padding:2rem 0;flex:1}
-        .sticky-nav{position:fixed;top:0;width:100%;z-index:1000;background:white}
-        .detail-card{background:white;border-radius:20px;box-shadow:0 10px 30px rgba(0,0,0,.15);padding:2rem;overflow:hidden}
-        .image-row {display:flex;gap:2rem;margin-bottom:3rem}
-        .winner-col {flex:2;display:flex;flex-direction:column;height: 700px !important;}
-        .others-col {flex:1;display:flex;flex-direction:column;gap:2rem; height: 700px !important;}
+        body {
+            background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+            font-family: 'Quicksand', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column
+        }
+
+        .content {
+            padding: 2rem 0;
+            flex: 1
+        }
+
+        .sticky-nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            background: white
+        }
+
+        .detail-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, .15);
+            padding: 2rem;
+            overflow: hidden
+        }
+
+        .image-row {
+            display: flex;
+            margin-bottom: 3rem
+        }
+
+        .winner-col {
+            flex: 2;
+            display: flex;
+            flex-direction: column
+        }
+
+        .rejected-row {
+            display: flex;
+            gap: 2rem;
+            flex-wrap: wrap;
+            justify-content: center
+        }
+
+        .rejected-col {
+            flex: 1 1 45%;
+            display: flex;
+            flex-direction: column
+        }
+
         .image-container {
-            position:relative;
-            flex:1;
-            display:block;
-            align-items:center;
-            justify-content:center;
-            background:#f8f9fa;
-            border-radius:15px;
-            overflow:hidden;
-            box-shadow:0 8px 25px rgba(0,0,0,.2)
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f8f9fa;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, .2)
         }
-        
-        .image-container-2 {
-            position:relative;
-            flex:1;
-            display:block;
-            align-items:center;
-            justify-content:center;
-            background:#f8f9fa;
-            border-radius:15px;
-            overflow:hidden;
-            box-shadow:0 8px 25px rgba(0,0,0,.2)
+
+        .winner-container {
+            height: 600px
         }
-        .detail-img, .secondary-img {
-            width:100%;
-            height:100%;
-            object-fit:cover;
-            transition:transform .3s;
-            cursor:zoom-in
+
+        .rejected-container {
+            height: 450px
         }
-        .detail-img:hover, .secondary-img:hover {transform:scale(1.05)}
+
+        .detail-img,
+        .rejected-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform .3s;
+            cursor: zoom-in
+        }
+
+        .detail-img:hover,
+        .rejected-img:hover {
+            transform: scale(1.05)
+        }
+
         .badge-common {
-            position:absolute;
-            top:15px;
-            left:15px;
-            padding:8px 20px;
-            border-radius:25px;
-            font-weight:bold;
-            font-size:1rem;
-            box-shadow:0 4px 15px rgba(0,0,0,0.3);
-            z-index:10
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            padding: 8px 20px;
+            border-radius: 25px;
+            font-weight: bold;
+            font-size: 1rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            z-index: 10
         }
-        .winner-badge {background:#FFD700;color:#000}
-        .rejected-badge {background:#e74c3c;color:white}
-        .vote-count{font-weight:bold;color:#27ae60;margin-top:1rem;font-size:1.1rem;text-align:center}
-        .btn-action{padding:0.8rem 2rem;font-size:1.1rem;font-weight:bold;border-radius:50px;margin:0.5rem;min-width:180px;transition:all .3s ease;box-shadow:0 4px 15px rgba(0,0,0,0.2)}
-        .btn-action:hover{transform:translateY(-3px);box-shadow:0 8px 25px rgba(0,0,0,0.3)}
-        .btn-warning{background:linear-gradient(135deg,#f39c12,#f1c40f);border:none;color:white}
-        .btn-success{background:linear-gradient(135deg,#27ae60,#2ecc71);border:none;color:white}
-        .btn-danger{background:#dc3545;border:none;color:white}
-        .btn-secondary{background:#6c757d;border:none;color:white}
-        .especie{font-size:1.65rem;background:#27AE60;background:repeating-linear-gradient(to top right,#27AE60 0%,#1C8247 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-        .variedade{font-size:1.25rem;color:#1c8247;font-weight:300}
-        .vote-buttons {display:flex;justify-content:center;gap:1rem;margin-top:1rem}
-        input#searchQuery, input#searchDate, input#searchUser, button.btn.btn-success.btn-lg.rounded-pill.w-100.h-100.d-flex.align-items-center.justify-content-center {
+
+        .approved-badge {
+            background: #27ae60;
+            color: white
+        }
+
+        .winner-badge {
+            background: #FFD700;
+            color: #000
+        }
+
+        .rejected-badge {
+            background: #e74c3c;
+            color: white
+        }
+
+        .vote-count {
+            font-weight: bold;
+            color: #27ae60;
+            margin-top: 1rem;
+            font-size: 1.1rem;
+            text-align: center
+        }
+
+        .btn-action {
+            padding: 0.8rem 2rem;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-radius: 50px;
+            margin: 0.5rem;
+            min-width: 180px;
+            transition: all .3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2)
+        }
+
+        .btn-action:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3)
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #f39c12, #f1c40f);
+            border: none;
+            color: white
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            border: none;
+            color: white
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            border: none;
+            color: white
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            border: none;
+            color: white
+        }
+
+        .especie {
+            font-size: 1.65rem;
+            background: #27AE60;
+            background: repeating-linear-gradient(to top right, #27AE60 0%, #1C8247 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent
+        }
+
+        .variedade {
+            font-size: 1.25rem;
+            color: #1c8247;
+            font-weight: 300
+        }
+
+        .vote-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1rem
+        }
+
+        input#searchQuery,
+        input#searchDate,
+        input#searchUser,
+        button.btn.btn-success.btn-lg.rounded-pill.w-100.h-100.d-flex.align-items-center.justify-content-center {
             font-size: 1rem;
         }
+
         @media (max-width: 992px) {
-            .image-row {flex-direction:column}
-            .winner-col, .others-col {flex:1}
-            .others-col {gap:2rem}
-            .vote-buttons {flex-direction:column}
+
+            .image-row,
+            .rejected-row {
+                flex-direction: column
+            }
+
+            .rejected-container {
+                height: 350px
+            }
         }
     </style>
 </head>
-<body>
-<header class="fixed-top">
-    <div class="bg-success text-white text-center py-3">
-        <% if (user) { %>
-            <strong>Olá <%= user.nome %> <%= user.apelido || '' %></strong>
-            — último login: <%= new Date().toLocaleString('pt-PT', {day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit'}) %>
-        <% } else { %>
-            <strong>Bem-vindo ao IVAAP</strong>
-        <% } %>
-    </div>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
-        <a class="navbar-brand font-weight-bold" href="/">IVAAP</a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav mx-auto">
-                <li class="nav-item"><a class="nav-link" href="/upload"><i class="fa-solid fa-upload"></i> CARREGAR</a></li>
-                <li class="nav-item"><a class="nav-link" href="/review"><i class="fa-solid fa-pencil"></i> REVER</a></li>
-                <li class="nav-item"><a class="nav-link" href="/approved"><i class="fa-solid fa-thumbs-up"></i> APROVADAS</a></li>
-                <li class="nav-item"><a class="nav-link" href="/rejected"><i class="fa-solid fa-thumbs-down"></i> REJEITADAS</a></li>
-                <li class="nav-item"><a class="nav-link" href="/statistics"><i class="fa-solid fa-bolt"></i> ESTATÍSTICAS</a></li>
-                <li class="nav-item"><a class="nav-link" href="/logout"><i class="fa-solid fa-right-from-bracket"></i> SAIR</a></li>
-            </ul>
-        </div>
-    </nav>
-</header>
-<br><br><br><br>
-<div class="container mt-4 mb-3">
-    <div class="card border-0 shadow-sm" style="border-radius: 20px;">
-        <div class="card-body p-4">
-            <form id="searchForm" action="/search" method="GET" class="row g-3 align-items-end">
-                <div class="col-md-4"><label for="searchQuery" class="form-label text-success font-weight-bold">Nome da Planta</label><input type="text" class="form-control form-control-lg rounded-pill" id="searchQuery" name="q" placeholder="Ex: Tomate, Rosa..."></div>
-                <div class="col-md-3"><label for="searchDate" class="form-label text-success font-weight-bold">Data</label><input type="date" class="form-control form-control-lg rounded-pill" id="searchDate" name="date"></div>
-                <div class="col-md-3"><label for="searchUser" class="form-label text-success font-weight-bold">Utilizador</label><input type="text" class="form-control form-control-lg rounded-pill" id="searchUser" name="user" placeholder="Ex: admin"></div>
-                <div class="col-md-2"><button type="submit" class="btn btn-success btn-lg rounded-pill w-100 h-100 d-flex align-items-center justify-content-center">Pesquisar</button></div>
-            </form>
-        </div>
-    </div>
-</div>
-<main class="container content">
-    <div class="text-center mb-4">
-        <h2 style="color:#27ae60;font-weight:bold">DETALHES DA PLANTA</h2>
-    </div>
-    <% if (success) { %>
-        <div class="alert alert-success text-center alert-dismissible fade show">
-            <strong><%= success %></strong>
-            <button type="button" class="close" data-dismiss="alert">×</button>
-        </div>
-    <% } %>
-    <div class="detail-card">
-        <%
-        // Calcular imagem vencedora (mais approvals)
-        let winningImage = null;
-        let maxApprovals = -1;
-        relatedImages.forEach(img => {
-            if ((img.approvals || 0) > maxApprovals) {
-                maxApprovals = img.approvals || 0;
-                winningImage = img;
-            }
-        });
-        // Outras imagens (ordenadas por approvals descendente)
-        const otherImages = relatedImages
-            .filter(img => img.id !== (winningImage ? winningImage.id : null))
-            .sort((a, b) => (b.approvals || 0) - (a.approvals || 0)); // Taken all others
-            
-        // Planta já aprovada?
-        const isApproved = image.status === 'approved';
-        const isRejected = image.status === 'rejected';
-        %>
-        
-        <% if (isRejected) { %>
-            <!-- VIEW ESPECÍFICA PARA REJEITADAS (APENAS AS 2 REJEITADAS LADO A LADO) -->
-            <div class="row image-row justify-content-center">
-                <% 
-                // Exclui a vencedora/aprovada, mostra apenas as restantes (rejeitadas)
-                // Assumindo que num grupo de 3, se 1 é vencedora, sobram 2 rejeitadas.
-                const rejectedImages = relatedImages.filter(img => img.id !== (winningImage ? winningImage.id : null));
-                
-                rejectedImages.forEach(img => { %>
-                    <div class="col-md-6 mb-4">
-                        <div class="image-container" style="height: 500px;">
-                             <span class="badge-common rejected-badge">Rejeitada</span>
-                             <a href="/uploads/<%= img.image_url %>" data-lightbox="plant-images" data-title="<%= image.species %> (Rejeitada)">
-                                 <img src="/uploads/<%= img.image_url %>" class="detail-img" alt="<%= image.species %>" onerror="this.src='/images/placeholder.jpg'">
-                             </a>
-                        </div>
-                        <div class="vote-count">
-                            Aprovações: <%= img.approvals || 0 %> | Rejeições: <%= img.rejections || 0 %>
-                        </div>
-                        <!-- Botões de voto (se ainda for relevante votar em rejeitadas que não voltaram a pending) -->
-                        <div class="vote-buttons">
-                             <form action="/approve/<%= img.id %>" method="POST" class="d-inline">
-                                 <button type="submit" class="btn btn-success btn-action">
-                                     <i class="fas fa-thumbs-up"></i> APROVAR
-                                 </button>
-                             </form>
-                             <form action="/reject/<%= img.id %>" method="POST" class="d-inline">
-                                 <button type="submit" class="btn btn-danger btn-action">
-                                     <i class="fas fa-thumbs-down"></i> REJEITAR
-                                 </button>
-                             </form>
-                        </div>
-                    </div>
-                <% }); %>
-                
-                <% if (rejectedImages.length === 0) { %>
-                    <div class="col-12 text-center text-muted">Não há outras imagens rejeitadas para mostrar.</div>
-                <% } %>
-            </div>
 
-        <% } else { %>
-            <!-- VIEW ORIGINAL (Pending/Approved) -->
-            <div class="image-row">
-                <!-- Coluna Esquerda: Imagem Vencedora -->
-                <div class="winner-col">
-                    <% if (winningImage) { %>
-                        <div class="image-container">
-                            <span class="badge-common winner-badge">
-                                <%= isApproved ? 'APROVADA' : '⭐ IMAGEM VENCEDORA' %>
-                            </span>
-                            <a href="/uploads/<%= winningImage.image_url %>" data-lightbox="plant-images" data-title="<%= image.species %> <%= isApproved ? '(Aprovada)' : '(Vencedora)' %>">
-                                <img src="/uploads/<%= winningImage.image_url %>" class="detail-img" alt="<%= image.species %>" onerror="this.src='/images/placeholder.jpg'">
-                            </a>
-                        </div>
-                        <div class="vote-count">Aprovações: <%= winningImage.approvals || 0 %> | Rejeições: <%= winningImage.rejections || 0 %></div>
-                        <!-- Botões de voto para a imagem vencedora -->
-                        <% if (!isApproved) { %>
-                            <div class="vote-buttons">
-                                <form action="/approve/<%= winningImage.id %>" method="POST" class="d-inline">
-                                    <button type="submit" class="btn btn-success btn-action">
-                                        <i class="fas fa-thumbs-up"></i> APROVAR
-                                    </button>
-                                </form>
-                                <form action="/reject/<%= winningImage.id %>" method="POST" class="d-inline">
-                                    <button type="submit" class="btn btn-danger btn-action">
-                                        <i class="fas fa-thumbs-down"></i> REJEITAR
-                                    </button>
-                                </form>
-                            </div>
-                        <% } %>
+<body>
+    <header class="fixed-top">
+        <div class="bg-success text-white text-center py-3">
+            <% if (user) { %>
+                <strong>Olá <%= user.nome %>
+                        <%= user.apelido || '' %></strong>
+                — último login: <%= new Date().toLocaleString('pt-PT', {day:'2-digit', month:'2-digit', year:'numeric',
+                    hour:'2-digit', minute:'2-digit'}) %>
                     <% } else { %>
-                        <div class="image-container">
-                            <img src="/images/placeholder.jpg" class="detail-img" alt="Sem imagem" style="opacity:0.4">
-                        </div>
-                        <p class="vote-count text-muted">Nenhuma imagem disponível.</p>
-                    <% } %>
-                </div>
-                <!-- Coluna Direita: Outras imagens -->
-                <div class="others-col">
-                    <%
-                    // Limit original view to 2 others
-                    const displayedOthers = otherImages.slice(0, 2).concat(
-                        Array(Math.max(0, 2 - otherImages.length)).fill(null)
-                    );
-                    displayedOthers.forEach((img) => { %>
-                        <div class="image-container-2">
-                            <% if (img) { %>
-                                <span class="badge-common rejected-badge">
-                                    <%= isApproved ? 'Rejeitada' : 'Menos votada' %>
-                                </span>
-                                <a href="/uploads/<%= img.image_url %>" data-lightbox="plant-images" data-title="<%= image.species %>">
-                                    <img src="/uploads/<%= img.image_url %>" class="secondary-img" alt="<%= image.species %>" onerror="this.src='/images/placeholder.jpg'">
-                                </a>
-                            <% } else { %>
-                                <img src="/images/placeholder.jpg" class="secondary-img" alt="Sem imagem" style="opacity:0.4">
-                            <% } %>
-                        </div>
-                        <p class="vote-count">
-                            <% if (img) { %>
-                                Aprovações: <%= img.approvals || 0 %> | Rejeições: <%= img.rejections || 0 %>
-                                <% if (!isApproved) { %>
-                                    <div class="vote-buttons">
-                                        <form action="/approve/<%= img.id %>" method="POST" class="d-inline">
-                                            <button type="submit" class="btn btn-success btn-action">
-                                                <i class="fas fa-thumbs-up"></i> APROVAR
-                                            </button>
-                                        </form>
-                                        <form action="/reject/<%= img.id %>" method="POST" class="d-inline">
-                                            <button type="submit" class="btn btn-danger btn-action">
-                                                <i class="fas fa-thumbs-down"></i> REJEITAR
-                                            </button>
-                                        </form>
-                                    </div>
-                                <% } %>
-                            <% } else { %>
-                                —
-                            <% } %>
-                        </p>
-                    <% }); %>
-                </div>
+                        <strong>Bem-vindo ao IVAAP</strong>
+                        <% } %>
+        </div>
+        <nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
+            <a class="navbar-brand font-weight-bold" href="/">IVAAP</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav mx-auto">
+                    <li class="nav-item"><a class="nav-link" href="/upload"><i class="fa-solid fa-upload"></i>
+                            CARREGAR</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/review"><i class="fa-solid fa-pencil"></i> REVER</a>
+                    </li>
+                    <li class="nav-item"><a class="nav-link" href="/approved"><i class="fa-solid fa-thumbs-up"></i>
+                            APROVADAS</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/rejected"><i class="fa-solid fa-thumbs-down"></i>
+                            REJEITADAS</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/statistics"><i class="fa-solid fa-bolt"></i>
+                            ESTATÍSTICAS</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/logout"><i
+                                class="fa-solid fa-right-from-bracket"></i> SAIR</a></li>
+                </ul>
             </div>
-        <% } %>
-     
-        <h3 class="text-center mb-4">
-            <strong>
-                <span class="especie"><%= image.species %></span>
-                <br>
-                <span class="variedade"><%= image.variety || '' %></span>
-            </strong>
-        </h3>
-        <hr>
-        <p><strong>Gama:</strong> <%= image.gama_nome || 'Não definido' %></p>
-        <p><strong>Nome Botânico:</strong> <%= image.botanical_name || 'Não definido' %></p>
-        <p><strong>Origem:</strong> <%= image.origem || 'Não definido' %></p>
-        <p><strong>Colheita/Floração:</strong> <%= image.colheitaFloracao || 'Não definido' %></p>
-        <p><strong>Exposição Solar:</strong> <%= image.exposicaoSolar || 'Não definido' %></p>
-        <p><strong>Rega:</strong> <%= image.rega || 'Não definido' %></p>
-        <p><strong>Profundidade Sementeira:</strong> <%= image.profundidadeSementeira || 'Não definido' %></p>
-        <p><strong>Sementeira Direta:</strong> <%= image.sementeiraDireta ? 'Sim' : 'Não' %></p>
-        <p><strong>Sementeira Alfobre:</strong> <%= image.sementeiraAlfobre ? 'Sim' : 'Não' %></p>
-        <p><strong>Sementeira:</strong> <%= image.sementeira || 'Não definido' %></p>
-        <p><strong>Transplante:</strong> <%= image.transplante || 'Não definido' %></p>
-        <p><strong>Compasso:</strong> <%= image.compasso || 'Não definido' %></p>
-        <p><strong>Características:</strong> <%= image.caracteristicas || 'Não definido' %></p>
-        <p><strong>Conselhos de Cultivo:</strong> <%= image.conselhos_de_cultivo || 'Não definido' %></p>
-        <p><strong>Shutterstock:</strong> <%= image.shutterstock ? 'Sim' : 'Não' %> <%= image.shutterstock_info ? '(' + image.shutterstock_info + ')' : '' %></p>
-        <p><strong>Comentários:</strong> <%= image.comentarios || 'Sem comentários' %></p>
-        <hr>
-        <p><strong>Carregada por:</strong> <%= image.uploaded_by %> em <%= new Date(image.uploaded_at).toLocaleString('pt-PT') %></p>
-        <% if (image.reviewed_by) { %>
-            <p><strong>Revisada por:</strong> <%= image.reviewed_by %> em <%= new Date(image.reviewed_at).toLocaleString('pt-PT') %></p>
-        <% } %>
-        <div class="text-center mt-5">
-            <a href="/edit/<%= image.id %>" class="btn btn-warning btn-action">Editar</a>
-            <% if (!isApproved && winningImage) { %>
-                <form action="/validate-winner/<%= winningImage.id %>" method="POST" class="d-inline" onsubmit="return confirm('Tem certeza que deseja validar a imagem mais votada e movê-la para aprovadas?');">
-                    <button type="submit" class="btn btn-success btn-action">
-                        <i class="fas fa-check-circle"></i> Validar Mais Votada
-                    </button>
+        </nav>
+    </header>
+    <br><br><br><br>
+    <div class="container mt-4 mb-3">
+        <div class="card border-0 shadow-sm" style="border-radius: 20px;">
+            <div class="card-body p-4">
+                <form id="searchForm" action="/search" method="GET" class="row g-3 align-items-end">
+                    <div class="col-md-4"><label for="searchQuery" class="form-label text-success font-weight-bold">Nome
+                            da Planta</label><input type="text" class="form-control form-control-lg rounded-pill"
+                            id="searchQuery" name="q" placeholder="Ex: Tomate, Rosa..."></div>
+                    <div class="col-md-3"><label for="searchDate"
+                            class="form-label text-success font-weight-bold">Data</label><input type="date"
+                            class="form-control form-control-lg rounded-pill" id="searchDate" name="date"></div>
+                    <div class="col-md-3"><label for="searchUser"
+                            class="form-label text-success font-weight-bold">Utilizador</label><input type="text"
+                            class="form-control form-control-lg rounded-pill" id="searchUser" name="user"
+                            placeholder="Ex: admin"></div>
+                    <div class="col-md-2"><button type="submit"
+                            class="btn btn-success btn-lg rounded-pill w-100 h-100 d-flex.align-items-center.justify-content-center">Pesquisar</button>
+                    </div>
                 </form>
-            <% } %>
-            <a href="javascript:history.back()" class="btn btn-secondary btn-action">Voltar</a>
+            </div>
         </div>
     </div>
-</main>
-<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/js/lightbox.min.js"></script>
-<script>
-    setTimeout(() => $('.alert').fadeOut(1000), 5000);
-    lightbox.option({
-        'resizeDuration': 200,
-        'wrapAround': true,
-        'alwaysShowNavOnTouchDevices': true
-    });
-</script>
-<footer class="mt-5 py-4 text-center bg-light">
-    <p class="mb-0">FLORA LUSITANA - © 2025 IVAAP_2 - V. 6.9.8</p>
-</footer>
+    <main class="container content">
+        <div class="text-center mb-4">
+            <h2 style="color:#27ae60;font-weight:bold">DETALHES DA PLANTA</h2>
+        </div>
+        <% if (success) { %>
+            <div class="alert alert-success text-center alert-dismissible fade show">
+                <strong>
+                    <%= success %>
+                </strong>
+                <button type="button" class="close" data-dismiss="alert">×</button>
+            </div>
+            <% } %>
+                <div class="detail-card">
+                    <% let fromRejected=(typeof fromRejected !=='undefined' && fromRejected===true); const
+                        isApproved=image.status==='approved' ; const isRejected=image.status==='rejected' ; const
+                        showVoteButtons=image.status==='pending' ; // Calcular imagem vencedora (mais approvals) let
+                        winningImage=null; let maxApprovals=-1; relatedImages.forEach(img=> {
+                        if ((img.approvals || 0) > maxApprovals) {
+                        maxApprovals = img.approvals || 0;
+                        winningImage = img;
+                        }
+                        });
+
+                        // Imagens para mostrar
+                        let imagesToShow = relatedImages;
+                        if (fromRejected || isRejected) {
+                        imagesToShow = relatedImages.filter(img => img.status === 'rejected');
+                        }
+
+                        // Outras imagens (excluindo a vencedora se não estivermos no modo rejeitadas)
+                        const otherImages = imagesToShow
+                        .filter(img => img.id !== (winningImage ? winningImage.id : null))
+                        .sort((a, b) => (b.approvals || 0) - (a.approvals || 0));
+                        %>
+
+                        <% if (fromRejected || isRejected) { %>
+                            <!-- MODO REJEITADAS: apenas as imagens rejeitadas, lado a lado -->
+                            <div class="rejected-row">
+                                <% imagesToShow.forEach(img=> { %>
+                                    <div class="rejected-col">
+                                        <div class="image-container rejected-container">
+                                            <span class="badge-common rejected-badge">REJEITADA</span>
+                                            <a href="/uploads/<%= img.image_url %>" data-lightbox="plant-images"
+                                                data-title="<%= image.species %> (Rejeitada)">
+                                                <img src="/uploads/<%= img.image_url %>" class="rejected-img"
+                                                    alt="<%= image.species %>"
+                                                    onerror="this.src='/images/placeholder.jpg'">
+                                            </a>
+                                        </div>
+                                        <p class="vote-count">
+                                            Aprovações: <%= img.approvals || 0 %> | Rejeições: <%= img.rejections || 0
+                                                    %>
+                                        </p>
+                                        <!-- Botões de voto (se ainda for relevante) -->
+                                        <% if (showVoteButtons || isRejected) { %>
+                                            <div class="vote-buttons">
+                                                <form action="/approve/<%= img.id %>" method="POST" class="d-inline">
+                                                    <button type="submit" class="btn btn-success btn-action">
+                                                        <i class="fas fa-thumbs-up"></i> APROVAR
+                                                    </button>
+                                                </form>
+                                                <form action="/reject/<%= img.id %>" method="POST" class="d-inline">
+                                                    <button type="submit" class="btn btn-danger btn-action">
+                                                        <i class="fas fa-thumbs-down"></i> REJEITAR
+                                                    </button>
+                                                </form>
+                                            </div>
+                                            <% } %>
+                                    </div>
+                                    <% }); %>
+                            </div>
+                            <% } else { %>
+                                <!-- MODO APROVADAS / PENDENTES: vencedora grande à esquerda, outras na vertical à direita -->
+                                <div class="image-row">
+                                    <div class="winner-col">
+                                        <% if (winningImage) { %>
+                                            <div class="image-container winner-container">
+                                                <span
+                                                    class="badge-common <%= isApproved ? 'approved-badge' : 'winner-badge' %>">
+                                                    <%= isApproved ? 'APROVADA' : '⭐ IMAGEM VENCEDORA' %>
+                                                </span>
+                                                <a href="/uploads/<%= winningImage.image_url %>"
+                                                    data-lightbox="plant-images" data-title="<%= image.species %>">
+                                                    <img src="/uploads/<%= winningImage.image_url %>" class="detail-img"
+                                                        alt="<%= image.species %>"
+                                                        onerror="this.src='/images/placeholder.jpg'">
+                                                </a>
+                                            </div>
+                                            <p class="vote-count">Aprovações: <%= winningImage.approvals || 0 %> |
+                                                    Rejeições: <%= winningImage.rejections || 0 %>
+                                            </p>
+                                            <% if (showVoteButtons) { %>
+                                                <div class="vote-buttons">
+                                                    <form action="/approve/<%= winningImage.id %>" method="POST"
+                                                        class="d-inline">
+                                                        <button type="submit" class="btn btn-success btn-action">
+                                                            <i class="fas fa-thumbs-up"></i> APROVAR
+                                                        </button>
+                                                    </form>
+                                                    <form action="/reject/<%= winningImage.id %>" method="POST"
+                                                        class="d-inline">
+                                                        <button type="submit" class="btn btn-danger btn-action">
+                                                            <i class="fas fa-thumbs-down"></i> REJEITAR
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                                <% } %>
+                                                    <% } else { %>
+                                                        <div class="image-container winner-container">
+                                                            <img src="/images/placeholder.jpg" class="detail-img"
+                                                                alt="Sem imagem" style="opacity:0.4">
+                                                        </div>
+                                                        <p class="vote-count text-muted">Nenhuma imagem disponível.</p>
+                                                        <% } %>
+                                    </div>
+                                    <% if (otherImages.length> 0) { %>
+                                        <div class="rejected-col">
+                                            <% // Limit to 2 others for vertical display if preferred, or show all
+                                                otherImages.forEach(img=> { %>
+                                                <div class="image-container rejected-container">
+                                                    <span class="badge-common rejected-badge">REJEITADA</span>
+                                                    <a href="/uploads/<%= img.image_url %>"
+                                                        data-lightbox="plant-images">
+                                                        <img src="/uploads/<%= img.image_url %>" class="rejected-img"
+                                                            alt="<%= image.species %>"
+                                                            onerror="this.src='/images/placeholder.jpg'">
+                                                    </a>
+                                                </div>
+                                                <p class="vote-count">
+                                                    Aprovações: <%= img.approvals || 0 %> | Rejeições: <%=
+                                                            img.rejections || 0 %>
+                                                            <% if (showVoteButtons) { %>
+                                                                <div class="vote-buttons">
+                                                                    <form action="/approve/<%= img.id %>" method="POST"
+                                                                        class="d-inline">
+                                                                        <button type="submit"
+                                                                            class="btn btn-success btn-action">
+                                                                            <i class="fas fa-thumbs-up"></i> APROVAR
+                                                                        </button>
+                                                                    </form>
+                                                                    <form action="/reject/<%= img.id %>" method="POST"
+                                                                        class="d-inline">
+                                                                        <button type="submit"
+                                                                            class="btn btn-danger btn-action">
+                                                                            <i class="fas fa-thumbs-down"></i> REJEITAR
+                                                                        </button>
+                                                                    </form>
+                                                                </div>
+                                                                <% } %>
+                                                </p>
+                                                <% }); %>
+                                        </div>
+                                        <% } %>
+                                </div>
+                                <% } %>
+                                    <h3 class="text-center mb-4">
+                                        <strong>
+                                            <span class="especie">
+                                                <%= image.species %>
+                                            </span>
+                                            <br>
+                                            <span class="variedade">
+                                                <%= image.variety || '' %>
+                                            </span>
+                                        </strong>
+                                    </h3>
+                                    <hr>
+                                    <p><strong>Gama:</strong>
+                                        <%= image.gama_nome || 'Não definido' %>
+                                    </p>
+                                    <p><strong>Nome Botânico:</strong>
+                                        <%= image.botanical_name || 'Não definido' %>
+                                    </p>
+                                    <p><strong>Origem:</strong>
+                                        <%= image.origem || 'Não definido' %>
+                                    </p>
+                                    <p><strong>Colheita/Floração:</strong>
+                                        <%= image.colheitaFloracao || 'Não definido' %>
+                                    </p>
+                                    <p><strong>Exposição Solar:</strong>
+                                        <%= image.exposicaoSolar || 'Não definido' %>
+                                    </p>
+                                    <p><strong>Rega:</strong>
+                                        <%= image.rega || 'Não definido' %>
+                                    </p>
+                                    <p><strong>Profundidade Sementeira:</strong>
+                                        <%= image.profundidadeSementeira || 'Não definido' %>
+                                    </p>
+                                    <p><strong>Sementeira Direta:</strong>
+                                        <%= image.sementeiraDireta ? 'Sim' : 'Não' %>
+                                    </p>
+                                    <p><strong>Sementeira Alfobre:</strong>
+                                        <%= image.sementeiraAlfobre ? 'Sim' : 'Não' %>
+                                    </p>
+                                    <p><strong>Sementeira:</strong>
+                                        <%= image.sementeira || 'Não definido' %>
+                                    </p>
+                                    <p><strong>Transplante:</strong>
+                                        <%= image.transplante || 'Não definido' %>
+                                    </p>
+                                    <p><strong>Compasso:</strong>
+                                        <%= image.compasso || 'Não definido' %>
+                                    </p>
+                                    <p><strong>Características:</strong>
+                                        <%= image.caracteristicas || 'Não definido' %>
+                                    </p>
+                                    <p><strong>Conselhos de Cultivo:</strong>
+                                        <%= image.conselhos_de_cultivo || 'Não definido' %>
+                                    </p>
+                                    <p><strong>Shutterstock:</strong>
+                                        <%= image.shutterstock ? 'Sim' : 'Não' %>
+                                            <%= image.shutterstock_info ? '(' + image.shutterstock_info + ')' : '' %>
+                                    </p>
+                                    <p><strong>Comentários:</strong>
+                                        <%= image.comentarios || 'Sem comentários' %>
+                                    </p>
+                                    <hr>
+                                    <p><strong>Carregada por:</strong>
+                                        <%= image.uploaded_by %> em <%= new
+                                                Date(image.uploaded_at).toLocaleString('pt-PT') %>
+                                    </p>
+                                    <% if (image.reviewed_by) { %>
+                                        <p><strong>Revisada por:</strong>
+                                            <%= image.reviewed_by %> em <%= new
+                                                    Date(image.reviewed_at).toLocaleString('pt-PT') %>
+                                        </p>
+                                        <% } %>
+                                            <div class="text-center mt-5">
+                                                <a href="/edit/<%= image.id %>"
+                                                    class="btn btn-warning btn-action">Editar</a>
+                                                <% if (image.status==='pending' && winningImage) { %>
+                                                    <form action="/validate-winner/<%= winningImage.id %>" method="POST"
+                                                        class="d-inline"
+                                                        onsubmit="return confirm('Tem certeza que deseja validar a imagem mais votada e movê-la para aprovadas?');">
+                                                        <button type="submit" class="btn btn-success btn-action">
+                                                            <i class="fas fa-check-circle"></i> Validar Mais Votada
+                                                        </button>
+                                                    </form>
+                                                    <% } %>
+                                                        <a href="javascript:history.back()"
+                                                            class="btn btn-secondary btn-action">Voltar</a>
+                                            </div>
+                </div>
+    </main>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/js/lightbox.min.js"></script>
+    <script>
+        setTimeout(() => $('.alert').fadeOut(1000), 5000);
+        lightbox.option({
+            'resizeDuration': 200,
+            'wrapAround': true,
+            'alwaysShowNavOnTouchDevices': true
+        });
+    </script>
+    <footer class="mt-5 py-4 text-center bg-light">
+        <p class="mb-0">FLORA LUSITANA - © 2025 IVAAP_2 - V. 6.9.8</p>
+    </footer>
 </body>
+
 </html>

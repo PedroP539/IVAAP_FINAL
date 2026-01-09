@@ -15,7 +15,7 @@ const PORT = 3000;
 
 fs.mkdirSync('./public/uploads', { recursive: true });
 
-// ABRE A DB ASSINCRONAMENTE ó N√O BLOQUEIA O START DO SERVIDOR
+// ABRE A DB ASSINCRONAMENTE ¬ó N√ÉO BLOQUEIA O START DO SERVIDOR
 const db = new sqlite3.Database('./database.db', sqlite3.OPEN_READWRITE | sqlite3.OPEN_CREATE, (err) => {
     if (err) {
         console.error('ERRO FATAL AO ABRIR DATABASE:', err.message);
@@ -25,7 +25,7 @@ const db = new sqlite3.Database('./database.db', sqlite3.OPEN_READWRITE | sqlite
     }
 });
 
-// CRIA TABELAS E ADMIN ASSINCRONAMENTE (n„o bloqueia o app.listen)
+// CRIA TABELAS E ADMIN ASSINCRONAMENTE (n√£o bloqueia o app.listen)
 db.serialize(() => {
     db.run(`CREATE TABLE IF NOT EXISTS users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -38,7 +38,6 @@ db.serialize(() => {
         telefone TEXT,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )`);
-
     db.run(`CREATE TABLE IF NOT EXISTS images (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         image_url TEXT NOT NULL,
@@ -73,17 +72,14 @@ db.serialize(() => {
         approvals INTEGER DEFAULT 0,
         rejections INTEGER DEFAULT 0
     )`);
-
     db.run(`CREATE TABLE IF NOT EXISTS marcas (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         nome TEXT UNIQUE NOT NULL
     )`);
-
     const marcas = ['Flora Lusitana', 'Jardinflora', 'Planto'];
     marcas.forEach(marca => {
         db.run(`INSERT OR IGNORE INTO marcas (nome) VALUES (?)`, [marca]);
     });
-
     db.run(`CREATE TABLE IF NOT EXISTS ratings (
         image_id INTEGER,
         user_id INTEGER,
@@ -92,8 +88,7 @@ db.serialize(() => {
         FOREIGN KEY (image_id) REFERENCES images (id) ON DELETE CASCADE,
         FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
     )`);
-
-    // CRIA ADMIN S” SE N√O EXISTIR (bcrypt sÛ roda se necess·rio)
+    // CRIA ADMIN S√ì SE N√ÉO EXISTIR (bcrypt s√≥ roda se necess√°rio)
     db.get('SELECT id FROM users WHERE username = "admin"', (err, row) => {
         if (!row) {
             bcrypt.hash('flora2025', 10, (err, hash) => {
@@ -106,7 +101,6 @@ db.serialize(() => {
             });
         }
     });
-
     db.run(`ALTER TABLE users ADD COLUMN nome TEXT`, () => {});
     db.run(`ALTER TABLE users ADD COLUMN apelido TEXT`, () => {});
     db.run(`ALTER TABLE users ADD COLUMN cargo TEXT`, () => {});
@@ -130,9 +124,9 @@ app.use(express.static('public'));
 app.use('/uploads', express.static(path.join(__dirname, 'public', 'uploads')));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-app.use(session({ 
-    secret: 'ivaap2025', 
-    resave: false, 
+app.use(session({
+    secret: 'ivaap2025',
+    resave: false,
     saveUninitialized: false,
     cookie: { maxAge: 24 * 60 * 60 * 1000 } // 24h
 }));
@@ -143,7 +137,7 @@ app.use(passport.session());
 passport.use(new LocalStrategy((username, password, done) => {
     db.get('SELECT * FROM users WHERE username = ?', [username], (err, user) => {
         if (err) return done(err);
-        if (!user) return done(null, false, { message: 'Utilizador n„o encontrado' });
+        if (!user) return done(null, false, { message: 'Utilizador n√£o encontrado' });
         bcrypt.compare(password, user.password, (err, isValid) => {
             if (err) return done(err);
             if (isValid) return done(null, user);
@@ -189,7 +183,7 @@ app.get('/register', (req, res) => {
 app.post('/register', async (req, res) => {
     const { username, password, nome, apelido, cargo, email, telefone } = req.body;
     if (!username || !password || !nome || !apelido) {
-        req.flash('error', 'Preenche todos os campos obrigatÛrios!');
+        req.flash('error', 'Preenche todos os campos obrigat√≥rios!');
         return res.redirect('/register');
     }
     if (password.length < 6) {
@@ -197,7 +191,7 @@ app.post('/register', async (req, res) => {
         return res.redirect('/register');
     }
     if (!/^[a-zA-Z0-9_]+$/.test(username)) {
-        req.flash('error', 'O utilizador sÛ pode ter letras, n˙meros e underscores!');
+        req.flash('error', 'O utilizador s√≥ pode ter letras, n√∫meros e underscores!');
         return res.redirect('/register');
     }
     try {
@@ -209,7 +203,7 @@ app.post('/register', async (req, res) => {
             function(err) {
                 if (err) {
                     if (err.message.includes('UNIQUE constraint failed')) {
-                        req.flash('error', 'Este utilizador j· existe!');
+                        req.flash('error', 'Este utilizador j√° existe!');
                     } else {
                         console.error('ERRO NO REGISTO:', err);
                         req.flash('error', 'Erro ao criar conta. Tenta novamente.');
@@ -221,7 +215,7 @@ app.post('/register', async (req, res) => {
             }
         );
     } catch (err) {
-        console.error('ERRO CRÕTICO:', err);
+        console.error('ERRO CR√çTICO:', err);
         req.flash('error', 'Erro interno. Tenta mais tarde.');
         res.redirect('/register');
     }
@@ -347,10 +341,10 @@ app.get('/statistics', ensureAuth, async (req, res) => {
                 pending: globalQueries[3]?.count || 0,
                 latestImages,
                 topUsers: {
-                    uploads: globalQueries[4] ? { user: globalQueries[4].user || 'NinguÈm', count: globalQueries[4].count } : { user: 'NinguÈm', count: 0 },
-                    approvals: globalQueries[5] ? { user: globalQueries[5].user || 'NinguÈm', count: globalQueries[5].count } : { user: 'NinguÈm', count: 0 },
-                    rejections: globalQueries[6] ? { user: globalQueries[6].user || 'NinguÈm', count: globalQueries[6].count } : { user: 'NinguÈm', count: 0 },
-                    comments: globalQueries[7] ? { user: globalQueries[7].user || 'NinguÈm', count: globalQueries[7].count } : { user: 'NinguÈm', count: 0 }
+                    uploads: globalQueries[4] ? { user: globalQueries[4].user || 'Ningu√©m', count: globalQueries[4].count } : { user: 'Ningu√©m', count: 0 },
+                    approvals: globalQueries[5] ? { user: globalQueries[5].user || 'Ningu√©m', count: globalQueries[5].count } : { user: 'Ningu√©m', count: 0 },
+                    rejections: globalQueries[6] ? { user: globalQueries[6].user || 'Ningu√©m', count: globalQueries[6].count } : { user: 'Ningu√©m', count: 0 },
+                    comments: globalQueries[7] ? { user: globalQueries[7].user || 'Ningu√©m', count: globalQueries[7].count } : { user: 'Ningu√©m', count: 0 }
                 },
                 
             };
@@ -388,8 +382,8 @@ app.get('/statistics', ensureAuth, async (req, res) => {
             success: req.flash('success')[0] || null
         });
     } catch (err) {
-        console.error('ERRO CRÕTICO NAS ESTATÕSTICAS:', err);
-        req.flash('error', 'Erro ao carregar estatÌsticas. Tenta novamente.');
+        console.error('ERRO CR√çTICO NAS ESTAT√çSTICAS:', err);
+        req.flash('error', 'Erro ao carregar estat√≠sticas. Tenta novamente.');
         res.redirect('/statistics');
     }
 });
@@ -557,11 +551,11 @@ app.get('/review', ensureAuth, (req, res) => {
         
             if (!groups[key]) {
                 groups[key] = {
-                    species: row.species || 'Sem espÈcie',
+                    species: row.species || 'Sem esp√©cie',
                     variety: row.variety || '',
                     uploaded_by: row.uploaded_by,
                     uploaded_at: row.uploaded_at,
-                    gama_nome: row.gama_nome || 'N„o definido',
+                    gama_nome: row.gama_nome || 'N√£o definido',
                     images: []
                 };
             }
@@ -714,9 +708,9 @@ app.get('/rejected', ensureAuth, (req, res) => {
                 const key = `${row.species || ''}|${row.variety || ''}|${row.uploaded_by}|${row.upload_day}`;
                 groups[key] = {
                     key: key,
-                    species: row.species || 'Sem espÈcie',
+                    species: row.species || 'Sem esp√©cie',
                     variety: row.variety || '',
-                    gama_nome: row.gama_nome || 'N„o definido',
+                    gama_nome: row.gama_nome || 'N√£o definido',
                     reviewed_by: row.reviewed_by,
                     reviewed_at: row.reviewed_at,
                     sample_id: row.sample_id,
@@ -860,7 +854,7 @@ app.get('/details/:id', ensureAuth, (req, res) => {
         WHERE i.id = ?
     `, [imageId], (err, mainImage) => {
         if (err || !mainImage) {
-            req.flash('error', 'Imagem n„o encontrada');
+            req.flash('error', 'Imagem n√£o encontrada');
             return res.redirect('/statistics');
         }
         const date = new Date(mainImage.uploaded_at);
@@ -895,10 +889,15 @@ app.get('/details/:id', ensureAuth, (req, res) => {
                     status: mainImage.status
                 }];
             }
+
+            // DETETAR SE VEMOS DA P√ÅGINA DE REJEITADAS
+            const fromRejected = (req.headers.referer || '').includes('/rejected');
+
             res.render('details', {
                 image: mainImage,
                 relatedImages: relatedImages,
-                success: req.flash('success')[0] || null
+                success: req.flash('success')[0] || null,
+                fromRejected: fromRejected
             });
         });
     });
@@ -908,7 +907,7 @@ app.get('/edit/:id', ensureAuth, (req, res) => {
     const imageId = req.params.id;
     db.get('SELECT * FROM images WHERE id = ?', [imageId], (err, image) => {
         if (err || !image) {
-            req.flash('error', 'Imagem n„o encontrada');
+            req.flash('error', 'Imagem n√£o encontrada');
             return res.redirect('/statistics');
         }
         const timeKey = new Date(image.uploaded_at).toISOString().slice(0, 10);
@@ -948,7 +947,7 @@ app.post('/delete-image/:id', ensureAuth, (req, res) => {
     const imageId = req.params.id;
     db.get('SELECT image_url FROM images WHERE id = ?', [imageId], (err, row) => {
         if (err || !row) {
-            req.flash('error', 'Imagem n„o encontrada para apagar.');
+            req.flash('error', 'Imagem n√£o encontrada para apagar.');
             return res.redirect('back');
         }
         const filePath = path.join(__dirname, 'public', 'uploads', row.image_url);
@@ -960,7 +959,7 @@ app.post('/delete-image/:id', ensureAuth, (req, res) => {
             }
             if (fs.existsSync(filePath)) {
                 fs.unlink(filePath, (err) => {
-                    if (err) console.error('Erro ao apagar ficheiro fÌsico:', err);
+                    if (err) console.error('Erro ao apagar ficheiro f√≠sico:', err);
                 });
             }
             req.flash('success', 'Imagem apagada permanentemente da base de dados.');
@@ -971,20 +970,16 @@ app.post('/delete-image/:id', ensureAuth, (req, res) => {
 
 app.post('/delete-plant', ensureAuth, (req, res) => {
     const sampleImageId = req.body.sampleImageId;
-
     if (!sampleImageId) {
         req.flash('error', 'Erro ao identificar a planta para apagar.');
         return res.redirect('/review');
     }
-
     db.get('SELECT * FROM images WHERE id = ?', [sampleImageId], (err, sampleImage) => {
         if (err || !sampleImage) {
-            req.flash('error', 'Planta n„o encontrada.');
+            req.flash('error', 'Planta n√£o encontrada.');
             return res.redirect('/review');
         }
-
         const timeKey = new Date(sampleImage.uploaded_at).toISOString().slice(0, 10);
-
         db.all(`
             SELECT id, image_url FROM images
             WHERE species = ?
@@ -996,13 +991,10 @@ app.post('/delete-plant', ensureAuth, (req, res) => {
                 req.flash('error', 'Nenhuma imagem encontrada para apagar.');
                 return res.redirect('/review');
             }
-
             let deletedCount = 0;
             const totalImages = plantImages.length;
-
             plantImages.forEach(img => {
                 const filePath = path.join(__dirname, 'public', 'uploads', img.image_url);
-
                 db.run('DELETE FROM images WHERE id = ?', [img.id], function(err) {
                     if (err) {
                         console.error('Erro ao apagar imagem ID ' + img.id + ':', err);
@@ -1014,7 +1006,6 @@ app.post('/delete-plant', ensureAuth, (req, res) => {
                             });
                         }
                     }
-
                     if (deletedCount === totalImages) {
                         req.flash('success', `Planta apagada com sucesso! (${totalImages} imagem(ns) removida(s))`);
                         res.redirect('/review');
@@ -1030,22 +1021,19 @@ app.post('/edit', ensureAuth, upload.fields([
     { name: 'newImage1', maxCount: 1 },
     { name: 'newImage2', maxCount: 1 }
 ]), async (req, res) => {
-    console.log('=== INÕCIO DA EDI«√O R¡PIDA ===');
+    console.log('=== IN√çCIO DA EDI√á√ÉO R√ÅPIDA ===');
     console.log('Files recebidos:', req.files);
-
     try {
         const sampleImageId = req.body.originalId;
         if (!sampleImageId) {
             req.flash('error', 'Erro ao identificar a planta');
             return res.redirect('/statistics');
         }
-
         db.get('SELECT * FROM images WHERE id = ?', [sampleImageId], async (err, sampleImage) => {
             if (err || !sampleImage) {
-                req.flash('error', 'Imagem n„o encontrada');
+                req.flash('error', 'Imagem n√£o encontrada');
                 return res.redirect('/statistics');
             }
-
             const commonData = {
                 species: req.body.species,
                 variety: req.body.variety || null,
@@ -1065,9 +1053,7 @@ app.post('/edit', ensureAuth, upload.fields([
                 comentarios: req.body.comentarios || null,
                 gama_id: req.body.gama_id || null
             };
-
             const timeKey = new Date(sampleImage.uploaded_at).toISOString().slice(0, 10);
-
             db.all(`
                 SELECT id, image_url, marca_id FROM images
                 WHERE species = ?
@@ -1076,25 +1062,19 @@ app.post('/edit', ensureAuth, upload.fields([
                 ORDER BY marca_id ASC
             `, [sampleImage.species, sampleImage.uploaded_by, timeKey], async (err, plantImages) => {
                 if (err) plantImages = [];
-
                 let updatedCount = 0;
                 let createdCount = 0;
                 const promises = [];
-
                 for (let index = 0; index < 3; index++) {
                     const marcaId = index + 1;
                     const hasFile = req.files[`newImage${index}`] && req.files[`newImage${index}`].length;
                     const existingImage = plantImages.find(p => p.marca_id === marcaId);
-
                     let filename = null;
-
                     if (hasFile) {
                         filename = req.files[`newImage${index}`][0].filename;
                     }
-
                     if (existingImage) {
                         const updateFilename = filename || existingImage.image_url;
-
                         promises.push(new Promise((resolve, reject) => {
                             db.run(`
                                 UPDATE images SET
@@ -1150,15 +1130,13 @@ app.post('/edit', ensureAuth, upload.fields([
                         }));
                     }
                 }
-
                 await Promise.all(promises);
-
                 req.flash('success', `Planta editada! ${updatedCount} atualizada(s), ${createdCount} criada(s)`);
                 res.redirect('/details/' + sampleImageId);
             });
         });
     } catch (err) {
-        console.error('Erro geral na ediÁ„o:', err);
+        console.error('Erro geral na edi√ß√£o:', err);
         req.flash('error', 'Erro ao editar planta');
         res.redirect('/statistics');
     }
@@ -1218,15 +1196,12 @@ app.post('/validate-winner/:id', ensureAuth, (req, res) => {
     const imageId = req.params.id;
     const reviewedBy = req.user.username;
     const reviewedAt = new Date().toISOString();
-
     db.get('SELECT * FROM images WHERE id = ?', [imageId], (err, winnerImage) => {
         if (err || !winnerImage) {
-            req.flash('error', 'Imagem n„o encontrada');
+            req.flash('error', 'Imagem n√£o encontrada');
             return res.redirect('/review');
         }
-
         const timeKey = new Date(winnerImage.uploaded_at).toISOString().slice(0, 10);
-
         db.run(
             `UPDATE images
              SET status = 'approved',
@@ -1239,7 +1214,6 @@ app.post('/validate-winner/:id', ensureAuth, (req, res) => {
                     req.flash('error', 'Erro ao validar imagem');
                     return res.redirect('/details/' + imageId);
                 }
-
                 db.run(
                     `UPDATE images
                      SET status = 'rejected',
@@ -1276,8 +1250,9 @@ app.post('/validate-winner/:id', ensureAuth, (req, res) => {
 
 app.listen(PORT, () => {
     console.log(`IVAAP RODANDO EM http://localhost:${PORT}`);
-    console.log(`LOGIN INSTANT¬NEO (bcrypt sÛ roda se admin n„o existir)`);
-    console.log(`EDI«√O R¡PIDA (sem download de URLs)`);
+    console.log(`LOGIN INSTANT√ÇNEO`);
+    console.log(`EDI√á√ÉO R√ÅPIDA`);
     console.log(`DELETE-PLANT FUNCIONA`);
-    console.log(`FLORA LUSITANA 2025 ñ COMPLETO E EST¡VEL`);
+    console.log(`fromRejected PASSADO NA ROTA /details`);
+    console.log(`FLORA LUSITANA 2025 ¬ñ AGORA SIM, EST√ÅVEL`);
 });
