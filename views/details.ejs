@@ -322,8 +322,8 @@
                                             Aprovações: <%= img.approvals || 0 %> | Rejeições: <%= img.rejections || 0
                                                     %>
                                         </p>
-                                        <!-- Botões de voto (se ainda for relevante) -->
-                                        <% if (showVoteButtons || isRejected) { %>
+                                        <!-- Botões de voto (apenas se pendentes) -->
+                                        <% if (showVoteButtons) { %>
                                             <div class="vote-buttons">
                                                 <form action="/approve/<%= img.id %>" method="POST" class="d-inline">
                                                     <button type="submit" class="btn btn-success btn-action">
