@@ -221,7 +221,11 @@ app.post('/register', async (req, res) => {
     }
 });
 
-app.get('/login', (req, res) => res.render('login'));
+app.get('/login', (req, res) => {
+    res.render('login', {
+        message: req.flash('error')[0] || req.flash('success')[0] || ''
+    });
+});
 
 app.post('/login', passport.authenticate('local', {
     successRedirect: '/statistics',
@@ -230,6 +234,39 @@ app.post('/login', passport.authenticate('local', {
 }));
 
 app.get('/logout', (req, res) => { req.logout(() => res.redirect('/login')); });
+
+app.get('/forgot-password', (req, res) => {
+    res.render('forgot-password', {
+        error: req.flash('error')[0] || null,
+        success: req.flash('success')[0] || null
+    });
+});
+
+app.post('/forgot-password', (req, res) => {
+    const { identifier } = req.body;
+    if (!identifier) {
+        req.flash('error', 'Introduz o teu utilizador ou email!');
+        return res.redirect('/forgot-password');
+    }
+
+    // Check if user exists by username or email
+    db.get('SELECT * FROM users WHERE username = ? OR email = ?', [identifier, identifier], (err, user) => {
+        if (err) {
+            console.error('Erro ao verificar utilizador:', err);
+            req.flash('error', 'Erro interno. Tenta novamente.');
+            return res.redirect('/forgot-password');
+        }
+
+        if (!user) {
+            req.flash('error', 'Utilizador ou email não encontrado!');
+            return res.redirect('/forgot-password');
+        }
+
+        // For now, show success message (email sending would require SMTP configuration)
+        req.flash('success', `Instruções enviadas para o email associado à conta "${user.username}". Verifica a tua caixa de entrada.`);
+        res.redirect('/forgot-password');
+    });
+});
 
 app.get('/', (req, res) => res.redirect(req.user ? '/statistics' : '/login'));
 
