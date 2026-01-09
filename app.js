@@ -560,15 +560,24 @@ app.get('/review', ensureAuth, (req, res) => {
         rows.forEach(row => {
             const date = new Date(row.uploaded_at);
             const timeKey = date.toISOString().slice(0, 10);
-            const key = `${row.species || ''}|${row.variety || ''}|${row.uploaded_by}|${timeKey}`;
+            // Sanitize key for HTML ID: replace | with - and remove spaces/special chars if needed
+            // Also included species and variety in the key to ensure uniqueness per grouping
+            const rawKey = `${row.species || ''}-${row.variety || ''}-${row.uploaded_by}-${timeKey}`;
+            const key = rawKey.replace(/[^a-zA-Z0-9-_]/g, '-');
 
             if (!groups[key]) {
                 groups[key] = {
+                    key: key, // Store the sanitized key for the frontend carousel ID
                     species: row.species || 'Sem espécie',
                     variety: row.variety || '',
                     uploaded_by: row.uploaded_by,
                     uploaded_at: row.uploaded_at,
                     gama_nome: row.gama_nome || 'Não definido',
+                    // Store original values for query links/logic if needed
+                    q_species: row.species,
+                    q_variety: row.variety, // Can be null
+                    q_uploaded_by: row.uploaded_by,
+                    q_upload_day: timeKey,
                     images: []
                 };
             }

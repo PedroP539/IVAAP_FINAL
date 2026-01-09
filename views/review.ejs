@@ -223,12 +223,12 @@
                             <div class="col-md-6 col-lg-4 mb-4">
                                 <div class="review-card">
                                     <% if (group.images && group.images.length> 0) { %>
-                                        <div class="carousel slide" id="carousel-group-<%= groupIndex %>"
-                                            data-ride="carousel" data-interval="false">
+                                        <div class="carousel slide" id="carousel-<%= group.key %>" data-ride="carousel"
+                                            data-interval="false">
                                             <% if (group.images.length> 1) { %>
                                                 <ol class="carousel-indicators">
                                                     <% group.images.forEach((img, i)=> { %>
-                                                        <li data-target="#carousel-group-<%= groupIndex %>"
+                                                        <li data-target="#carousel-<%= group.key %>"
                                                             data-slide-to="<%= i %>"
                                                             class="<%= i === 0 ? 'active' : '' %>"></li>
                                                         <% }); %>
@@ -253,14 +253,14 @@
                                                     </div>
                                                     <% if (group.images.length> 1) { %>
                                                         <a class="carousel-control-prev"
-                                                            href="#carousel-group-<%= groupIndex %>" role="button"
+                                                            href="#carousel-<%= group.key %>" role="button"
                                                             data-slide="prev">
                                                             <span class="carousel-control-prev-icon"
                                                                 aria-hidden="true"></span>
                                                             <span class="sr-only">Anterior</span>
                                                         </a>
                                                         <a class="carousel-control-next"
-                                                            href="#carousel-group-<%= groupIndex %>" role="button"
+                                                            href="#carousel-<%= group.key %>" role="button"
                                                             data-slide="next">
                                                             <span class="carousel-control-next-icon"
                                                                 aria-hidden="true"></span>
