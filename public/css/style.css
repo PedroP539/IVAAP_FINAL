@@ -1,6 +1,93 @@
 @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&display=swap');
 
 /* You can add your custom styles here */
+:root {
+    --bg-body: #d0e8d3;
+    --text-main: #212529;
+    --text-muted: #6c757d;
+    --bg-card: #ffffff;
+    --border-color: #dee2e6;
+    --nav-bg: #219653;
+    --footer-start: #219653;
+    --footer-end: #27ae60;
+    --btn-text: #ffffff;
+    --input-bg: #ffffff;
+    --input-color: #495057;
+    --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="dark"] {
+    --bg-body: #121212;
+    --text-main: #e0e0e0;
+    --text-muted: #b0b3b8;
+    --bg-card: #1e1e1e;
+    --border-color: #333333;
+    --nav-bg: #0f3d1b;
+    --footer-start: #0f3d1b;
+    --footer-end: #14522d;
+    --btn-text: #e0e0e0;
+    --input-bg: #2d2d2d;
+    --input-color: #e0e0e0;
+    --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.5);
+}
+
+/* Dark Mode Overrides for Bootstrap Utilities */
+[data-theme="dark"] .bg-white {
+    background-color: var(--bg-card) !important;
+    color: var(--text-main) !important;
+}
+
+[data-theme="dark"] .bg-light {
+    background-color: #2b2b2b !important;
+    color: var(--text-main) !important;
+}
+
+[data-theme="dark"] .text-dark {
+    color: var(--text-main) !important;
+}
+
+[data-theme="dark"] .text-muted {
+    color: var(--text-muted) !important;
+}
+
+[data-theme="dark"] .table {
+    color: var(--text-main) !important;
+    background-color: var(--bg-card);
+}
+
+[data-theme="dark"] .form-control {
+    background-color: var(--input-bg);
+    color: var(--input-color);
+    border-color: var(--border-color);
+}
+
+[data-theme="dark"] .form-control:focus {
+    background-color: var(--input-bg);
+    color: var(--input-color);
+}
+
+[data-theme="dark"] .list-group-item {
+    background-color: var(--bg-card);
+    color: var(--text-main);
+    border-color: var(--border-color);
+}
+
+[data-theme="dark"] .modal-content {
+    background-color: var(--bg-card);
+    color: var(--text-main);
+}
+
+/* Global Transition */
+body,
+.card,
+.navbar,
+footer,
+input,
+select,
+textarea {
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
 
 
 .info-item {
@@ -62,6 +149,8 @@ body {
     font-size: 14px !important;
     font-optical-sizing: auto;
     font-style: normal !important;
+    background-color: var(--bg-body);
+    color: var(--text-main);
 }
 
 
@@ -130,11 +219,11 @@ img {
 
 h1 {
     font-weight: 500 !important;
-    color: #46812b !important;
+    color: var(--nav-bg) !important;
 }
 
 .dashboard-card {
-    border-left: 5px solid #46812b !important;
+    border-left: 5px solid var(--nav-bg) !important;
 }
 
 .image-container {
@@ -172,7 +261,8 @@ h1 {
 
 .card-body {
     padding: 1.5rem;
-    background: white;
+    background: var(--bg-card);
+    color: var(--text-main);
 }
 
 
@@ -282,7 +372,8 @@ body {
     margin: 0;
     padding: 0;
     font-family: 'Quicksand', sans-serif;
-    background: #d0e8d3;
+    background: var(--bg-body);
+    color: var(--text-main);
 }
 
 body {
@@ -300,7 +391,7 @@ main {
 /* FOOTER STICKY – DESCE COM SCROLL E COLA NA BASE */
 footer {
     flex-shrink: 0;
-    background: linear-gradient(135deg, #219653, #27ae60);
+    background: linear-gradient(135deg, var(--footer-start), var(--footer-end));
     color: white;
     padding: 2rem 0;
     text-align: center;
