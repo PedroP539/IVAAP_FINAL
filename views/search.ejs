@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.4/css/lightbox.min.css">
+    <link rel="stylesheet" href="/css/style.css">
     <style>
         body {
             background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
@@ -177,7 +178,7 @@
                                                 <% } %>
                                                     <% } %>
             </p>
-            <a href="javascript:history.back()" class="btn btn-secondary mt-3 rounded-pill px-4">← Voltar</a>
+            <a href="javascript:history.back()" class="btn-premium btn-premium-secondary mt-3">← Voltar</a>
         </div>
 
         <% if (success) { %>
@@ -231,11 +232,13 @@
                                                 </div>
                                                 <div class="text-center">
                                                     <a href="/details/<%= image.id %>"
-                                                        class="btn btn-info btn-action">Ver Detalhes</a>
+                                                        class="btn-premium btn-premium-sm btn-premium-info">Ver
+                                                        Detalhes</a>
                                                     <% if (image.status !=='pending' ) { %>
                                                         <form action="/review/<%= image.id %>/reinstate" method="POST"
                                                             class="d-inline">
-                                                            <button type="submit" class="btn btn-reinstate btn-action"
+                                                            <button type="submit"
+                                                                class="btn-premium btn-premium-sm btn-premium-warning"
                                                                 onclick="return confirm('Voltar para revisão?')">
                                                                 Rever
                                                             </button>
@@ -262,7 +265,8 @@
                             <div class="no-results">
                                 <i class="fas fa-search fa-3x text-muted mb-3"></i>
                                 <p>Nenhum resultado para a tua pesquisa.</p>
-                                <a href="/" class="btn btn-success btn-lg rounded-pill px-5">Voltar ao Início</a>
+                                <a href="/" class="btn-premium btn-premium-lg btn-premium-success mt-4">Voltar ao
+                                    Início</a>
                             </div>
                             <% } %>
     </main>

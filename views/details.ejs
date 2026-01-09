@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/css/lightbox.min.css">
+    <link rel="stylesheet" href="/css/style.css">
     <style>
         body {
             background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
@@ -45,14 +46,14 @@
         }
 
         .winner-col {
-            
+
             display: flex;
             flex-direction: column
         }
 
         .rejected-row {
             display: flex;
-          
+
             flex-wrap: wrap;
             justify-content: center;
             margin-left: 0rem !important;
@@ -266,7 +267,7 @@
                             class="form-control form-control-lg rounded-pill" id="searchUser" name="user"
                             placeholder="Ex: admin"></div>
                     <div class="col-md-2"><button type="submit"
-                            class="btn btn-success btn-lg rounded-pill w-100 h-100 d-flex.align-items-center.justify-content-center">Pesquisar</button>
+                            class="btn-premium btn-premium-success w-100 h-100">Pesquisar</button>
                     </div>
                 </form>
             </div>
@@ -328,12 +329,12 @@
                                         <% if (showVoteButtons) { %>
                                             <div class="vote-buttons">
                                                 <form action="/approve/<%= img.id %>" method="POST" class="d-inline">
-                                                    <button type="submit" class="btn btn-success btn-action">
+                                                    <button type="submit" class="btn-premium btn-premium-success">
                                                         <i class="fas fa-thumbs-up"></i> APROVAR
                                                     </button>
                                                 </form>
                                                 <form action="/reject/<%= img.id %>" method="POST" class="d-inline">
-                                                    <button type="submit" class="btn btn-danger btn-action">
+                                                    <button type="submit" class="btn-premium btn-premium-danger">
                                                         <i class="fas fa-thumbs-down"></i> REJEITAR
                                                     </button>
                                                 </form>
@@ -366,13 +367,13 @@
                                                 <div class="vote-buttons">
                                                     <form action="/approve/<%= winningImage.id %>" method="POST"
                                                         class="d-inline">
-                                                        <button type="submit" class="btn btn-success btn-action">
+                                                        <button type="submit" class="btn-premium btn-premium-success">
                                                             <i class="fas fa-thumbs-up"></i> APROVAR
                                                         </button>
                                                     </form>
                                                     <form action="/reject/<%= winningImage.id %>" method="POST"
                                                         class="d-inline">
-                                                        <button type="submit" class="btn btn-danger btn-action">
+                                                        <button type="submit" class="btn-premium btn-premium-danger">
                                                             <i class="fas fa-thumbs-down"></i> REJEITAR
                                                         </button>
                                                     </form>
@@ -407,14 +408,14 @@
                                                                     <form action="/approve/<%= img.id %>" method="POST"
                                                                         class="d-inline">
                                                                         <button type="submit"
-                                                                            class="btn btn-success btn-action">
+                                                                            class="btn-premium btn-premium-success">
                                                                             <i class="fas fa-thumbs-up"></i> APROVAR
                                                                         </button>
                                                                     </form>
                                                                     <form action="/reject/<%= img.id %>" method="POST"
                                                                         class="d-inline">
                                                                         <button type="submit"
-                                                                            class="btn btn-danger btn-action">
+                                                                            class="btn-premium btn-premium-danger">
                                                                             <i class="fas fa-thumbs-down"></i> REJEITAR
                                                                         </button>
                                                                     </form>
@@ -500,18 +501,18 @@
                                         <% } %>
                                             <div class="text-center mt-5">
                                                 <a href="/edit/<%= image.id %>"
-                                                    class="btn btn-warning btn-action">Editar</a>
+                                                    class="btn-premium btn-premium-warning">Editar</a>
                                                 <% if (image.status==='pending' && winningImage) { %>
                                                     <form action="/validate-winner/<%= winningImage.id %>" method="POST"
                                                         class="d-inline"
                                                         onsubmit="return confirm('Tem certeza que deseja validar a imagem mais votada e movê-la para aprovadas?');">
-                                                        <button type="submit" class="btn btn-success btn-action">
+                                                        <button type="submit" class="btn-premium btn-premium-success">
                                                             <i class="fas fa-check-circle"></i> Validar Mais Votada
                                                         </button>
                                                     </form>
                                                     <% } %>
                                                         <a href="javascript:history.back()"
-                                                            class="btn btn-secondary btn-action">Voltar</a>
+                                                            class="btn-premium btn-premium-secondary">Voltar</a>
                                             </div>
                 </div>
     </main>

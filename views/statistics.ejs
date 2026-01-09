@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.4/css/lightbox.min.css">
+    <link rel="stylesheet" href="/css/style.css">
     <style>
         body {
             background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
@@ -415,8 +416,7 @@
                             placeholder="Ex: admin" value="">
                     </div>
                     <div class="col-md-2">
-                        <button type="submit"
-                            class="btn btn-success btn-lg rounded-pill w-100 h-100 d-flex align-items-center justify-content-center">Pesquisar</button>
+                        <button type="submit" class="btn-premium btn-premium-success w-100 h-100">Pesquisar</button>
                     </div>
                 </form>
             </div>
@@ -635,7 +635,7 @@
                                                     <%= newMetrics.globalPendingVoted.approvals %>
                                                 </strong> Aprovações</div>
                                             <a href="/details/<%= newMetrics.globalPendingVoted.id %>"
-                                                class="btn btn-sm btn-outline-warning mt-2 rounded-pill">Ver</a>
+                                                class="btn-premium btn-premium-sm btn-premium-warning mt-2">Ver</a>
                                             <% } else { %>
                                                 <p class="text-muted mt-4">Sem dados</p>
                                                 <% } %>
@@ -657,7 +657,7 @@
                                                     <%= newMetrics.globalPendingRejected.rejections %>
                                                 </strong> Rejeições</div>
                                             <a href="/details/<%= newMetrics.globalPendingRejected.id %>"
-                                                class="btn btn-sm btn-outline-danger mt-2 rounded-pill">Ver</a>
+                                                class="btn-premium btn-premium-sm btn-premium-danger mt-2">Ver</a>
                                             <% } else { %>
                                                 <p class="text-muted mt-4">Sem dados</p>
                                                 <% } %>
@@ -679,7 +679,7 @@
                                                     <%= newMetrics.userMostVoted.approvals %>
                                                 </strong> Aprovações</div>
                                             <a href="/details/<%= newMetrics.userMostVoted.id %>"
-                                                class="btn btn-sm btn-outline-success mt-2 rounded-pill">Ver</a>
+                                                class="btn-premium btn-premium-sm btn-premium-success mt-2">Ver</a>
                                             <% } else { %>
                                                 <p class="text-muted mt-4">Sem dados</p>
                                                 <% } %>
@@ -701,7 +701,7 @@
                                                     <%= newMetrics.userMostRejected.rejections %>
                                                 </strong> Rejeições</div>
                                             <a href="/details/<%= newMetrics.userMostRejected.id %>"
-                                                class="btn btn-sm btn-outline-danger mt-2 rounded-pill">Ver</a>
+                                                class="btn-premium btn-premium-sm btn-premium-danger mt-2">Ver</a>
                                             <% } else { %>
                                                 <p class="text-muted mt-4">Sem dados</p>
                                                 <% } %>
@@ -775,7 +775,7 @@
                                                                     </div>
                                                                     <div>
                                                                         <a href="/details/<%= activity.id %>"
-                                                                            class="btn btn-sm btn-outline-success rounded-pill">Ver</a>
+                                                                            class="btn-premium btn-premium-sm btn-premium-success">Ver</a>
                                                                     </div>
                                                                 </div>
                                                                 <% }); %>

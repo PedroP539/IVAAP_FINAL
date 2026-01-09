@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-PT">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,21 +9,108 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.4/css/lightbox.min.css">
+    <link rel="stylesheet" href="/css/style.css">
     <style>
-        body {background:linear-gradient(135deg,#e8f5e9,#c8e6c9);font-family:'Quicksand',sans-serif;min-height:100vh;display:flex;flex-direction:column}
-        .sticky-nav{position:fixed;top:0;width:100%;z-index:1000;background:white}
-        .content{padding:2rem 0;flex:1}
-        .upload-card{background:white;border-radius:20px;box-shadow:0 10px 30px rgba(0,0,0,.15);padding:2.5rem;overflow:hidden}
-        .preview-img{max-width:100%;max-height:250px;border-radius:15px;box-shadow:0 8px 25px rgba(0,0,0,.2);margin:1rem 0;display:none;transition:opacity .4s}
-        .form-control, .form-check-input{border-radius:12px}
-        .form-group label{font-weight:bold;color:#27ae60}
-        .btn-upload{background:linear-gradient(135deg,#27ae60,#2ecc71);border:none;padding:1.2rem 4rem;font-size:1.3rem;border-radius:50px;transition:.3s}
-        .btn-upload:hover{transform:scale(1.05)}
-        .btn-cancel{background:#95a5a6;border:none;padding:1rem 2.5rem;font-size:1.1rem;border-radius:50px}
-        .drop-zone{border:3px dashed #27ae60;border-radius:20px;padding:2rem;text-align:center;background:#f8fff8;transition:all .3s;cursor:pointer;margin-bottom:1rem;height:300px;display:flex;flex-direction:column;justify-content:center}
-        .drop-zone.dragover{background:#e8f5e9;border-color:#2ecc71}
-        .url-input-group{position:relative;margin-top:1rem}
-        .url-input{border-radius:50px!important;padding-right:60px}
+        body {
+            background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+            font-family: 'Quicksand', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column
+        }
+
+        .sticky-nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            background: white
+        }
+
+        .content {
+            padding: 2rem 0;
+            flex: 1
+        }
+
+        .upload-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, .15);
+            padding: 2.5rem;
+            overflow: hidden
+        }
+
+        .preview-img {
+            max-width: 100%;
+            max-height: 250px;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, .2);
+            margin: 1rem 0;
+            display: none;
+            transition: opacity .4s
+        }
+
+        .form-control,
+        .form-check-input {
+            border-radius: 12px
+        }
+
+        .form-group label {
+            font-weight: bold;
+            color: #27ae60
+        }
+
+        .btn-upload {
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            border: none;
+            padding: 1.2rem 4rem;
+            font-size: 1.3rem;
+            border-radius: 50px;
+            transition: .3s
+        }
+
+        .btn-upload:hover {
+            transform: scale(1.05)
+        }
+
+        .btn-cancel {
+            background: #95a5a6;
+            border: none;
+            padding: 1rem 2.5rem;
+            font-size: 1.1rem;
+            border-radius: 50px
+        }
+
+        .drop-zone {
+            border: 3px dashed #27ae60;
+            border-radius: 20px;
+            padding: 2rem;
+            text-align: center;
+            background: #f8fff8;
+            transition: all .3s;
+            cursor: pointer;
+            margin-bottom: 1rem;
+            height: 300px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center
+        }
+
+        .drop-zone.dragover {
+            background: #e8f5e9;
+            border-color: #2ecc71
+        }
+
+        .url-input-group {
+            position: relative;
+            margin-top: 1rem
+        }
+
+        .url-input {
+            border-radius: 50px !important;
+            padding-right: 60px
+        }
+
         .btn-fetch {
             position: absolute;
             right: 0px;
@@ -35,273 +123,371 @@
             width: 38px;
             height: 38px;
         }
-        .btn-fetch:hover{background:#219653}
-        .alert-cors{background:#fff3cd;color:#856404;padding:0.8rem;border-radius:12px;margin:0.5rem 0;display:none}
-        textarea {min-height: 200px;}
-        .shutterstock-group{margin-top:1rem;padding:1rem;background:#f9f9f9;border-radius:12px}
-        .marca-select{margin-top:1rem}
-        .image-info{font-size:0.85rem;color:#666;text-align:center;margin-top:0.5rem}
-        @media (max-width: 768px) {
-            .marca-section {margin-bottom:2rem;}
+
+        .btn-fetch:hover {
+            background: #219653
         }
-        input#searchQuery, input#searchDate, input#searchUser, button.btn.btn-success.btn-lg.rounded-pill.w-100.h-100.d-flex.align-items-center.justify-content-center {
+
+        .alert-cors {
+            background: #fff3cd;
+            color: #856404;
+            padding: 0.8rem;
+            border-radius: 12px;
+            margin: 0.5rem 0;
+            display: none
+        }
+
+        textarea {
+            min-height: 200px;
+        }
+
+        .shutterstock-group {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: #f9f9f9;
+            border-radius: 12px
+        }
+
+        .marca-select {
+            margin-top: 1rem
+        }
+
+        .image-info {
+            font-size: 0.85rem;
+            color: #666;
+            text-align: center;
+            margin-top: 0.5rem
+        }
+
+        @media (max-width: 768px) {
+            .marca-section {
+                margin-bottom: 2rem;
+            }
+        }
+
+        input#searchQuery,
+        input#searchDate,
+        input#searchUser,
+        button.btn.btn-success.btn-lg.rounded-pill.w-100.h-100.d-flex.align-items-center.justify-content-center {
             font-size: 1rem;
         }
     </style>
 </head>
+
 <body>
-<header class="fixed-top">
-    <div class="bg-success text-white text-center py-3">
-        <% if (user) { %>
-            <strong>Olá <%= user.nome %> <%= user.apelido || '' %></strong>
-            — último login: <%= new Date().toLocaleString('pt-PT', {day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit'}) %>
-        <% } else { %>
-            <strong>Bem-vindo ao IVAAP</strong>
-        <% } %>
-    </div>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
-        <a class="navbar-brand font-weight-bold" href="/">IVAAP</a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav mx-auto">
-                <li class="nav-item"><a class="nav-link" href="/upload"><i class="fa-solid fa-upload"></i> CARREGAR</a></li>
-                <li class="nav-item"><a class="nav-link" href="/review"><i class="fa-solid fa-pencil"></i> REVER</a></li>
-                <li class="nav-item"><a class="nav-link" href="/approved"><i class="fa-solid fa-thumbs-up"></i> APROVADAS</a></li>
-                <li class="nav-item"><a class="nav-link" href="/rejected"><i class="fa-solid fa-thumbs-down"></i> REJEITADAS</a></li>
-                <li class="nav-item"><a class="nav-link" href="/statistics"><i class="fa-solid fa-bolt"></i> ESTATÍSTICAS</a></li>
-                <li class="nav-item"><a class="nav-link" href="/logout"><i class="fa-solid fa-right-from-bracket"></i> SAIR</a></li>
-            </ul>
+    <header class="fixed-top">
+        <div class="bg-success text-white text-center py-3">
+            <% if (user) { %>
+                <strong>Olá <%= user.nome %>
+                        <%= user.apelido || '' %></strong>
+                — último login: <%= new Date().toLocaleString('pt-PT', {day:'2-digit', month:'2-digit', year:'numeric',
+                    hour:'2-digit', minute:'2-digit'}) %>
+                    <% } else { %>
+                        <strong>Bem-vindo ao IVAAP</strong>
+                        <% } %>
         </div>
-    </nav>
-</header>
-<br><br><br><br>
-<div class="container mt-4 mb-3">
-    <div class="card border-0 shadow-sm" style="border-radius: 20px;">
-        <div class="card-body p-4">
-            <form id="searchForm" action="/search" method="GET" class="row g-3 align-items-end">
-                <div class="col-md-4">
-                    <label for="searchQuery" class="form-label text-success font-weight-bold">Nome da Planta</label>
-                    <input type="text" class="form-control form-control-lg rounded-pill" id="searchQuery" name="q" placeholder="Ex: Tomate, Rosa...">
-                </div>
-                <div class="col-md-3">
-                    <label for="searchDate" class="form-label text-success font-weight-bold">Data</label>
-                    <input type="date" class="form-control form-control-lg rounded-pill" id="searchDate" name="date">
-                </div>
-                <div class="col-md-3">
-                    <label for="searchUser" class="form-label text-success font-weight-bold">Utilizador</label>
-                    <input type="text" class="form-control form-control-lg rounded-pill" id="searchUser" name="user" placeholder="Ex: admin">
-                </div>
-                <div class="col-md-2">
-                    <button type="submit" class="btn btn-success btn-lg rounded-pill w-100 h-100 d-flex align-items-center justify-content-center">Pesquisar</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-<main class="container content">
-    <div class="text-center mb-4">
-        <h2 style="color:#27ae60;font-weight:bold">CARREGAR IMAGENS</h2>
-    </div>
-    <% if (error) { %>
-        <div class="alert alert-danger text-center"><%= error %></div>
-    <% } %>
-    <div class="upload-card">
-        <form action="/upload" method="POST" enctype="multipart/form-data" id="uploadForm">
-            <div class="row">
-                <% for(let index = 0; index < 3; index++) { %>
+        <nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
+            <a class="navbar-brand font-weight-bold" href="/">IVAAP</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav mx-auto">
+                    <li class="nav-item"><a class="nav-link" href="/upload"><i class="fa-solid fa-upload"></i>
+                            CARREGAR</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/review"><i class="fa-solid fa-pencil"></i> REVER</a>
+                    </li>
+                    <li class="nav-item"><a class="nav-link" href="/approved"><i class="fa-solid fa-thumbs-up"></i>
+                            APROVADAS</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/rejected"><i class="fa-solid fa-thumbs-down"></i>
+                            REJEITADAS</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/statistics"><i class="fa-solid fa-bolt"></i>
+                            ESTATÍSTICAS</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/logout"><i
+                                class="fa-solid fa-right-from-bracket"></i> SAIR</a></li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+    <br><br><br><br>
+    <div class="container mt-4 mb-3">
+        <div class="card border-0 shadow-sm" style="border-radius: 20px;">
+            <div class="card-body p-4">
+                <form id="searchForm" action="/search" method="GET" class="row g-3 align-items-end">
                     <div class="col-md-4">
-                        <div class="marca-section">
-                            <h4 class="marca-title">IMAGEM <%= index + 1 %></h4>
-                            <div class="drop-zone" id="dropZone<%= index %>">
-                                <i class="fas fa-cloud-upload-alt fa-4x text-success mb-3"></i>
-                                <p><strong>Arraste ou clique</strong></p>
-                                <input type="file" name="image<%= index %>" id="imageInput<%= index %>" accept="image/*" style="display:none">
-                                <button type="button" class="btn btn-success rounded-pill px-4 mt-2" onclick="document.getElementById('imageInput<%= index %>').click()">
-                                    SELECIONAR
-                                </button>
-                            </div>
-                            <div class="url-input-group">
-                                <input type="url" id="imageUrl<%= index %>" class="form-control url-input" placeholder="Ou cola URL" />
-                                <button type="button" class="btn btn-fetch" id="fetchBtn<%= index %>">
-                                    <i class="fas fa-arrow-down"></i>
-                                </button>
-                            </div>
-                            <div class="alert alert-cors text-center" id="corsAlert<%= index %>">Erro ao carregar imagem. Tenta outra URL ou upload local.</div>
-                            <img id="preview<%= index %>" class="preview-img" alt="Pré-visualização">
-                            <p class="image-info" id="imageInfo<%= index %>" style="display:none;"></p>
-                          
-                            <!-- SELEÇÃO DE MARCA -->
-                            <div class="marca-select">
-                                <label for="marca_id<%= index %>"><i class="fas fa-tag"></i> Marca</label>
-                                <select name="marca_id<%= index %>" id="marca_id<%= index %>" class="form-control">
-                                    <option value="">Marca ainda não associada</option>
-                                    <% if (marcas && marcas.length > 0) { %>
-                                        <% marcas.forEach(marca => { %>
-                                            <option value="<%= marca.id %>"><%= marca.nome %></option>
-                                        <% }); %>
-                                    <% } %>
-                                </select>
-                            </div>
-                          
-                            <input type="hidden" name="imageFromUrl<%= index %>" id="imageFromUrl<%= index %>" value="">
-                            <!-- SHUTTERSTOCK POR IMAGEM -->
-                            <div class="shutterstock-group">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" name="shutterstock<%= index %>" id="shutterstock<%= index %>">
-                                    <label class="form-check-label" for="shutterstock<%= index %>">
-                                        Shutterstock
-                                    </label>
+                        <label for="searchQuery" class="form-label text-success font-weight-bold">Nome da Planta</label>
+                        <input type="text" class="form-control form-control-lg rounded-pill" id="searchQuery" name="q"
+                            placeholder="Ex: Tomate, Rosa...">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="searchDate" class="form-label text-success font-weight-bold">Data</label>
+                        <input type="date" class="form-control form-control-lg rounded-pill" id="searchDate"
+                            name="date">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="searchUser" class="form-label text-success font-weight-bold">Utilizador</label>
+                        <input type="text" class="form-control form-control-lg rounded-pill" id="searchUser" name="user"
+                            placeholder="Ex: admin">
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn-premium btn-premium-success w-100 h-100">Pesquisar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <main class="container content">
+        <div class="text-center mb-4">
+            <h2 style="color:#27ae60;font-weight:bold">CARREGAR IMAGENS</h2>
+        </div>
+        <% if (error) { %>
+            <div class="alert alert-danger text-center">
+                <%= error %>
+            </div>
+            <% } %>
+                <div class="upload-card">
+                    <form action="/upload" method="POST" enctype="multipart/form-data" id="uploadForm">
+                        <div class="row">
+                            <% for(let index=0; index < 3; index++) { %>
+                                <div class="col-md-4">
+                                    <div class="marca-section">
+                                        <h4 class="marca-title">IMAGEM <%= index + 1 %>
+                                        </h4>
+                                        <div class="drop-zone" id="dropZone<%= index %>">
+                                            <i class="fas fa-cloud-upload-alt fa-4x text-success mb-3"></i>
+                                            <p><strong>Arraste ou clique</strong></p>
+                                            <input type="file" name="image<%= index %>" id="imageInput<%= index %>"
+                                                accept="image/*" style="display:none">
+                                            <button type="button"
+                                                class="btn-premium btn-premium-sm btn-premium-success mt-2"
+                                                onclick="document.getElementById('imageInput<%= index %>').click()">
+                                                SELECIONAR
+                                            </button>
+                                        </div>
+                                        <div class="url-input-group">
+                                            <input type="url" id="imageUrl<%= index %>" class="form-control url-input"
+                                                placeholder="Ou cola URL" />
+                                            <button type="button" class="btn btn-fetch" id="fetchBtn<%= index %>">
+                                                <i class="fas fa-arrow-down"></i>
+                                            </button>
+                                        </div>
+                                        <div class="alert alert-cors text-center" id="corsAlert<%= index %>">Erro ao
+                                            carregar imagem. Tenta outra URL ou upload local.</div>
+                                        <img id="preview<%= index %>" class="preview-img" alt="Pré-visualização">
+                                        <p class="image-info" id="imageInfo<%= index %>" style="display:none;"></p>
+
+                                        <!-- SELEÇÃO DE MARCA -->
+                                        <div class="marca-select">
+                                            <label for="marca_id<%= index %>"><i class="fas fa-tag"></i> Marca</label>
+                                            <select name="marca_id<%= index %>" id="marca_id<%= index %>"
+                                                class="form-control">
+                                                <option value="">Marca ainda não associada</option>
+                                                <% if (marcas && marcas.length> 0) { %>
+                                                    <% marcas.forEach(marca=> { %>
+                                                        <option value="<%= marca.id %>">
+                                                            <%= marca.nome %>
+                                                        </option>
+                                                        <% }); %>
+                                                            <% } %>
+                                            </select>
+                                        </div>
+
+                                        <input type="hidden" name="imageFromUrl<%= index %>"
+                                            id="imageFromUrl<%= index %>" value="">
+                                        <!-- SHUTTERSTOCK POR IMAGEM -->
+                                        <div class="shutterstock-group">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox"
+                                                    name="shutterstock<%= index %>" id="shutterstock<%= index %>">
+                                                <label class="form-check-label" for="shutterstock<%= index %>">
+                                                    Shutterstock
+                                                </label>
+                                            </div>
+                                            <div class="form-group mt-2">
+                                                <label for="shutterstock_info<%= index %>">ID / Info
+                                                    Shutterstock</label>
+                                                <input type="text" name="shutterstock_info<%= index %>"
+                                                    id="shutterstock_info<%= index %>" class="form-control"
+                                                    placeholder="Ex: ID 123456789">
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="form-group mt-2">
-                                    <label for="shutterstock_info<%= index %>">ID / Info Shutterstock</label>
-                                    <input type="text" name="shutterstock_info<%= index %>" id="shutterstock_info<%= index %>" class="form-control" placeholder="Ex: ID 123456789">
+                                <% } %>
+                        </div>
+                        <hr class="my-5">
+                        <!-- CAMPO GAMA -->
+                        <div class="form-group">
+                            <label for="gama_id">Gama</label>
+                            <select name="gama_id" id="gama_id" class="form-control">
+                                <option value="">Nenhuma / Não definido</option>
+                                <% if (gamas && gamas.length> 0) { %>
+                                    <% gamas.forEach(gama=> { %>
+                                        <option value="<%= gama.id %>">
+                                            <%= gama.nome %>
+                                        </option>
+                                        <% }); %>
+                                            <% } %>
+                            </select>
+                        </div>
+                        <!-- CAMPOS COMUNS -->
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Espécie *</label>
+                                    <input type="text" name="species" class="form-control" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Variedade</label>
+                                    <input type="text" name="variety" class="form-control">
                                 </div>
                             </div>
                         </div>
-                    </div>
-                <% } %>
-            </div>
-            <hr class="my-5">
-            <!-- CAMPO GAMA -->
-            <div class="form-group">
-                <label for="gama_id">Gama</label>
-                <select name="gama_id" id="gama_id" class="form-control">
-                    <option value="">Nenhuma / Não definido</option>
-                    <% if (gamas && gamas.length > 0) { %>
-                        <% gamas.forEach(gama => { %>
-                            <option value="<%= gama.id %>"><%= gama.nome %></option>
-                        <% }); %>
-                    <% } %>
-                </select>
-            </div>
-            <!-- CAMPOS COMUNS -->
-            <div class="row">
-                <div class="col-md-6">
-                    <div class="form-group">
-                        <label>Espécie *</label>
-                        <input type="text" name="species" class="form-control" required>
-                    </div>
+                        <div class="form-group">
+                            <label>Nome Botânico</label>
+                            <input type="text" name="botanical_name" class="form-control">
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group"><label>Origem</label><input type="text" name="origem"
+                                        class="form-control"></div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group"><label>Colheita/Floração</label><input type="text"
+                                        name="colheitaFloracao" class="form-control"></div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group"><label>Exposição Solar</label><input type="text"
+                                        name="exposicaoSolar" class="form-control"></div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group"><label>Rega</label><input type="text" name="rega"
+                                        class="form-control"></div>
+                            </div>
+                        </div>
+                        <div class="form-group"><label>Profundidade Sementeira</label><input type="text"
+                                name="profundidadeSementeira" class="form-control"></div>
+                        <div class="form-group"><label>Sementeira Direta</label>
+                            <div class="form-check"><input class="form-check-input" type="checkbox"
+                                    name="sementeiraDireta"><label class="form-check-label">Sim</label></div>
+                        </div>
+                        <div class="form-group"><label>Sementeira Alfobre</label>
+                            <div class="form-check"><input class="form-check-input" type="checkbox"
+                                    name="sementeiraAlfobre"><label class="form-check-label">Sim</label></div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group"><label>Sementeira (mês)</label><input type="text"
+                                        name="sementeira" class="form-control"></div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group"><label>Transplante (mês)</label><input type="text"
+                                        name="transplante" class="form-control"></div>
+                            </div>
+                        </div>
+                        <div class="form-group"><label>Compasso</label><input type="text" name="compasso"
+                                class="form-control"></div>
+                        <div class="form-group"><label>Características</label><textarea name="caracteristicas"
+                                class="form-control" rows="3"></textarea></div>
+                        <div class="form-group"><label>Conselhos de Cultivo</label><textarea name="conselhos_de_cultivo"
+                                class="form-control" rows="4"></textarea></div>
+                        <div class="form-group"><label>Comentários</label><textarea name="comentarios"
+                                class="form-control" rows="3"></textarea></div>
+                        <div class="text-center mt-5">
+                            <button type="submit" class="btn-premium btn-premium-lg btn-premium-success">CARREGAR
+                                IMAGENS</button>
+                            <a href="/statistics"
+                                class="btn-premium btn-premium-lg btn-premium-secondary ml-3">CANCELAR</a>
+                        </div>
+                    </form>
                 </div>
-                <div class="col-md-6">
-                    <div class="form-group">
-                        <label>Variedade</label>
-                        <input type="text" name="variety" class="form-control">
-                    </div>
-                </div>
-            </div>
-            <div class="form-group">
-                <label>Nome Botânico</label>
-                <input type="text" name="botanical_name" class="form-control">
-            </div>
-            <div class="row">
-                <div class="col-md-6"><div class="form-group"><label>Origem</label><input type="text" name="origem" class="form-control"></div></div>
-                <div class="col-md-6"><div class="form-group"><label>Colheita/Floração</label><input type="text" name="colheitaFloracao" class="form-control"></div></div>
-            </div>
-            <div class="row">
-                <div class="col-md-6"><div class="form-group"><label>Exposição Solar</label><input type="text" name="exposicaoSolar" class="form-control"></div></div>
-                <div class="col-md-6"><div class="form-group"><label>Rega</label><input type="text" name="rega" class="form-control"></div></div>
-            </div>
-            <div class="form-group"><label>Profundidade Sementeira</label><input type="text" name="profundidadeSementeira" class="form-control"></div>
-            <div class="form-group"><label>Sementeira Direta</label><div class="form-check"><input class="form-check-input" type="checkbox" name="sementeiraDireta"><label class="form-check-label">Sim</label></div></div>
-            <div class="form-group"><label>Sementeira Alfobre</label><div class="form-check"><input class="form-check-input" type="checkbox" name="sementeiraAlfobre"><label class="form-check-label">Sim</label></div></div>
-            <div class="row">
-                <div class="col-md-6"><div class="form-group"><label>Sementeira (mês)</label><input type="text" name="sementeira" class="form-control"></div></div>
-                <div class="col-md-6"><div class="form-group"><label>Transplante (mês)</label><input type="text" name="transplante" class="form-control"></div></div>
-            </div>
-            <div class="form-group"><label>Compasso</label><input type="text" name="compasso" class="form-control"></div>
-            <div class="form-group"><label>Características</label><textarea name="caracteristicas" class="form-control" rows="3"></textarea></div>
-            <div class="form-group"><label>Conselhos de Cultivo</label><textarea name="conselhos_de_cultivo" class="form-control" rows="4"></textarea></div>
-            <div class="form-group"><label>Comentários</label><textarea name="comentarios" class="form-control" rows="3"></textarea></div>
-            <div class="text-center mt-5">
-                <button type="submit" class="btn btn-upload text-white">CARREGAR IMAGENS</button>
-                <a href="/statistics" class="btn btn-cancel text-white ml-3">CANCELAR</a>
-            </div>
-        </form>
-    </div>
-</main>
-<footer class="mt-5 py-4 text-center bg-light">
-    <p class="mb-0">FLORA LUSITANA - © 2025 IVAAP_2 - V. 6.9.21</p>
-</footer>
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.4/js/lightbox.min.js"></script>
-<script>
-    <% for(let index = 0; index < 3; index++) { %>
+    </main>
+    <footer class="mt-5 py-4 text-center bg-light">
+        <p class="mb-0">FLORA LUSITANA - © 2025 IVAAP_2 - V. 6.9.21</p>
+    </footer>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.4/js/lightbox.min.js"></script>
+    <script>
+    <% for (let index = 0; index < 3; index++) { %>
         const dropZone<%= index %> = document.getElementById('dropZone<%= index %>');
-        const imageInput<%= index %> = document.getElementById('imageInput<%= index %>');
-        const preview<%= index %> = document.getElementById('preview<%= index %>');
-        const imageUrl<%= index %> = document.getElementById('imageUrl<%= index %>');
-        const fetchBtn<%= index %> = document.getElementById('fetchBtn<%= index %>');
-        const corsAlert<%= index %> = document.getElementById('corsAlert<%= index %>');
-        const imageFromUrl<%= index %> = document.getElementById('imageFromUrl<%= index %>');
-        const imageInfo<%= index %> = document.getElementById('imageInfo<%= index %>');
-        ['dragover', 'dragenter'].forEach(evt => dropZone<%= index %>.addEventListener(evt, e => { e.preventDefault(); dropZone<%= index %>.classList.add('dragover'); }));
-        ['dragleave', 'dragend'].forEach(evt => dropZone<%= index %>.addEventListener(evt, e => { e.preventDefault(); dropZone<%= index %>.classList.remove('dragover'); }));
-        dropZone<%= index %>.addEventListener('drop', e => {
-            e.preventDefault(); dropZone<%= index %>.classList.remove('dragover');
-            if (e.dataTransfer.files.length) {
-                imageInput<%= index %>.files = e.dataTransfer.files;
-                handleFile<%= index %>(e.dataTransfer.files[0]);
-                imageUrl<%= index %>.value = ''; imageFromUrl<%= index %>.value = '';
+            const imageInput<%= index %> = document.getElementById('imageInput<%= index %>');
+            const preview<%= index %> = document.getElementById('preview<%= index %>');
+            const imageUrl<%= index %> = document.getElementById('imageUrl<%= index %>');
+            const fetchBtn<%= index %> = document.getElementById('fetchBtn<%= index %>');
+            const corsAlert<%= index %> = document.getElementById('corsAlert<%= index %>');
+            const imageFromUrl<%= index %> = document.getElementById('imageFromUrl<%= index %>');
+            const imageInfo<%= index %> = document.getElementById('imageInfo<%= index %>');
+            ['dragover', 'dragenter'].forEach(evt => dropZone <%= index %>.addEventListener(evt, e => { e.preventDefault(); dropZone <%= index %>.classList.add('dragover'); }));
+            ['dragleave', 'dragend'].forEach(evt => dropZone <%= index %>.addEventListener(evt, e => { e.preventDefault(); dropZone <%= index %>.classList.remove('dragover'); }));
+            dropZone <%= index %>.addEventListener('drop', e => {
+                e.preventDefault(); dropZone <%= index %>.classList.remove('dragover');
+                if (e.dataTransfer.files.length) {
+                    imageInput <%= index %>.files = e.dataTransfer.files;
+                    handleFile <%= index %> (e.dataTransfer.files[0]);
+                    imageUrl <%= index %>.value = ''; imageFromUrl <%= index %>.value = '';
+                }
+            });
+            imageInput <%= index %>.addEventListener('change', e => {
+                if (e.target.files.length) {
+                    handleFile <%= index %> (e.target.files[0]);
+                    imageUrl <%= index %>.value = ''; imageFromUrl <%= index %>.value = '';
+                }
+            });
+            function handleFile<%= index %> (file) {
+                if (file && file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = e => {
+                        preview <%= index %>.src = e.target.result;
+                        preview <%= index %>.style.display = 'block';
+                        corsAlert <%= index %>.style.display = 'none';
+                        imageInfo <%= index %>.style.display = 'block';
+                        imageInfo <%= index %>.innerHTML = '<i class="fas fa-check-circle text-success"></i> Imagem carregada: ' + file.name;
+                    };
+                    reader.readAsDataURL(file);
+                }
             }
-        });
-        imageInput<%= index %>.addEventListener('change', e => {
-            if (e.target.files.length) {
-                handleFile<%= index %>(e.target.files[0]);
-                imageUrl<%= index %>.value = ''; imageFromUrl<%= index %>.value = '';
-            }
-        });
-        function handleFile<%= index %>(file) {
-            if (file && file.type.startsWith('image/')) {
-                const reader = new FileReader();
-                reader.onload = e => {
-                    preview<%= index %>.src = e.target.result;
-                    preview<%= index %>.style.display = 'block';
-                    corsAlert<%= index %>.style.display = 'none';
-                    imageInfo<%= index %>.style.display = 'block';
-                    imageInfo<%= index %>.innerHTML = '<i class="fas fa-check-circle text-success"></i> Imagem carregada: ' + file.name;
+            fetchBtn <%= index %>.addEventListener('click', () => fetchUrl <%= index %> ());
+            imageUrl <%= index %>.addEventListener('keypress', e => { if (e.key === 'Enter') { e.preventDefault(); fetchUrl <%= index %> (); } });
+            function fetchUrl<%= index %> () {
+                const url = imageUrl <%= index %>.value.trim();
+                if (!url) return;
+                corsAlert <%= index %>.style.display = 'none';
+                const proxyUrl = '/proxy?url=' + encodeURIComponent(url);
+                preview <%= index %>.src = proxyUrl;
+                preview <%= index %>.style.display = 'block';
+                imageFromUrl <%= index %>.value = url;
+                imageInput <%= index %>.value = '';
+                preview <%= index %>.onload = () => {
+                    imageInfo <%= index %>.style.display = 'block';
+                    imageInfo <%= index %>.innerHTML = '<i class="fas fa-check-circle text-success"></i> URL carregada';
                 };
-                reader.readAsDataURL(file);
+                preview <%= index %>.onerror = () => {
+                    corsAlert <%= index %>.style.display = 'block';
+                    imageFromUrl <%= index %>.value = '';
+                    preview <%= index %>.src = '';
+                    preview <%= index %>.style.display = 'none';
+                    imageInfo <%= index %>.style.display = 'none';
+                };
             }
-        }
-        fetchBtn<%= index %>.addEventListener('click', () => fetchUrl<%= index %>());
-        imageUrl<%= index %>.addEventListener('keypress', e => { if (e.key === 'Enter') { e.preventDefault(); fetchUrl<%= index %>(); } });
-        function fetchUrl<%= index %>() {
-            const url = imageUrl<%= index %>.value.trim();
-            if (!url) return;
-            corsAlert<%= index %>.style.display = 'none';
-            const proxyUrl = '/proxy?url=' + encodeURIComponent(url);
-            preview<%= index %>.src = proxyUrl;
-            preview<%= index %>.style.display = 'block';
-            imageFromUrl<%= index %>.value = url;
-            imageInput<%= index %>.value = '';
-            preview<%= index %>.onload = () => {
-                imageInfo<%= index %>.style.display = 'block';
-                imageInfo<%= index %>.innerHTML = '<i class="fas fa-check-circle text-success"></i> URL carregada';
-            };
-            preview<%= index %>.onerror = () => {
-                corsAlert<%= index %>.style.display = 'block';
-                imageFromUrl<%= index %>.value = '';
-                preview<%= index %>.src = '';
-                preview<%= index %>.style.display = 'none';
-                imageInfo<%= index %>.style.display = 'none';
-            };
-        }
     <% } %>
-    document.getElementById('uploadForm').addEventListener('submit', function(e) {
-        let hasImage = false;
-        <% for(let index = 0; index < 3; index++) { %>
+            document.getElementById('uploadForm').addEventListener('submit', function (e) {
+                let hasImage = false;
+        <% for (let index = 0; index < 3; index++) { %>
             if (document.getElementById('imageInput<%= index %>').files.length || document.getElementById('imageFromUrl<%= index %>').value) {
-                hasImage = true;
-            }
+                        hasImage = true;
+                    }
         <% } %>
         if (!hasImage) {
-            e.preventDefault();
-            alert('Carrega pelo menos uma imagem!');
-        }
-    });
-</script>
+                    e.preventDefault();
+                    alert('Carrega pelo menos uma imagem!');
+                }
+            });
+    </script>
 </body>
+
 </html>

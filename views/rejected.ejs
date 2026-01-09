@@ -10,6 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;700&display=swap" rel="stylesheet">
     <!-- LIGHTBOX CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.4/css/lightbox.min.css">
+    <link rel="stylesheet" href="/css/style.css">
     <style>
         body {
             background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
@@ -289,8 +290,7 @@
                             placeholder="Ex: admin">
                     </div>
                     <div class="col-md-2">
-                        <button type="submit"
-                            class="btn btn-success btn-lg rounded-pill w-100 h-100 d-flex align-items-center justify-content-center">Pesquisar</button>
+                        <button type="submit" class="btn-premium btn-premium-success w-100 h-100">Pesquisar</button>
                     </div>
                 </form>
             </div>
@@ -399,7 +399,7 @@
                                                         </p>
                                                         <div class="btn-group-inline">
                                                             <a href="/details/<%= group.sample_id %>"
-                                                                class="btn btn-view action-btn">Ver</a>
+                                                                class="btn-premium btn-premium-sm btn-premium-info">Ver</a>
                                                         </div>
 
                                                         <!-- Botão Remover da DB - só aparece para admin ou quem carregou -->
@@ -411,7 +411,7 @@
                                                                         method="POST" class="d-inline"
                                                                         style="display:inline;">
                                                                         <button type="submit"
-                                                                            class="btn btn-danger btn-sm btn-action"
+                                                                            class="btn-premium btn-premium-sm btn-premium-danger"
                                                                             onclick="return confirm('⚠️ Tens a certeza que queres apagar esta imagem PERMANENTEMENTE da base de dados?\nEsta ação não pode ser desfeita.');">
                                                                             <i class="fas fa-trash-alt"></i> REMOVER
                                                                             IMAGEM DA DB

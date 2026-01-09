@@ -1,5 +1,6 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="pt-PT">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,6 +9,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.4/css/lightbox.min.css">
+    <link rel="stylesheet" href="/css/style.css">
     <style>
         body {
             background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
@@ -303,8 +305,7 @@
                             placeholder="Ex: admin">
                     </div>
                     <div class="col-md-2">
-                        <button type="submit"
-                            class="btn btn-success btn-lg rounded-pill w-100 h-100 d-flex align-items-center justify-content-center">Pesquisar</button>
+                        <button type="submit" class="btn-premium btn-premium-success w-100 h-100">Pesquisar</button>
                     </div>
                 </form>
             </div>
@@ -403,10 +404,11 @@
                                                                         </span>
                                                             </p>
                                                             <div class="btn-group-inline">
-                                                                <button class="btn btn-success action-btn"
+                                                                <button
+                                                                    class="btn-premium btn-premium-sm btn-premium-success"
                                                                     disabled>APROVADA</button>
                                                                 <a href="/details/<%= image.id %>"
-                                                                    class="btn btn-view action-btn">VER</a>
+                                                                    class="btn-premium btn-premium-sm btn-premium-info">VER</a>
                                                             </div>
 
                                                             <!-- Botão Remover da DB - só aparece para admin ou quem carregou -->
@@ -417,7 +419,7 @@
                                                                         method="POST" class="d-inline"
                                                                         style="display:inline;">
                                                                         <button type="submit"
-                                                                            class="btn btn-danger btn-sm btn-action"
+                                                                            class="btn-premium btn-premium-sm btn-premium-danger"
                                                                             onclick="return confirm('⚠️ Tens a certeza que queres apagar esta imagem PERMANENTEMENTE da base de dados?\nEsta ação não pode ser desfeita.');">
                                                                             <i class="fas fa-trash-alt"></i> REMOVER DA
                                                                             DB
@@ -437,7 +439,7 @@
                                                                 <i class="fas fa-inbox fa-3x mb-3 text-muted"></i>
                                                                 <p class="text-muted">Nenhuma imagem aprovada ainda.</p>
                                                                 <a href="/review"
-                                                                    class="btn btn-warning rounded-pill px-4 mt-3">
+                                                                    class="btn-premium btn-premium-warning mt-3">
                                                                     <i class="fas fa-search"></i> REVER PENDENTES
                                                                 </a>
                                                             </div>

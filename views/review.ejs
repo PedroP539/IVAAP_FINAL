@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="pt-PT">
-<head> 
+
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>IVAAP - Rever Imagens Pendentes</title>
@@ -8,194 +9,353 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.4/css/lightbox.min.css">
+    <link rel="stylesheet" href="/css/style.css">
     <style>
-        body {background:linear-gradient(135deg,#e8f5e9,#c8e6c9);font-family:'Quicksand',sans-serif;min-height:100vh;display:flex;flex-direction:column}
-        .sticky-nav{position:fixed;top:0;width:100%;z-index:1000;background:white}
-        .content{padding:2rem 0;flex:1}
-        .review-card{background:white;border-radius:20px;box-shadow:0 10px 30px rgba(0,0,0,.15);overflow:hidden;transition:transform .2s;margin-bottom:1.5rem; min-height: 580px;}
-        .review-card:hover{transform:translateY(-5px);}
-        .carousel-img{height:260px;object-fit:cover;width:100%;border-radius:20px 20px 0 0}
-        .pending-badge{background:#ffc107;color:#212529;padding:0.5rem 1.2rem;border-radius:50px;font-weight:bold}
-        .btn-details{background:#16a085;color:white;padding:0.8rem 2rem;border-radius:50px;font-weight:bold}
-        .btn-danger{background:#dc3545;color:white;padding:0.8rem 2rem;border-radius:50px;font-weight:bold}
-        .carousel-indicators {bottom: -45px !important;}
-        .carousel-indicators li {background-color:#999;}
-        .carousel-indicators .active {background-color:#27ae60;}
-        .especie {font-size: 1.65rem;background: #27AE60;background: repeating-linear-gradient(to top right, #27AE60 0%, #1C8247 100%);-webkit-background-clip: text;-webkit-text-fill-color: transparent;}
-        .variedade {font-size: 1.25rem !important;color:#1c8247 !important;font-weight: 300 !important;}
-        .vote-badge {position: absolute;top: 10px;right: 10px;background: #27ae60;color: white;width: 40px;height: 40px;border-radius: 50%;display: flex;align-items: center;justify-content: center;font-weight: bold;font-size: 1.1rem;box-shadow: 0 4px 10px rgba(0,0,0,0.3);z-index: 10;}
-        .carousel-item {position: relative;}
-        input#searchQuery, input#searchDate, input#searchUser, button.btn.btn-success.btn-lg.rounded-pill.w-100.h-100.d-flex.align-items-center.justify-content-center {
+        body {
+            background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+            font-family: 'Quicksand', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column
+        }
+
+        .sticky-nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            background: white
+        }
+
+        .content {
+            padding: 2rem 0;
+            flex: 1
+        }
+
+        .review-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, .15);
+            overflow: hidden;
+            transition: transform .2s;
+            margin-bottom: 1.5rem;
+            min-height: 580px;
+        }
+
+        .review-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .carousel-img {
+            height: 260px;
+            object-fit: cover;
+            width: 100%;
+            border-radius: 20px 20px 0 0
+        }
+
+        .pending-badge {
+            background: #ffc107;
+            color: #212529;
+            padding: 0.5rem 1.2rem;
+            border-radius: 50px;
+            font-weight: bold
+        }
+
+        .btn-details {
+            background: #16a085;
+            color: white;
+            padding: 0.8rem 2rem;
+            border-radius: 50px;
+            font-weight: bold
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+            padding: 0.8rem 2rem;
+            border-radius: 50px;
+            font-weight: bold
+        }
+
+        .carousel-indicators {
+            bottom: -45px !important;
+        }
+
+        .carousel-indicators li {
+            background-color: #999;
+        }
+
+        .carousel-indicators .active {
+            background-color: #27ae60;
+        }
+
+        .especie {
+            font-size: 1.65rem;
+            background: #27AE60;
+            background: repeating-linear-gradient(to top right, #27AE60 0%, #1C8247 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .variedade {
+            font-size: 1.25rem !important;
+            color: #1c8247 !important;
+            font-weight: 300 !important;
+        }
+
+        .vote-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #27ae60;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.1rem;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            z-index: 10;
+        }
+
+        .carousel-item {
+            position: relative;
+        }
+
+        input#searchQuery,
+        input#searchDate,
+        input#searchUser,
+        button.btn.btn-success.btn-lg.rounded-pill.w-100.h-100.d-flex.align-items-center.justify-content-center {
             font-size: 1rem;
         }
-        .carousel-control-prev-icon, .carousel-control-next-icon {
-            filter: brightness(0); /* Makes them completely black */
+
+        .carousel-control-prev-icon,
+        .carousel-control-next-icon {
+            filter: brightness(0);
+            /* Makes them completely black */
         }
     </style>
 </head>
+
 <body>
-<header class="fixed-top">
-    <div class="bg-success text-white text-center py-3">
-        <% if (user) { %>
-            <strong>Olá <%= user.nome %> <%= user.apelido || '' %></strong>
-            — último login: <%= new Date().toLocaleString('pt-PT', {day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit'}) %>
-        <% } else { %>
-            <strong>Bem-vindo ao IVAAP</strong>
-        <% } %>
-    </div>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
-        <a class="navbar-brand font-weight-bold" href="/">IVAAP</a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav mx-auto">
-                <li class="nav-item"><a class="nav-link" href="/upload"><i class="fa-solid fa-upload"></i> CARREGAR</a></li>
-                <li class="nav-item"><a class="nav-link active" href="/review"><i class="fa-solid fa-pencil"></i> REVER</a></li>
-                <li class="nav-item"><a class="nav-link" href="/approved"><i class="fa-solid fa-thumbs-up"></i> APROVADAS</a></li>
-                <li class="nav-item"><a class="nav-link" href="/rejected"><i class="fa-solid fa-thumbs-down"></i> REJEITADAS</a></li>
-                <li class="nav-item"><a class="nav-link" href="/statistics"><i class="fa-solid fa-bolt"></i> ESTATÍSTICAS</a></li>
-                <li class="nav-item"><a class="nav-link" href="/logout"><i class="fa-solid fa-right-from-bracket"></i> SAIR</a></li>
-            </ul>
-        </div>
-    </nav>
-</header>
-<br><br><br><br>
-<div class="container mt-4 mb-3" style="margin-top:150px;">
-    <div class="card border-0 shadow-sm" style="border-radius: 20px;">
-        <div class="card-body p-4">
-            <form id="searchForm" action="/search" method="GET" class="row g-3 align-items-end">
-                <div class="col-md-4">
-                    <label for="searchQuery" class="form-label text-success font-weight-bold">Nome da Planta</label>
-                    <input type="text" class="form-control form-control-lg rounded-pill" id="searchQuery" name="q" placeholder="Ex: Tomate, Rosa...">
-                </div>
-                <div class="col-md-3">
-                    <label for="searchDate" class="form-label text-success font-weight-bold">Data</label>
-                    <input type="date" class="form-control form-control-lg rounded-pill" id="searchDate" name="date">
-                </div>
-                <div class="col-md-3">
-                    <label for="searchUser" class="form-label text-success font-weight-bold">Utilizador</label>
-                    <input type="text" class="form-control form-control-lg rounded-pill" id="searchUser" name="user" placeholder="Ex: admin">
-                </div>
-                <div class="col-md-2">
-                    <button type="submit" class="btn btn-success btn-lg rounded-pill w-100 h-100 d-flex align-items-center justify-content-center">Pesquisar</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-<main class="container content">
-    <div class="text-center mb-5">
-        <h2 style="color:#27ae60;font-weight:bold">REVER TODAS AS IMAGENS PENDENTES</h2>
-        <p class="text-muted">Total de plantas pendentes: <strong><%= images.length %></strong></p>
-    </div>
-    <% if (success) { %>
-        <div class="alert alert-success text-center alert-dismissible fade show">
-            <strong><%= success %></strong>
-            <button type="button" class="close" data-dismiss="alert">×</button>
-        </div>
-    <% } %>
-    <% if (images.length > 0) { %>
-        <div class="row">
-            <% images.forEach((group, groupIndex) => { %>
-                <div class="col-md-6 col-lg-4 mb-4">
-                    <div class="review-card">
-                        <% if (group.images && group.images.length > 0) { %>
-                            <div class="carousel slide" id="carousel-group-<%= groupIndex %>" data-ride="carousel" data-interval="false">
-                                <% if (group.images.length > 1) { %>
-                                    <ol class="carousel-indicators">
-                                        <% group.images.forEach((img, i) => { %>
-                                            <li data-target="#carousel-group-<%= groupIndex %>" data-slide-to="<%= i %>" class="<%= i === 0 ? 'active' : '' %>"></li>
-                                        <% }); %>
-                                    </ol>
-                                <% } %>
-                                <div class="carousel-inner">
-                                    <% group.images.forEach((img, i) => { %>
-                                        <div class="carousel-item <%= i === 0 ? 'active' : '' %>">
-                                            <a href="/uploads/<%= img.image_url %>" data-lightbox="review-group-<%= groupIndex %>" data-title="<%= group.species %>">
-                                                <img src="/uploads/<%= img.image_url %>" class="carousel-img d-block w-100" alt="<%= group.species %>" onerror="this.src='/images/placeholder.jpg'">
-                                            </a>
-                                            <div class="vote-badge"><%= img.approvals || 0 %></div>
-                                        </div>
-                                    <% }); %>
-                                </div>
-                                <% if (group.images.length > 1) { %>
-                                    <a class="carousel-control-prev" href="#carousel-group-<%= groupIndex %>" role="button" data-slide="prev">
-                                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                                        <span class="sr-only">Anterior</span>
-                                    </a>
-                                    <a class="carousel-control-next" href="#carousel-group-<%= groupIndex %>" role="button" data-slide="next">
-                                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                                        <span class="sr-only">Seguinte</span>
-                                    </a>
-                                <% } %>
-                            </div>
-                        <% } else { %>
-                            <img src="/images/placeholder.jpg" class="carousel-img d-block w-100" alt="Sem imagem">
+    <header class="fixed-top">
+        <div class="bg-success text-white text-center py-3">
+            <% if (user) { %>
+                <strong>Olá <%= user.nome %>
+                        <%= user.apelido || '' %></strong>
+                — último login: <%= new Date().toLocaleString('pt-PT', {day:'2-digit', month:'2-digit', year:'numeric',
+                    hour:'2-digit', minute:'2-digit'}) %>
+                    <% } else { %>
+                        <strong>Bem-vindo ao IVAAP</strong>
                         <% } %>
-                        <div class="p-4 text-center">
-                            <h5 class="mb-2">
-                                <strong>
-                                    <span class="especie"><%= group.species %></span>
-                                    <br>
-                                    <span class="variedade"><%= group.variety || '' %></span>
-                                </strong><hr>
-                            </h5>
-                            <p class="text-muted mb-3">
-                                Gama:<br><strong><%= group.gama_nome || 'Não definido' %></strong><hr>
-                                Carregada por:<br><strong><%= group.uploaded_by %> • <%= new Date(group.uploaded_at).toLocaleDateString('pt-PT') %></strong>
-                            </p>
-                            <span class="pending-badge">PENDENTE</span>
-                            <div class="mt-4">
-                                <% if (group.images && group.images.length > 0) { %>
-                                    <% const firstImg = group.images[0]; %>
-                                    <a href="/details/<%= firstImg.id %>" class="btn btn-details">VER DETALHES</a>
-                                <% } %>
-                            </div>
-                            <!-- Botão Remover da DB - AGORA SÓ UM BOTÃO POR PLANTA -->
-                            <% if (user && (user.cargo === 'Administrador' || group.uploaded_by === user.username)) { %>
-                                <% if (group.images && group.images.length > 0) { %>
-                                    <% const firstImgId = group.images[0].id; %>
-                                    <div class="text-center mt-3">
-                                        <form action="/delete-plant" method="POST" class="d-inline">
-                                            <input type="hidden" name="sampleImageId" value="<%= firstImgId %>">
-                                            <button type="submit" class="btn btn-danger"
-                                                    onclick="return confirm('⚠️ Tens a certeza que queres apagar TODA ESTA PLANTA (todas as imagens) PERMANENTEMENTE da base de dados?\nEsta ação não pode ser desfeita.');">
-                                                <i class="fas fa-trash-alt"></i> REMOVER PLANTA
-                                            </button>
-                                        </form>
-                                    </div>
-                                <% } %>
-                            <% } %>
-                        </div>
+        </div>
+        <nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
+            <a class="navbar-brand font-weight-bold" href="/">IVAAP</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav mx-auto">
+                    <li class="nav-item"><a class="nav-link" href="/upload"><i class="fa-solid fa-upload"></i>
+                            CARREGAR</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="/review"><i class="fa-solid fa-pencil"></i>
+                            REVER</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/approved"><i class="fa-solid fa-thumbs-up"></i>
+                            APROVADAS</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/rejected"><i class="fa-solid fa-thumbs-down"></i>
+                            REJEITADAS</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/statistics"><i class="fa-solid fa-bolt"></i>
+                            ESTATÍSTICAS</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/logout"><i
+                                class="fa-solid fa-right-from-bracket"></i> SAIR</a></li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+    <br><br><br><br>
+    <div class="container mt-4 mb-3" style="margin-top:150px;">
+        <div class="card border-0 shadow-sm" style="border-radius: 20px;">
+            <div class="card-body p-4">
+                <form id="searchForm" action="/search" method="GET" class="row g-3 align-items-end">
+                    <div class="col-md-4">
+                        <label for="searchQuery" class="form-label text-success font-weight-bold">Nome da Planta</label>
+                        <input type="text" class="form-control form-control-lg rounded-pill" id="searchQuery" name="q"
+                            placeholder="Ex: Tomate, Rosa...">
                     </div>
-                </div>
-            <% }); %>
+                    <div class="col-md-3">
+                        <label for="searchDate" class="form-label text-success font-weight-bold">Data</label>
+                        <input type="date" class="form-control form-control-lg rounded-pill" id="searchDate"
+                            name="date">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="searchUser" class="form-label text-success font-weight-bold">Utilizador</label>
+                        <input type="text" class="form-control form-control-lg rounded-pill" id="searchUser" name="user"
+                            placeholder="Ex: admin">
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn-premium btn-premium-success w-100 h-100">Pesquisar</button>
+                    </div>
+                </form>
+            </div>
         </div>
-    <% } else { %>
-        <div class="text-center py-5">
-            <i class="fas fa-check-circle fa-4x text-success mb-4"></i>
-            <h3>Tudo revisto!</h3>
-            <p>Nenhuma imagem pendente no momento.</p>
-            <a href="/statistics" class="btn btn-success btn-lg rounded-pill px-5">IR PARA ESTATÍSTICAS</a>
+    </div>
+    <main class="container content">
+        <div class="text-center mb-5">
+            <h2 style="color:#27ae60;font-weight:bold">REVER TODAS AS IMAGENS PENDENTES</h2>
+            <p class="text-muted">Total de plantas pendentes: <strong>
+                    <%= images.length %>
+                </strong></p>
         </div>
-    <% } %>
-</main>
-<footer class="mt-5 py-4 text-center bg-light">
-    <p class="mb-0">FLORA LUSITANA - © 2025 IVAAP_2 - V. 6.9.8</p>
-</footer>
-<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.4/js/lightbox.min.js"></script>
-<script>
-    lightbox.option({
-        resizeDuration: 200,
-        wrapAround: true,
-        albumLabel: "Imagem %1 de %2"
-    });
-    setTimeout(() => $('.alert').fadeOut(1000), 4000);
-    $('.carousel').carousel(); // Força inicialização de todos os carousels
-</script>
+        <% if (success) { %>
+            <div class="alert alert-success text-center alert-dismissible fade show">
+                <strong>
+                    <%= success %>
+                </strong>
+                <button type="button" class="close" data-dismiss="alert">×</button>
+            </div>
+            <% } %>
+                <% if (images.length> 0) { %>
+                    <div class="row">
+                        <% images.forEach((group, groupIndex)=> { %>
+                            <div class="col-md-6 col-lg-4 mb-4">
+                                <div class="review-card">
+                                    <% if (group.images && group.images.length> 0) { %>
+                                        <div class="carousel slide" id="carousel-group-<%= groupIndex %>"
+                                            data-ride="carousel" data-interval="false">
+                                            <% if (group.images.length> 1) { %>
+                                                <ol class="carousel-indicators">
+                                                    <% group.images.forEach((img, i)=> { %>
+                                                        <li data-target="#carousel-group-<%= groupIndex %>"
+                                                            data-slide-to="<%= i %>"
+                                                            class="<%= i === 0 ? 'active' : '' %>"></li>
+                                                        <% }); %>
+                                                </ol>
+                                                <% } %>
+                                                    <div class="carousel-inner">
+                                                        <% group.images.forEach((img, i)=> { %>
+                                                            <div class="carousel-item <%= i === 0 ? 'active' : '' %>">
+                                                                <a href="/uploads/<%= img.image_url %>"
+                                                                    data-lightbox="review-group-<%= groupIndex %>"
+                                                                    data-title="<%= group.species %>">
+                                                                    <img src="/uploads/<%= img.image_url %>"
+                                                                        class="carousel-img d-block w-100"
+                                                                        alt="<%= group.species %>"
+                                                                        onerror="this.src='/images/placeholder.jpg'">
+                                                                </a>
+                                                                <div class="vote-badge">
+                                                                    <%= img.approvals || 0 %>
+                                                                </div>
+                                                            </div>
+                                                            <% }); %>
+                                                    </div>
+                                                    <% if (group.images.length> 1) { %>
+                                                        <a class="carousel-control-prev"
+                                                            href="#carousel-group-<%= groupIndex %>" role="button"
+                                                            data-slide="prev">
+                                                            <span class="carousel-control-prev-icon"
+                                                                aria-hidden="true"></span>
+                                                            <span class="sr-only">Anterior</span>
+                                                        </a>
+                                                        <a class="carousel-control-next"
+                                                            href="#carousel-group-<%= groupIndex %>" role="button"
+                                                            data-slide="next">
+                                                            <span class="carousel-control-next-icon"
+                                                                aria-hidden="true"></span>
+                                                            <span class="sr-only">Seguinte</span>
+                                                        </a>
+                                                        <% } %>
+                                        </div>
+                                        <% } else { %>
+                                            <img src="/images/placeholder.jpg" class="carousel-img d-block w-100"
+                                                alt="Sem imagem">
+                                            <% } %>
+                                                <div class="p-4 text-center">
+                                                    <h5 class="mb-2">
+                                                        <strong>
+                                                            <span class="especie">
+                                                                <%= group.species %>
+                                                            </span>
+                                                            <br>
+                                                            <span class="variedade">
+                                                                <%= group.variety || '' %>
+                                                            </span>
+                                                        </strong>
+                                                        <hr>
+                                                    </h5>
+                                                    <p class="text-muted mb-3">
+                                                        Gama:<br><strong>
+                                                            <%= group.gama_nome || 'Não definido' %>
+                                                        </strong>
+                                                        <hr>
+                                                        Carregada por:<br><strong>
+                                                            <%= group.uploaded_by %> • <%= new
+                                                                    Date(group.uploaded_at).toLocaleDateString('pt-PT')
+                                                                    %>
+                                                        </strong>
+                                                    </p>
+                                                    <span class="pending-badge">PENDENTE</span>
+                                                    <div class="mt-4">
+                                                        <% if (group.images && group.images.length> 0) { %>
+                                                            <% const firstImg=group.images[0]; %>
+                                                                <a href="/details/<%= firstImg.id %>"
+                                                                    class="btn-premium btn-premium-sm btn-premium-success">VER
+                                                                    DETALHES</a>
+                                                                <% } %>
+                                                    </div>
+                                                    <!-- Botão Remover da DB - AGORA SÓ UM BOTÃO POR PLANTA -->
+                                                    <% if (user && (user.cargo==='Administrador' ||
+                                                        group.uploaded_by===user.username)) { %>
+                                                        <% if (group.images && group.images.length> 0) { %>
+                                                            <% const firstImgId=group.images[0].id; %>
+                                                                <div class="text-center mt-3">
+                                                                    <form action="/delete-plant" method="POST"
+                                                                        class="d-inline">
+                                                                        <input type="hidden" name="sampleImageId"
+                                                                            value="<%= firstImgId %>">
+                                                                        <button type="submit"
+                                                                            class="btn-premium btn-premium-sm btn-premium-danger"
+                                                                            onclick="return confirm('⚠️ Tens a certeza que queres apagar TODA ESTA PLANTA (todas as imagens) PERMANENTEMENTE da base de dados?\nEsta ação não pode ser desfeita.');">
+                                                                            <i class="fas fa-trash-alt"></i> REMOVER
+                                                                            PLANTA
+                                                                        </button>
+                                                                    </form>
+                                                                </div>
+                                                                <% } %>
+                                                                    <% } %>
+                                                </div>
+                                </div>
+                            </div>
+                            <% }); %>
+                    </div>
+                    <% } else { %>
+                        <div class="text-center py-5">
+                            <i class="fas fa-check-circle fa-4x text-success mb-4"></i>
+                            <h3>Tudo revisto!</h3>
+                            <p>Nenhuma imagem pendente no momento.</p>
+                            <a href="/statistics" class="btn-premium btn-premium-lg btn-premium-success mt-4">IR PARA
+                                ESTATÍSTICAS</a>
+                        </div>
+                        <% } %>
+    </main>
+    <footer class="mt-5 py-4 text-center bg-light">
+        <p class="mb-0">FLORA LUSITANA - © 2025 IVAAP_2 - V. 6.9.8</p>
+    </footer>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.4/js/lightbox.min.js"></script>
+    <script>
+        lightbox.option({
+            resizeDuration: 200,
+            wrapAround: true,
+            albumLabel: "Imagem %1 de %2"
+        });
+        setTimeout(() => $('.alert').fadeOut(1000), 4000);
+        $('.carousel').carousel(); // Força inicialização de todos os carousels
+    </script>
 </body>
+
 </html>
