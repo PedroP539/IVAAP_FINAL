@@ -283,10 +283,9 @@
             </div>
             <% } %>
                 <div class="detail-card">
-                    <% let fromRejected=(typeof fromRejected !=='undefined' && fromRejected===true); const
-                        isApproved=image.status==='approved' ; const isRejected=image.status==='rejected' ; const
-                        showVoteButtons=image.status==='pending' ; // Calcular imagem vencedora (mais approvals) let
-                        winningImage=null; let maxApprovals=-1; relatedImages.forEach(img=> {
+                    <% const isFromRejected=(locals.fromRejected===true); const isApproved=image.status==='approved' ;
+                        const isRejected=image.status==='rejected' ; const showVoteButtons=image.status==='pending' ;
+                        let winningImage=null; let maxApprovals=-1; relatedImages.forEach(img=> {
                         if ((img.approvals || 0) > maxApprovals) {
                         maxApprovals = img.approvals || 0;
                         winningImage = img;
@@ -295,7 +294,7 @@
 
                         // Imagens para mostrar
                         let imagesToShow = relatedImages;
-                        if (fromRejected || isRejected) {
+                        if (isFromRejected || isRejected) {
                         imagesToShow = relatedImages.filter(img => img.status === 'rejected');
                         }
 
@@ -305,7 +304,7 @@
                         .sort((a, b) => (b.approvals || 0) - (a.approvals || 0));
                         %>
 
-                        <% if (fromRejected || isRejected) { %>
+                        <% if (isFromRejected || isRejected) { %>
                             <!-- MODO REJEITADAS: apenas as imagens rejeitadas, lado a lado -->
                             <div class="rejected-row">
                                 <% imagesToShow.forEach(img=> { %>
